@@ -70,7 +70,7 @@ class Profil
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("profil:read")
+     * @Groups({"profil:read","user:read:all"})
      */
     private $libelle;
 

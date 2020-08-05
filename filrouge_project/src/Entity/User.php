@@ -9,9 +9,48 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *          normalizationContext={"groups"={"user:read"}},
+ *      collectionOperations={
+ *          "get_users"={
+ *              "method"="GET",
+ *              "path"="admin/users",
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource",
+ *          },
+ *          "get_apprenants"={
+ *              "method"="GET",
+ *              "path"="/apprenants",
+ *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource",
+ *              "route_name"="apprenants"
+ *          },
+ *          "post_users"={
+ *              "method"="POST",
+ *              "path"="admin/users",
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource",
+ *                       }    
+ *           },
+ *         itemOperations={
+ *           "get_user"={
+ *                 "normalization_context"={"groups"={"user:read","user:read:all"}},
+ *                 "method"="GET",
+ *                 "path"="admin/users/{id}",
+ *                 "security"="is_granted('ROLE_ADMIN')",
+ *                 "security_message"= "Vous n'avez pas acces à cette ressource",
+ *            },
+ *           "update_user"={
+ *                 "method"="PUT",
+ *                 "path"="admin/users/{id}",
+ *                 "security"="is_granted('ROLE_ADMIN')",
+ *                 "security_message"= "Vous n'avez pas acces à cette ressource",
+ *         }
+ * }
+ * )
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * 
  */
 class User implements UserInterface
 {
@@ -38,30 +77,34 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("profil:read:all")
+     * @Groups({"profil:read:all","user:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("profil:read:all")
+     * @Groups({"profil:read:all","user:read"})
      */
     private $prenom;
 
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"user:read:all"})
+     * 
      */
     private $statut=false;
 
 
     /**
      * @ORM\Column(type="blob", nullable=true)
+     * @Groups({"user:read:all"})
      */
     private $avatar;
 
     /**
      * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="user")
+     * @Groups({"user:read:all"})
      */
     private $profil;
 
