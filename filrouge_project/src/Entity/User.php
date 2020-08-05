@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ApiResource(
- *          normalizationContext={"groups"={"user:read"}},
+ *      normalizationContext={"groups"={"user:read"}},
  *      collectionOperations={
  *          "get_users"={
  *              "method"="GET",
@@ -23,23 +23,45 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *              "path"="/apprenants",
  *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
  *              "security_message"= "Vous n'avez pas acces à cette ressource",
- *              "route_name"="apprenants"
+ *              "route_name"="apprenant_liste"
  *          },
- *          "post_users"={
+ *          "get_formateurs"={
+ *              "method"="GET",
+ *              "path"="/formateurs",
+ *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource",
+ *              "route_name"="formateur_liste"
+ *          },
+ *          "add_users"={
  *              "method"="POST",
  *              "path"="admin/users",
  *              "security"="is_granted('ROLE_ADMIN')",
  *              "security_message"= "Vous n'avez pas acces à cette ressource",
- *                       }    
- *           },
- *         itemOperations={
- *           "get_user"={
- *                 "normalization_context"={"groups"={"user:read","user:read:all"}},
- *                 "method"="GET",
- *                 "path"="admin/users/{id}",
- *                 "security"="is_granted('ROLE_ADMIN')",
- *                 "security_message"= "Vous n'avez pas acces à cette ressource",
- *            },
+ *              "route_name"="add_user"
+ *          }    
+ *      },
+ *      itemOperations={
+ *          "get_user"={
+ *               "normalization_context"={"groups"={"user:read","user:read:all"}},
+ *               "method"="GET",
+ *               "path"="admin/users/{id}",
+ *               "security"="is_granted('ROLE_ADMIN')",
+ *               "security_message"= "Vous n'avez pas acces à cette ressource",
+ *          },
+ *          "get_apprenant"={
+ *              "normalization_context"={"groups"={"user:read","user:read:all"}},
+ *              "method"="GET",
+ *              "path"="/apprenants/{id}",
+ *              "route_name"="apprenant"
+ *          },
+ *          "get_formateur"={
+ *              "normalization_context"={"groups"={"user:read","user:read:all"}},
+ *              "method"="GET",
+ *              "path"="/formateurs/{id}",
+ *              "security"="is_granted('ROLE_CM')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource",
+ *              "route_name"="formateur"
+ *          },
  *           "update_user"={
  *                 "method"="PUT",
  *                 "path"="admin/users/{id}",
@@ -77,13 +99,13 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"profil:read:all","user:read"})
+     * @Groups({"profil:read:all","user:read", "groupecompetence:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"profil:read:all","user:read"})
+     * @Groups({"profil:read:all","user:read", "groupecompetence:read"})
      */
     private $prenom;
 
@@ -107,6 +129,11 @@ class User implements UserInterface
      * @Groups({"user:read:all"})
      */
     private $profil;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isDeleted = false;
 
     public function getId(): ?int
     {
@@ -242,6 +269,18 @@ class User implements UserInterface
     public function setProfil(?Profil $profil): self
     {
         $this->profil = $profil;
+
+        return $this;
+    }
+
+    public function getIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }

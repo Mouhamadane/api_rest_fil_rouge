@@ -10,7 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ApprenantController extends AbstractController
 {
-     /**
+    /**
     * @Route(
     *   name="apprenant_liste",
     *   path="api/apprenants",
@@ -26,5 +26,23 @@ class ApprenantController extends AbstractController
     {
         $apprenants= $repo->findByProfil("apprenant");
         return $this->json($apprenants,Response::HTTP_OK,);
+    }
+
+    /**
+    * @Route(
+    *   name="apprenant",
+    *   path="api/apprenants/{id}",
+    *   methods={"GET"},
+    *   defaults={
+    *       "_controller"="\app\ApprenantController::getApprenant",
+    *       "_api_resource_class"=User::class,
+    *       "_api_collection_operation_name"="get_apprenant"
+    *   }
+    * )
+    */
+    public function getApprenant(UserRepository $repo, $id)
+    {
+        $apprenant = $repo->findOneByProfil("apprenant", $id);
+        return $this->json($apprenant, Response::HTTP_OK,);
     }
 }
