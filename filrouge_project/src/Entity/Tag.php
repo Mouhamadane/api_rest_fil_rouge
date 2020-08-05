@@ -45,7 +45,7 @@ class Tag
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"tag:read"})
+     * @Groups({"tag:read", "grptag:update"})
      */
     private $id;
 

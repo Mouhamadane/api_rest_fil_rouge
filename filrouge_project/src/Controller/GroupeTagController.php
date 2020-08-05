@@ -44,4 +44,22 @@ class GroupeTagController extends AbstractController
         $em->flush();
         return $this->json($groupetag, Response::HTTP_CREATED);
     }
+
+    /**
+     * @Route(
+     *      name="update_grptag",
+     *      path="api/admin/grptags/{id}",
+     *      methods="PUT",
+     *      defaults={
+     *          "_controller"="\app\GroupeTagController::updateGrpTag",
+    *           "_api_resource_class"=GroupeTag::class,
+    *           "_api_collection_operation_name"="update_grptag"
+     *      }
+     * )
+     */
+    public function updateGrpTag(Request $req, $id){
+        dd("efjdl,fld");
+        $grtag = $req->getContent();
+        dd($grtag);
+    }
 }

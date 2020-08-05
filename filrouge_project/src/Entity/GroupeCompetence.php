@@ -36,7 +36,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          },
  *          "add_grpecompetence"={
  *              "method"="POST",
- *              "path"="/admin/grpecompetences"
+ *              "path"="/admin/grpecompetences" 
  *          }
  *      },
  *      itemOperations={
@@ -45,10 +45,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="GET", "path"="/admin/grpecompetences/{id}"
  *          },
- *          "put_grpecompetence"={
- *               "security"="(is_granted('EDIT', object))",
- *               "security_message"="Vous n'avez pas access à cette Ressource",
- *               "method"="PUT", "path"="/admin/grpecompetences/{id}"
+ *          "update_grpecompetence"={
+ *              method"="PUT",
+ *              "path"="/admin/grpecompetences/{id}"
  *          },
  *      }
  * )

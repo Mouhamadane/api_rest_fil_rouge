@@ -35,7 +35,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          },
  *          "update_grptag"={
  *              "method"="PUT",
- *              "path"="admin/grptags/{id}"
+ *              "path"="admin/grptags/{id}",
+ *              "denormalization_context"={"groups"={"grptag:write", "grptag:update"}}
  *          }
  *      }
  * )
@@ -46,7 +47,7 @@ class GroupeTag
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"grptag:read"})
+     * @Groups({"grptag:read", "grptag:update"})
      */
     private $id;
     

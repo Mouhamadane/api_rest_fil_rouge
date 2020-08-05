@@ -32,8 +32,12 @@ class GroupeCompetenceVoter extends Voter
             case 'VIEW':
                 return $user->getRoles()[0] === "ROLE_FORMATEUR" || $user->getRoles()[0] === "ROLE_ADMIN" ;
             break;
-            case '_CREATE':
-                return $user->getRoles()[0] === "ROLE_ADMIN";
+            case 'CREATE':
+                if($user->getRoles()[0] === "ROLE_ADMIN"){
+                    $subject->setAdmin($user);
+                    return true;
+                }
+                return false;
             break;
         }
 
