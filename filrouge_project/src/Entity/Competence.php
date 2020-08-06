@@ -8,10 +8,47 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass=CompetenceRepository::class)
- * @ApiResource
+ * @UniqueEntity(
+ *      fields={"libelle"},
+ *      message="Le libellé existe déjà"
+ * )
+ * @ApiResource(
+ *      normalizationContext={"groups"={"competence:read"}},
+ *      denormalizationContext={"groups"={"competence:write"}},
+ *      collectionOperations={
+ *          "get_competences"={
+ *              "method"="GET",
+ *              "path"="admin/competences",
+ *              "security"="is_granted('ROLE_FORMATEUR') or is_granted('ROLE_CM')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *          },
+ *          "add_competence"={
+ *              "method"="POST",
+ *              "path"="admin/competences",
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *          }
+ *      },
+ *      itemOperations={
+ *          "get_competence"={
+ *              "method"="GET",
+ *              "path"="admin/competences/{id}",
+ *              "security"="is_granted('ROLE_FORMATEUR') or is_granted('ROLE_CM')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *          },
+ *          "update_competence"={
+ *              "method"="PUT",
+ *              "path"="admin/competences/{id}",
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *          }
+ *      }
+ * )
  */
 class Competence
 {
@@ -19,12 +56,14 @@ class Competence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"competence:read", "groupecompetence:read", "groupecompetence:write"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"groupecompetence:read", "groupecompetence:write"})
+     * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
+     * @Groups({"groupecompetence:read", "groupecompetence:write", "competence:read", "competence:write"})
      */
     private $libelle;
 
@@ -34,17 +73,20 @@ class Competence
     private $groupeCompetences;
 
     /**
-     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="competence")
+     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="competence", cascade={"persist"})
+     * @Assert\Valid
+     * @Groups({"competence:read", "competence:write"})
      */
     private $niveaux;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isDeleted = false;
+    private $isDeleted;
 
     public function __construct()
     {
+        $this->isDeleted = false;
         $this->groupeCompetences = new ArrayCollection();
         $this->niveaux = new ArrayCollection();
     }

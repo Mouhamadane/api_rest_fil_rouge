@@ -2,8 +2,10 @@
 
 namespace App\Entity;
 
-use App\Repository\NiveauRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\NiveauRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=NiveauRepository::class)
@@ -14,26 +16,33 @@ class Niveau
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"competence:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le libelle ne doit pas être vide")
+     * @Groups({"competence:read", "competence:write"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank(message="Critère d'évaluation ne doit pas être vide")
+     * @Groups({"competence:read", "competence:write"})
      */
     private $critereEvaluation;
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank(message="Groupe d'action ne doit pas être vide")
+     * @Groups({"competence:read", "competence:write"})
      */
     private $groupeAction;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Competence::class, inversedBy="niveaux")
+     * @ORM\ManyToOne(targetEntity=Competence::class, inversedBy="niveaux", cascade={"persist"})
      */
     private $competence;
 
