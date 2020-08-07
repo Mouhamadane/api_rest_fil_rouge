@@ -13,10 +13,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass=CompetenceRepository::class)
- * @UniqueEntity(
- *      fields={"libelle"},
- *      message="Le libellé existe déjà"
- * )
  * @ApiResource(
  *      normalizationContext={"groups"={"competence:read"}},
  *      denormalizationContext={"groups"={"competence:write"}},
@@ -81,6 +77,7 @@ class Competence
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"groupecompetence:read", "competence:read"})
      */
     private $isDeleted;
 

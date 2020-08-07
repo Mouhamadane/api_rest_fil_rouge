@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Competence;
 use App\Entity\GroupeCompetence;
+use App\Repository\CompetenceRepository;
 use App\Repository\GroupeCompetenceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class GroupeCompetenceController extends AbstractController
@@ -20,13 +23,15 @@ class GroupeCompetenceController extends AbstractController
     private $em;
     private $validator;
     private $serializer;
+    private $normalizer;
     
-    public function __construct(DenormalizerInterface $denormalizer, EntityManagerInterface $em, ValidatorInterface $validator, SerializerInterface $serializer)
+    public function __construct(DenormalizerInterface $denormalizer, EntityManagerInterface $em, ValidatorInterface $validator, SerializerInterface $serializer, NormalizerInterface $normalizer)
     {
         $this->denormalizer = $denormalizer;
         $this->em = $em;
         $this->validator = $validator;
         $this->serializer = $serializer;
+        $this->normalizer = $normalizer;
     }
 
     /**
@@ -86,19 +91,45 @@ class GroupeCompetenceController extends AbstractController
      *      }
      * )
      */
-    public function updateGrpCompetence(Request $req, int $id, GroupeCompetenceRepository $repo){
-        $grpc = $repo->findOneBy(["id" => $id]);
-
-        dd($grpc);
+    public function updateGrpCompetence(Request $req, int $id, GroupeCompetenceRepository $repo, CompetenceRepository $repoC){
+        $grpc = $repo->find($id);
         $grcTab = json_decode($req->getContent(), true);
-        if(!empty($grcTab["competences"])){
-            foreach($grcTab["competences"] as $cmpt){
+        if(!empty($grcTab["updateCompetences"])){
+            foreach($grcTab["updateCompetences"] as $cmpt){
+                $trouve = false;
                 if(!empty($cmpt) && isset($cmpt["id"]) && isset($cmpt["libelle"])){
-                    foreach($grpc->getCompetences() as $competence){
+                    foreach($grpc->getCompetences() as $k => $comp){
+                        if($comp->getId() == $cmpt["id"]){
+                            $grpc->getCompetences()[$k]->setLibelle($cmpt["libelle"]);
+                        }
+                    }
+                }elseif(!empty($cmpt) && !isset($cmpt["id"]) && isset($cmpt["libelle"])){
+                    $competence = new Competence;
+                    $competence->setLibelle($cmpt["libelle"]);
+                    $grpc->addCompetence($competence);
+                }elseif(!empty($cmpt) && isset($cmpt["id"]) && !isset($cmpt["libelle"])){
+                    foreach($grpc->getCompetences() as $k => $comp){
+                        if($comp->getId() == $cmpt["id"]){
+                            $trouve = true;
+                            $grpc->getCompetences()[$k]->setIsDeleted(true);
+                        }
+                    }
+                    if(!$trouve){
+                        $comptence = $repoC->find($cmpt["id"]);
+                        if($comptence){
+                            $grpc->addCompetence($comptence);
+                        }
                     }
                 }
             }
         }
+        $errors = $this->validator->validate($grpc);
+        if (count($errors)){
+            $errors = $this->serializer->serialize($errors,"json");
+            return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
+        }
+        $this->em->flush();
+        return $this->json($grpc, Response::HTTP_OK);
         // dd($grpc);
     }
 }
