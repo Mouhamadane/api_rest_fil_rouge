@@ -96,7 +96,6 @@ class GroupeCompetenceController extends AbstractController
         $grcTab = json_decode($req->getContent(), true);
         if(!empty($grcTab["updateCompetences"])){
             foreach($grcTab["updateCompetences"] as $cmpt){
-                $trouve = false;
                 if(!empty($cmpt) && isset($cmpt["id"]) && isset($cmpt["libelle"])){
                     foreach($grpc->getCompetences() as $k => $comp){
                         if($comp->getId() == $cmpt["id"]){
@@ -110,14 +109,7 @@ class GroupeCompetenceController extends AbstractController
                 }elseif(!empty($cmpt) && isset($cmpt["id"]) && !isset($cmpt["libelle"])){
                     foreach($grpc->getCompetences() as $k => $comp){
                         if($comp->getId() == $cmpt["id"]){
-                            $trouve = true;
                             $grpc->getCompetences()[$k]->setIsDeleted(true);
-                        }
-                    }
-                    if(!$trouve){
-                        $comptence = $repoC->find($cmpt["id"]);
-                        if($comptence){
-                            $grpc->addCompetence($comptence);
                         }
                     }
                 }

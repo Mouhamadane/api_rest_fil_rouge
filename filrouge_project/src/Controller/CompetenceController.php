@@ -99,7 +99,6 @@ class CompetenceController extends AbstractController
         $comptTab = json_decode($req->getContent(), true);
         if(!empty($comptTab["updateNiveaux"])){
             foreach($comptTab["updateNiveaux"] as $niveaux){
-                $trouve = false;
                 if(!empty($niveaux) && isset($niveaux["id"]) && isset($niveaux["libelle"]) && isset($niveaux["groupeAction"]) && isset($niveaux["critereEvaluation"])){
                     foreach($competence->getNiveaux() as $k => $comp){
                         if($comp->getId() == $niveaux["id"]){
@@ -119,14 +118,7 @@ class CompetenceController extends AbstractController
                 }elseif(!empty($niveaux) && isset($niveaux["id"]) && !isset($niveaux["libelle"])){
                     foreach($competence->getNiveaux() as $k => $niv){
                         if($niv->getId() == $niveaux["id"]){
-                            $trouve = true;
                             $competence->getNiveaux()[$k]->setIsDeleted(true);
-                        }
-                    }
-                    if(!$trouve){
-                        $niveau = $repoN->find($niveaux["id"]);
-                        if($niveau){
-                            $competence->addNiveau($niveau);
                         }
                     }
                 }
