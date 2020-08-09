@@ -2,11 +2,14 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\ReferentielRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ReferentielRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ReferentielRepository::class)
@@ -16,26 +19,33 @@ use Doctrine\ORM\Mapping as ORM;
  *          "get_referentiels"={
  *              "method"="GET",
  *              "path"="admin/referentiels",
- *              "security"="is_granted()",
  *              "security"="is_granted('ROLE_FORMATEUR') or is_granted('ROLE_CM')",
- *          },
- *          "get_referentiels"={
- *              "method"="GET",
- *              "path"="/admin/referentiels/grpecompetences",
- *              "security"="is_granted()",
- *              "security"="is_granted('ROLE_FORMATEUR') or is_granted('ROLE_CM')",
- *          },
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+*          },
+*          "get_referentiels_grpcompetences"={
+*              "method"="GET",
+*              "path"="/admin/referentiels/grpecompetences",
+*              "normalization_context"={"groups"={"referentiel:read", "referentiel:read:all"}},
+*              "security"="is_granted('ROLE_FORMATEUR') or is_granted('ROLE_CM')",
+*              "security_message"="Vous n'avez pas accès à cette ressource"
+*          },
  *          "add_referentiels"={
  *              "method"="POST",
  *              "path"="admin/referentiels",
- *              "security"="is_granted()",
  *              "security"="is_granted('ROLE_ADMIN')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
  *          }
  *      },
  *      itemOperations={
  *          "get_referentiel"={
  *              "method"="GET",
  *              "path"="admin/referentiels/{id}"
+ *          },
+ *          "get_referentiel_grpecompetence_competences"={
+ *              "method"="GET",
+ *              "path"="admin/referentiels/{id}/grpecompetences/{idg}/competences",
+ *              "security"="is_granted('ROLE_FORMATEUR') or is_granted('ROLE_CM')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
  *          },
  *          "update_referentiel"={
  *              "method"="PUT",
@@ -52,38 +62,50 @@ class Referentiel
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"referentiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
+     * @Groups({"referentiel:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"referentiel:read"})
+     * @Assert\NotBlank(message="Presentation ne doit pas être vide")
      */
     private $presentation;
 
     /**
      * @ORM\Column(type="text")
-     */
-    private $programme;
-
-    /**
-     * @ORM\Column(type="text")
+     * @Assert\NotBlank(message="Critère d'admission ne doit pas être vide")
+     * @Groups({"referentiel:read"})
      */
     private $critereAdmission;
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank(message="Critère ne doit pas être vide")
+     * @Groups({"referentiel:read"})
      */
     private $critereEvaluation;
 
     /**
      * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="referentiels")
+     * @Groups({"referentiel:read", "referentiel:read:all"})
+     * @ApiSubresource(maxDepth=3)
      */
     private $groupeCompetences;
+
+    /**
+     * @ORM\Column(type="blob", nullable=true)
+     * @Groups({"referentiel:read"})
+     */
+    private $programme;
 
     public function __construct()
     {
@@ -115,18 +137,6 @@ class Referentiel
     public function setPresentation(string $presentation): self
     {
         $this->presentation = $presentation;
-
-        return $this;
-    }
-
-    public function getProgramme(): ?string
-    {
-        return $this->programme;
-    }
-
-    public function setProgramme(string $programme): self
-    {
-        $this->programme = $programme;
 
         return $this;
     }
@@ -177,6 +187,18 @@ class Referentiel
         if ($this->groupeCompetences->contains($groupeCompetence)) {
             $this->groupeCompetences->removeElement($groupeCompetence);
         }
+
+        return $this;
+    }
+
+    public function getProgramme()
+    {
+        return $this->programme;
+    }
+
+    public function setProgramme($programme): self
+    {
+        $this->programme = $programme;
 
         return $this;
     }

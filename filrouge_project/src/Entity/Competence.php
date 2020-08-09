@@ -52,14 +52,14 @@ class Competence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"competence:read", "groupecompetence:read", "groupecompetence:write"})
+     * @Groups({"competence:read", "groupecompetence:read", "groupecompetence:write", "referentiel:read:all"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
-     * @Groups({"groupecompetence:read", "groupecompetence:write", "competence:read", "competence:write"})
+     * @Groups({"groupecompetence:read", "groupecompetence:write", "competence:read", "competence:write", "referentiel:read:all"})
      */
     private $libelle;
 
@@ -71,7 +71,7 @@ class Competence
     /**
      * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="competence", cascade={"persist"})
      * @Assert\Valid
-     * @Groups({"competence:read", "competence:write"})
+     * @Groups({"competence:read", "competence:write", "referentiel:read:all"})
      */
     private $niveaux;
 
