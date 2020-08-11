@@ -7,6 +7,7 @@ use App\Repository\GroupesRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=GroupesRepository::class)
@@ -25,12 +26,6 @@ class Groupes
      * @Groups({"promo:write"})
      */
     private $nom;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:write"})
-     */
-    private $dateCreation;
 
     /**
      * @ORM\Column(type="boolean")
@@ -60,6 +55,12 @@ class Groupes
      */
     private $apprenant;
 
+    /**
+     * @ORM\Column(type="date")
+     * @Groups({"promo:write"})
+     */
+    private $dateCreation;
+
     public function __construct()
     {
         $this->formateur = new ArrayCollection();
@@ -79,18 +80,6 @@ class Groupes
     public function setNom(string $nom): self
     {
         $this->nom = $nom;
-
-        return $this;
-    }
-
-    public function getDateCreation(): ?string
-    {
-        return $this->dateCreation;
-    }
-
-    public function setDateCreation(string $dateCreation): self
-    {
-        $this->dateCreation = $dateCreation;
 
         return $this;
     }
@@ -179,6 +168,18 @@ class Groupes
         if ($this->apprenant->contains($apprenant)) {
             $this->apprenant->removeElement($apprenant);
         }
+
+        return $this;
+    }
+
+    public function getDateCreation(): ?\DateTimeInterface
+    {
+        return $this->dateCreation;
+    }
+
+    public function setDateCreation(\DateTimeInterface $dateCreation): self
+    {
+        $this->dateCreation = $dateCreation;
 
         return $this;
     }

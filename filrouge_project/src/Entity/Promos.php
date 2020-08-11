@@ -138,13 +138,7 @@ class Promos
      * @Groups({"promo:write"})
      */
     private $lieu;
-
-    /**
-     * @ORM\Column(type="date")
-     * @Groups({"promo:write"})
-     */
-    private $dateDebut;
-
+    
     /**
      * @ORM\Column(type="date")
      * @Groups({"promo:write"})
@@ -181,6 +175,11 @@ class Promos
      * @Groups({"promo:write"})
      */
     private $formateur;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    private $dateDebut;
 
     public function __construct()
     {
@@ -241,19 +240,6 @@ class Promos
         return $this;
     }
 
-
-
-    public function getDateDebut(): ?string
-    {
-        return $this->dateDebut;
-    }
-
-    public function setDateDebut(string $dateDebut): self
-    {
-        $this->dateDebut = $dateDebut;
-
-        return $this;
-    }
 
     public function getDateProvisoire(): ?\DateTimeInterface
     {
@@ -356,6 +342,18 @@ class Promos
         if ($this->formateur->contains($formateur)) {
             $this->formateur->removeElement($formateur);
         }
+
+        return $this;
+    }
+
+    public function getDateDebut(): ?\DateTimeInterface
+    {
+        return $this->dateDebut;
+    }
+
+    public function setDateDebut(\DateTimeInterface $dateDebut): self
+    {
+        $this->dateDebut = $dateDebut;
 
         return $this;
     }
