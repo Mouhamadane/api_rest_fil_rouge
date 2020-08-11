@@ -27,7 +27,7 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager)
     {
         $faker = Factory::create("fr_FR");
-        /* $profils = ["apprenant", "admin","formateur", "cm"];
+         $profils = ["apprenant", "admin","formateur", "cm"];
         foreach ($profils as $value) {
             $profil = new Profil();
             $profil->setLibelle($value);
@@ -44,9 +44,9 @@ class AppFixtures extends Fixture
                 $manager->persist($user);
             } 
             $manager->flush(); 
-        } */   
+        }    
 
-       /*  $user=$this->repo->find(3);
+        $user=$this->repo->find(3);
         $grpcompetence=new GroupeCompetence();
         $grpcompetence
             ->setLibelle('developper le back-end appli web ')
@@ -64,7 +64,7 @@ class AppFixtures extends Fixture
         $manager->persist($competence2);
         $manager->flush();
         $manager->persist($grpcompetence);
-        $manager->flush(); */
+        $manager->flush(); 
 
         $grptags = new GroupeTag;
         $grptags

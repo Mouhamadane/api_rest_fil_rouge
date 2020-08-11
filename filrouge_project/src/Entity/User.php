@@ -4,11 +4,15 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
+use Doctrine\ORM\Mapping\InheritanceType;
+use Doctrine\ORM\Mapping\DiscriminatorMap;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
+ * 
  * @ApiResource(
  *      normalizationContext={"groups"={"user:read"}},
  *      collectionOperations={
@@ -71,6 +75,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * }
  * )
  * @ORM\InheritanceType("SINGLE_TABLE")
+ * @DiscriminatorColumn(name="dtype", type="string")
+ * @DiscriminatorMap({"formateur" = "Formateur", "apprenant" = "Apprenant","user"="User"})
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * 
  */
