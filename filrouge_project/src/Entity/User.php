@@ -91,7 +91,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups("profil:read:all")
+     * @Groups({"profil:read:all","promo:write"})
      */
     private $email;
 

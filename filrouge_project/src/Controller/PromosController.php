@@ -110,7 +110,8 @@ class PromosController extends AbstractController
             $errors = $this->serializer->serialize($errors,"json");
             return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
         }
+        $this->em->persist($promos);
         $this->em->flush();
-        return $this->json($promos, Response::HTTP_CREATED);
+        return $this->json("Promo ajoutée avec succès", Response::HTTP_CREATED);
     }
 }
