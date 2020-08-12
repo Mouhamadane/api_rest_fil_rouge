@@ -8,7 +8,6 @@ use App\Entity\Profil;
 use App\Entity\Competence;
 use App\Entity\GroupeCompetence;
 use App\Entity\GroupeTag;
-use App\Entity\Referentiel;
 use App\Entity\Tag;
 use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -28,7 +27,7 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager)
     {
         $faker = Factory::create("fr_FR");
-      /*   $profils = ["apprenant", "admin","formateur", "cm"];
+        $profils = ["apprenant", "admin","formateur", "cm"];
         foreach ($profils as $value) {
             $profil = new Profil();
             $profil->setLibelle($value);
@@ -81,7 +80,7 @@ class AppFixtures extends Fixture
         }
         $manager->flush();
         $manager->persist($grptags);
-        $manager->flush();*/         
+        $manager->flush();       
     
     }
 }
