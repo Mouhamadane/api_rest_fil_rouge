@@ -146,7 +146,7 @@ class Promos
     private $dateProvisoire;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="date", nullable=true)
      * @Groups({"promo:write"})
      */
     private $dateFin;
@@ -158,13 +158,13 @@ class Promos
     private $fabrique;
 
     /**
-     * @ORM\OneToMany(targetEntity=Groupes::class, mappedBy="promos")
+     * @ORM\OneToMany(targetEntity=Groupes::class, mappedBy="promos",cascade={"persist"})
      * @Groups({"promo:write"})
      */
     private $groupes;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Referentiel::class, inversedBy="promos")
+     * @ORM\ManyToOne(targetEntity=Referentiel::class, inversedBy="promos", cascade={"persist"})
      * @Groups({"promo:write"})
      * 
      */
