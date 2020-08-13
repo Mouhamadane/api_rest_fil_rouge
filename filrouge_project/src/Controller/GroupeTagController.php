@@ -2,11 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Tag;
 use App\Entity\GroupeTag;
+use App\Repository\TagRepository;
+use App\Repository\GroupeTagRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -15,6 +18,17 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 class GroupeTagController extends AbstractController
 {
+    private $denormalizer;
+    private $serializer;
+    private $validator;
+    private $em;
+    public function __construct(DenormalizerInterface $denormalizer, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $em)
+    {
+        $this->denormalizer = $denormalizer;
+        $this->serializer = $serializer;
+        $this->validator = $validator;
+        $this->em = $em;
+    }
     /**
      * @Route(
      *      name="create_grptag",
@@ -27,21 +41,21 @@ class GroupeTagController extends AbstractController
      *      }
      * )
      */
-    public function createGrpTag(Request $req, DenormalizerInterface $denormalizer, SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $em){
+    public function createGrpTag(Request $req){
         $grptagsTab = json_decode($req->getContent(), true);
-        $tags = $denormalizer->denormalize($grptagsTab["tags"], "App\Entity\Tag[]");
-        $groupetag = new GroupeTag;
+        $tags = $this->denormalizer->denormalize($grptagsTab["tags"], "App\Entity\Tag[]");
+        $groupetag = new GroupeTag();
         $groupetag->setLibelle($grptagsTab['libelle']);
         foreach($tags as $tag){
             $groupetag->addTag($tag);
         }
-        $errors = $validator->validate($groupetag);
+        $errors = $this->validator->validate($groupetag);
         if (count($errors)){
-            $errors = $serializer->serialize($errors,"json");
+            $errors = $this->serializer->serialize($errors,"json");
             return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
         }
-        $em->persist($groupetag);
-        $em->flush();
+        $this->em->persist($groupetag);
+        $this->em->flush();
         return $this->json($groupetag, Response::HTTP_CREATED);
     }
 
@@ -53,13 +67,43 @@ class GroupeTagController extends AbstractController
      *      defaults={
      *          "_controller"="\app\GroupeTagController::updateGrpTag",
     *           "_api_resource_class"=GroupeTag::class,
-    *           "_api_collection_operation_name"="update_grptag"
+    *           "_api_item_operation_name"="update_grptag"
      *      }
      * )
      */
-    public function updateGrpTag(Request $req, $id){
-        dd("efjdl,fld");
-        $grtag = $req->getContent();
-        dd($grtag);
+    public function updateGrpTag(Request $req, int $id, GroupeTagRepository $repoGrpTag){
+        $grptag = $repoGrpTag->find($id);
+        $grcTab = json_decode($req->getContent(), true);
+        if(!empty($grcTab["updateTags"])){
+            foreach($grcTab["updateTags"] as $tags){
+                if(!empty($tags) && isset($tags["id"]) && isset($tags["libelle"]) && isset($tags["descriptif"])){
+                    foreach($grptag->getTags() as $k => $tg){
+                        if($tg->getId() == $tags["id"]){
+                            $grptag->getTags()[$k]->setLibelle($tags["libelle"]);
+                            $grptag->getTags()[$k]->setDescriptif($tags["descriptif"]);
+                        }
+                    }
+                }elseif(!empty($tags) && !isset($tags["id"]) && isset($tags["libelle"]) && isset($tags["descriptif"])){
+                    $tag = new Tag();
+                    $tag->setLibelle($tags["libelle"]);
+                    $tag->setDescriptif($tags["descriptif"]);
+                    $grptag->addTag($tag);
+                }elseif(!empty($tags) && isset($tags["id"]) && !isset($tags["libelle"]) && !isset($tags["descriptif"])){
+                    foreach($grptag->getTags() as $tg){
+                        if($tg->getId() == $tags["id"]){
+                            $grptag->removeTag($tg);
+                        }
+                    }
+                }
+            }
+        }
+        $errors = $this->validator->validate($grptag);
+        if (count($errors)){
+            $errors = $this->serializer->serialize($errors,"json");
+            return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
+        }
+        $this->em->flush();
+        return $this->json($grptag, Response::HTTP_OK);
+        
     }
-}
+    }
