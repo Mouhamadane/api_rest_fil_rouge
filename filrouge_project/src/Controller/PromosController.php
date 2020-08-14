@@ -10,6 +10,7 @@ use App\Entity\Referentiel;
 use PhpParser\Node\Stmt\Foreach_;
 use App\Repository\ApprenantRepository;
 use App\Repository\FormateurRepository;
+use App\Repository\PromosRepository;
 use App\Repository\ReferentielRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,17 +21,40 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class PromosController extends AbstractController
 {
-    private $encode;
-    public function __construct(UserPasswordEncoderInterface $encode, SerializerInterface $serializer, EntityManagerInterface $em)
+    private $encoder;
+    private $validator;
+    private $em;
+    private $serializer;
+
+    public function __construct(UserPasswordEncoderInterface $encoder, SerializerInterface $serializer, EntityManagerInterface $em, ValidatorInterface $validator)
     {
-        $this->encode = $encode;
+        $this->encoder = $encoder;
         $this->serializer = $serializer;
         $this->em = $em;
+        $this->validator = $validator;
+    }
+
+    /**
+     * @Route(
+     *      path="api/admin/promos/principal",
+     *      name="promo_groupe_principal",
+     *      methods="GET",
+     *      defaults={
+     *          "_controller"="\app\PromosController::getPromoGroupePrincipal",
+     *           "_api_resource_class"=Promos::class,
+     *           "_api_collection_operation_name"="get_Promos_Principal"
+     *      }
+     * )
+     */
+    public function getPromoGroupePrincipal(PromosRepository $repo){
+        $promos = $repo->findByGroup("principal");
+        return $this->json($promos, Response::HTTP_OK);
     }
     
     /**
@@ -45,33 +69,37 @@ class PromosController extends AbstractController
      *  }
      * )
      */
-    public function addPromo(Request $req, ReferentielRepository $reporef, FormateurRepository $repoformateurs, \Swift_Mailer $mailer, ApprenantRepository $repoApprenant, ValidatorInterface $validate)
+    public function addPromo(Request $req, ReferentielRepository $reporef, FormateurRepository $repoformateurs, \Swift_Mailer $mailer, ApprenantRepository $repoApprenant)
     {
-        
-        $promoTab=json_decode($req->getContent(),true);
         $promos= new Promos();
+
+        if(!$this->isGranted('PROMO_CREATE', $promos)){
+            return $this->json([
+                "message" => "Vous n'avez pas accès à cette ressource"
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        $promoTab=json_decode($req->getContent(),true);
         $promos
-            ->setLangue($promoTab['langue'])
-            ->setTitre($promoTab['titre'])
-            ->setDateProvisoire(new \DateTime($promoTab['dateProvisoire']))
-            ->setDateDebut(new \DateTime($promoTab['dateDebut']))
-            ->setFabrique($promoTab['fabrique'])
-            ->setLieu($promoTab['lieu'])
-            ->setDescription($promoTab['description']);
-        $referentiel= $reporef->find($promoTab['referentiel']['id']); 
+            ->setLangue($promoTab["langue"])
+            ->setTitre($promoTab["titre"])
+            ->setDateProvisoire(new \DateTime($promoTab["dateProvisoire"]))
+            ->setDateDebut(new \DateTime($promoTab["dateDebut"]))
+            ->setFabrique("Sonatel Academie")
+            ->setDescription($promoTab["description"]);
+        
+        $referentiel= $reporef->find($promoTab["referentiel"]["id"]); 
         if($referentiel){
             $promos->setReferentiel($referentiel);
         }else{
-            return $this->json(['message'=>'Le referentiel est obligatoire']);
+            return $this->json(["message"=>"Le referentiel est obligatoire"]);
         }
-        $groupe= new Groupes();
         // Ajouter un Formateur
         if(!empty($promoTab["formateurs"])){
             foreach ($promoTab["formateurs"] as $key) {
                 $formateur = $repoformateurs->find($key["id"]);
                 if($formateur){
                         $promos->addFormateur($formateur);
-                        
                  }else{
                     return $this->json(["message"=>"l'id n'est pas celui d'un formateur"],Response::HTTP_BAD_REQUEST);
                  }
@@ -80,10 +108,11 @@ class PromosController extends AbstractController
             return $this->json(["message"=>"l'ajout d'un formateur est obligatoire"]);
         }
         if(!empty($promoTab["groupes"])){
+            $groupe= new Groupes();
             $groupeTab=$promoTab["groupes"][0];
             $groupe
                 ->setNom($groupeTab['nom'])
-                ->setType($groupeTab['type'])
+                ->setType("principal")
                 ->setStatut(true)
                 ->setDateCreation(new \DateTime());
             // Ajouter un apprenant
@@ -93,19 +122,20 @@ class PromosController extends AbstractController
                     if ($apprenant) {
                         $groupe->addApprenant($apprenant);
                         $message = (new \Swift_Message("Admission Sonatel Academy"))
-                                ->setFrom("damanyelegrand@gmail.com")
-                                ->setTo($apprenant->getEmail())
-                                ->setBody("Bonjour ".$apprenant->getPrenom()." ".$apprenant->getNom()." vous êtes selectionnés à la 3èm cohorte de la Sonatel Academy.\nNous vous souhaitons la bienvenue et vous prions de suivre ce lien afin de confirmer votre admission.\nMerci.");
+                            ->setFrom("damanyelegrand@gmail.com")
+                            ->setTo($apprenant->getEmail())
+                            ->setBody("Bonjour ".$apprenant->getPrenom()." ".$apprenant->getNom()." vous êtes selectionnés à la 3èm cohorte de la Sonatel Academy.\nNous vous souhaitons la bienvenue et vous prions de suivre ce lien afin de confirmer votre admission.\nMerci.");
                         $mailer->send($message);
                     }
                 }
             }
+            // dd($groupe);
             $promos->addGroupe($groupe);
 
         }else{
             return $this->json(["message"=>"l'ajout de  groupe est obligatoire principale"]);
         }
-        $errors = $validate->validate($promos);
+        $errors = $this->validator->validate($promos);
         if (count($errors)){
             $errors = $this->serializer->serialize($errors,"json");
             return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);

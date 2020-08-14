@@ -22,20 +22,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *              "security"="is_granted('ROLE_ADMIN')",
  *              "security_message"= "Vous n'avez pas acces à cette ressource",
  *          },
- *          "get_apprenants"={
- *              "method"="GET",
- *              "path"="/apprenants",
- *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
- *              "security_message"= "Vous n'avez pas acces à cette ressource",
- *              "route_name"="apprenant_liste"
- *          },
- *          "get_formateurs"={
- *              "method"="GET",
- *              "path"="/formateurs",
- *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
- *              "security_message"= "Vous n'avez pas acces à cette ressource",
- *              "route_name"="formateur_liste"
- *          },
  *          "add_users"={
  *              "method"="POST",
  *              "path"="admin/users",
@@ -51,20 +37,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *               "path"="admin/users/{id}",
  *               "security"="is_granted('ROLE_ADMIN')",
  *               "security_message"= "Vous n'avez pas acces à cette ressource",
- *          },
- *          "get_apprenant"={
- *              "normalization_context"={"groups"={"user:read","user:read:all"}},
- *              "method"="GET",
- *              "path"="/apprenants/{id}",
- *              "route_name"="apprenant"
- *          },
- *          "get_formateur"={
- *              "normalization_context"={"groups"={"user:read","user:read:all"}},
- *              "method"="GET",
- *              "path"="/formateurs/{id}",
- *              "security"="is_granted('ROLE_CM')",
- *              "security_message"= "Vous n'avez pas acces à cette ressource",
- *              "route_name"="formateur"
  *          },
  *           "update_user"={
  *                 "method"="PUT",
@@ -86,34 +58,35 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"promo:read", "promo:groupe:principal:read"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"profil:read:all","promo:write"})
+     * @Groups({"profil:read:all", "promo:read", "promo:write"})
      */
-    private $email;
+    protected $email;
 
-    private $roles = [];
+    protected $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
      */
-    private $password;
+    protected $password;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"profil:read:all","user:read", "groupecompetence:read"})
+     * @Groups({"profil:read:all","user:read", "promo:read", "groupecompetence:read", "promo:groupe:principal:read"})
      */
-    private $nom;
+    protected $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"profil:read:all","user:read", "groupecompetence:read"})
+     * @Groups({"profil:read:all","user:read", "promo:read", "groupecompetence:read", "promo:groupe:principal:read"})
      */
-    private $prenom;
+    protected $prenom;
 
 
     /**
@@ -121,25 +94,25 @@ class User implements UserInterface
      * @Groups({"user:read:all"})
      * 
      */
-    private $statut=false;
+    protected $statut=false;
 
 
     /**
      * @ORM\Column(type="blob", nullable=true)
      * @Groups({"user:read:all"})
      */
-    private $avatar;
+    protected $avatar;
 
     /**
      * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="user")
      * @Groups({"user:read:all"})
      */
-    private $profil;
+    protected $profil;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isDeleted = false;
+    protected $isDeleted = false;
 
     public function getId(): ?int
     {

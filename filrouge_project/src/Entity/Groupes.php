@@ -18,12 +18,13 @@ class Groupes
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"promo:read", "promo:groupe:principal:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:write"})
+     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read"})
      */
     private $nom;
 
@@ -35,7 +36,7 @@ class Groupes
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:write"})
+     * @Groups({"promo:write", "promo:groupe:principal:read"})
      */
     private $type;
 
@@ -51,7 +52,7 @@ class Groupes
 
     /**
      * @ORM\ManyToMany(targetEntity=Apprenant::class, inversedBy="groupes")
-     * @Groups({"promo:write"})
+     * @Groups({"promo:write", "promo:groupe:principal:read"})
      */
     private $apprenant;
 

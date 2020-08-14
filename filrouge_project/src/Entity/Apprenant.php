@@ -5,11 +5,30 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ApprenantRepository;
 use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ApprenantRepository::class)
+ * @ApiResource(
+ *      normalizationContext={"groups"={"user:read"}},
+ *      collectionOperations={
+ *          "get_apprenants"={
+ *              "method"="GET",
+ *              "path"="/apprenants",
+ *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *      },
+ *      itemOperations={
+ *          "get_apprenant"={
+ *              "normalization_context"={"groups"={"user:read","user:read:all"}},
+ *              "method"="GET",
+ *              "path"="/apprenants/{id}"
+ *          },
+ *      }
+ * )
  */
 class Apprenant extends User
 {
@@ -18,13 +37,13 @@ class Apprenant extends User
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, mappedBy="apprenant")
      * @Groups({"promo:write"})
      */
-    private $groupes;
+    protected $groupes;
 
     public function __construct()
     {
