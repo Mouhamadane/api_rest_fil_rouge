@@ -5,11 +5,22 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ApprenantRepository;
 use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ApprenantRepository::class)
+ * @ApiResource(*
+ *      normalizationContext={"groups"={"user:read"}},
+ *      collectionOperations={
+ *          "get_apprenants"={
+ *              "method"="GET",
+ *              "path"="api/apprenants",
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource",
+ *          },
+ * )
  */
 class Apprenant extends User
 {

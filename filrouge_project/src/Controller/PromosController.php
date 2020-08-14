@@ -42,7 +42,7 @@ class PromosController extends AbstractController
      *           "_controller"="\app\PromosController::addPromo",
      *           "_api_resource_class"=Promos::class,
      *           "_api_collection_operation_name"="add_Promos"
-     *  }
+     *      }
      * )
      */
     public function addPromo(Request $req, ReferentielRepository $reporef, FormateurRepository $repoformateurs, \Swift_Mailer $mailer, ApprenantRepository $repoApprenant, ValidatorInterface $validate)
@@ -101,7 +101,6 @@ class PromosController extends AbstractController
                 }
             }
             $promos->addGroupe($groupe);
-
         }else{
             return $this->json(["message"=>"l'ajout de  groupe est obligatoire principale"]);
         }
