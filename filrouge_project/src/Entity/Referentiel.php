@@ -62,28 +62,28 @@ class Referentiel
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"referentiel:read", "promo:write"})
+     * @Groups({"referentiel:read", "promo:write", "promo:referentiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
-     * @Groups({"referentiel:read"})
+     * @Groups({"referentiel:read", "promo:referentiel:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"referentiel:read"})
      * @Assert\NotBlank(message="Presentation ne doit pas être vide")
+     * @Groups({"referentiel:read", "promo:referentiel:read"})
      */
     private $presentation;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Critère d'admission ne doit pas être vide")
-     * @Groups({"referentiel:read"})
+     * @Groups({"referentiel:read", "promo:referentiel:read"})
      */
     private $critereAdmission;
 
@@ -96,8 +96,8 @@ class Referentiel
 
     /**
      * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="referentiels")
-     * @Groups({"referentiel:read", "referentiel:read:all"})
      * @ApiSubresource(maxDepth=3)
+     * @Groups({"referentiel:read", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $groupeCompetences;
 

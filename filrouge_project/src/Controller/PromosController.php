@@ -7,7 +7,6 @@ use App\Entity\Promos;
 use App\Entity\Groupes;
 use App\Entity\Apprenant;
 use App\Entity\Referentiel;
-use PhpParser\Node\Stmt\Foreach_;
 use App\Repository\ApprenantRepository;
 use App\Repository\FormateurRepository;
 use App\Repository\PromosRepository;
@@ -15,13 +14,10 @@ use App\Repository\ReferentielRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use ContainerQb8dLCW\getPromosRepositoryService;
-use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -43,18 +39,35 @@ class PromosController extends AbstractController
     /**
      * @Route(
      *      path="api/admin/promos/principal",
-     *      name="promo_groupe_principal",
+     *      name="promos_groupe_principal",
      *      methods="GET",
      *      defaults={
-     *          "_controller"="\app\PromosController::getPromoGroupePrincipal",
+     *          "_controller"="\app\PromosController::getPromoGroupesPrincipal",
      *           "_api_resource_class"=Promos::class,
      *           "_api_collection_operation_name"="get_Promos_Principal"
      *      }
      * )
      */
-    public function getPromoGroupePrincipal(PromosRepository $repo){
+    public function getPromosGroupePrincipal(PromosRepository $repo){
         $promos = $repo->findByGroup("principal");
         return $this->json($promos, Response::HTTP_OK);
+    }
+    
+    /**
+     * @Route(
+     *      path="api/admin/promos/{id}/principal",
+     *      name="promo_groupe_principal",
+     *      methods="GET",
+     *      defaults={
+     *          "_controller"="\app\PromosController::getPromoGroupePrincipal",
+     *           "_api_resource_class"=Promos::class,
+     *           "_api_item_operation_name"="get_Promo_Principale"
+     *      }
+     * )
+     */
+    public function getPromoGroupePrincipal(PromosRepository $repo, $id){
+        $promo = $repo->findOneByGroup("principal", $id);
+        return $this->json($promo, Response::HTTP_OK);
     }
     
     /**

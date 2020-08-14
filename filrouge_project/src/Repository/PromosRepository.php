@@ -34,6 +34,22 @@ class PromosRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @return Promos Returns an object of Promos
+     */
+    public function findOneByGroup($value, $id)
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.groupes', 'g')
+            ->andWhere('g.type = :val')
+            ->andWhere('p.id = :id')
+            ->setParameter('val', $value)
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
     /*
     public function findOneBySomeField($value): ?Promos
     {

@@ -58,13 +58,19 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promo:read", "promo:groupe:principal:read"})
+     * @Groups({"promo:read", "promo:groupe:principal:read", "promo:formateur:read", "promo:apprenant:read"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"profil:read:all", "promo:read", "promo:write"})
+     * @Groups({
+     *      "profil:read:all",
+     *      "promo:read",
+     *      "promo:write",
+     *      "promo:formateur:read",
+     *      "promo:apprenant:read"
+     * })
      */
     protected $email;
 
@@ -78,13 +84,29 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"profil:read:all","user:read", "promo:read", "groupecompetence:read", "promo:groupe:principal:read"})
+     * @Groups({
+     *      "profil:read:all",
+     *      "user:read",
+     *      "promo:read",
+     *      "groupecompetence:read",
+     *      "promo:groupe:principal:read",
+     *      "promo:formateur:read",
+     *      "promo:apprenant:read"
+     * })
      */
     protected $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"profil:read:all","user:read", "promo:read", "groupecompetence:read", "promo:groupe:principal:read"})
+     * @Groups({
+     *      "profil:read:all",
+     *      "user:read",
+     *      "promo:read",
+     *      "groupecompetence:read",
+     *      "promo:groupe:principal:read",
+     *      "promo:formateur:read",
+     *      "promo:apprenant:read"
+     * })
      */
     protected $prenom;
 

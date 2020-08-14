@@ -61,21 +61,21 @@ class GroupeCompetence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"groupecompetence:read", "referentiel:read:all"})
+     * @Groups({"groupecompetence:read", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"groupecompetence:read", "groupecompetence:write", "referentiel:read:all"})
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
+     * @Groups({"groupecompetence:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Le descriptif ne doit pas être vide")
-     * @Groups({"groupecompetence:read", "groupecompetence:write"})
+     * @Groups({"groupecompetence:read", "groupecompetence:write", "promo:referentiel:read"})
      */
     private $descriptif;
 
@@ -88,7 +88,7 @@ class GroupeCompetence
     /**
      * @ORM\ManyToMany(targetEntity=Competence::class, mappedBy="groupeCompetences", cascade={"persist"})
      * @Assert\Valid
-     * @Groups({"groupecompetence:read", "groupecompetence:write", "referentiel:read:all"})
+     * @Groups({"groupecompetence:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read"})
      * @ApiSubresource
      */
     private $competences;
