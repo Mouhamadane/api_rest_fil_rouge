@@ -19,22 +19,36 @@ class PromosRepository extends ServiceEntityRepository
         parent::__construct($registry, Promos::class);
     }
 
-    // /**
-    //  * @return Promos[] Returns an array of Promos objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @return Promos[] Returns an array of Promos objects
+     */
+    public function findByGroup($value)
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
+            ->innerJoin('p.groupes', 'g')
+            ->andWhere('g.type = :val')
             ->setParameter('val', $value)
             ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
+
+    /**
+     * @return Promos Returns an object of Promos
+     */
+    public function findOneByGroup($value, $id)
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.groupes', 'g')
+            ->andWhere('g.type = :val')
+            ->andWhere('p.id = :id')
+            ->setParameter('val', $value)
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 
     /*
     public function findOneBySomeField($value): ?Promos

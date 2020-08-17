@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ApprenantRepository::class)
- * @ApiResource(*
+ * @ApiResource(
  *      normalizationContext={"groups"={"user:read"}},
  *      collectionOperations={
  *          "get_apprenants"={
@@ -20,6 +20,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "security"="is_granted('ROLE_ADMIN')",
  *              "security_message"= "Vous n'avez pas acces à cette ressource",
  *          },
+ *      },
+ *      itemOperations={
+ *          "get_apprenant"={
+ *              "normalization_context"={"groups"={"user:read","user:read:all"}},
+ *              "method"="GET",
+ *              "path"="/apprenants/{id}"
+ *          },
+ *      }
  * )
  */
 class Apprenant extends User
@@ -29,13 +37,13 @@ class Apprenant extends User
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, mappedBy="apprenant")
      * @Groups({"promo:write"})
      */
-    private $groupes;
+    protected $groupes;
 
     public function __construct()
     {

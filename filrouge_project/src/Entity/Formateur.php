@@ -5,11 +5,32 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\FormateurRepository;
 use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=FormateurRepository::class)
+ * @ApiResource(
+ *      normalizationContext={"groups"={"user:read"}},
+ *      collectionOperations={
+ *          "get_formateurs"={
+ *              "method"="GET",
+ *              "path"="/formateurs",
+ *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *      },
+ *      itemOperations={
+ *          "get_formateur"={
+ *              "normalization_context"={"groups"={"user:read","user:read:all"}},
+ *              "method"="GET",
+ *              "path"="/formateurs/{id}",
+ *              "security"="is_granted('ROLE_CM')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource",
+ *          },
+ *      }
+ * )
  */
 class Formateur extends User
 {
@@ -19,17 +40,17 @@ class Formateur extends User
      * @ORM\Column(type="integer")
      * @Groups({"promo:write"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\ManyToMany(targetEntity=Promos::class, mappedBy="formateur")
      */
-    private $promos;
+    protected $promos;
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, mappedBy="formateur")
      */
-    private $groupes;
+    protected $groupes;
 
     public function __construct()
     {

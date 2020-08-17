@@ -109,7 +109,7 @@ class GroupeCompetenceController extends AbstractController
                 }elseif(!empty($cmpt) && isset($cmpt["id"]) && !isset($cmpt["libelle"])){
                     foreach($grpc->getCompetences() as $k => $comp){
                         if($comp->getId() == $cmpt["id"]){
-                            $grpc->getCompetences()[$k]->setIsDeleted(true);
+                            $grpc->removeCompetence($cmpt);
                         }
                     }
                 }

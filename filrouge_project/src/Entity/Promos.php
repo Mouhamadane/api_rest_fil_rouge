@@ -7,25 +7,28 @@ use Doctrine\ORM\Mapping\Entity;
 use App\Repository\PromosRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=PromosRepository::class)
  * @ApiResource( 
- * denormalizationContext={"groups"={"promos:write"}},
- * collectionOperations={
+ *      normalizationContext={"groups"={"promo:read"}},
+ *      denormalizationContext={"groups"={"promo:write"}},
+ *      collectionOperations={
  *         "get_Promos"={
  *              "security"="(is_granted('ROLE_FORMATEUR','ROLE_CM'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="GET", 
  *              "path"="/admin/promos"
  *          },
- *          "get_Promos_Principale"={
+ *          "get_Promos_Principal"={
  *              "security"="(is_granted('ROLE_FORMATEUR','ROLE_CM'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "normalization_context"={"groups"={"promo:groupe:principal:read"}},
  *              "method"="GET", 
- *              "path"="/admin/promos/principale"
+ *              "path"="/admin/promos/principal"
  *          },
  *          "get_Promos_apprenant"={
  *              "security"="(is_granted('ROLE_FORMATEUR'))",
@@ -34,14 +37,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "path"="/admin/promos/apprenants/attente"
  *          },
  *           "add_Promos"={
- *              "security"="(is_granted('ROLE_FORMATEUR'))",
- *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="POST", 
  *              "path"="/admin/promos/"
  *          },
  * 
- * },
- * itemOperations={
+ *      },
+ *      itemOperations={
  *          "get_Promo"={
  *              "security"="(is_granted('ROLE_FORMATEUR','ROLE_CM'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
@@ -51,13 +52,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "get_Promo_Principale"={
  *              "security"="(is_granted('ROLE_FORMATEUR','ROLE_CM'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "normalization_context"={"groups"={"promo:groupe:principal:read"}},
  *              "method"="GET", 
  *              "path"="/admin/promos/{id}/principale"
  *          },
  *           "get_Promo_referentiel"={
  *              "security"="(is_granted('ROLE_FORMATEUR','ROLE_CM'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
- *              "method"="GET", 
+ *              "normalization_context"={"groups"={"promo:referentiel:read"}},
+ *              "method"="GET",
  *              "path"="/admin/promos/{id}/referentiels"
  *          },
  *          "get_Promo_Apprenant"={
@@ -69,28 +72,30 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "get_Promo_Groupe"={
  *              "security"="(is_granted('ROLE_FORMATEUR','ROLE_CM'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "normalization_context"={"groups"={"promo:apprenant:read"}},
  *              "method"="GET", 
  *              "path"="/admin/promos/{id}/groupes/{ida}/apprenants"
  *          },
  *          "get_Promo_Formateur"={
  *              "security"="(is_granted('ROLE_FORMATEUR','ROLE_CM'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "normalization_context"={"groups"={"promo:formateur:read"}},
  *              "method"="GET", 
  *              "path"="/admin/promos/{id}/formateurs"
  *          },
- *          "put_Promo"={
+ *          "update_Promo"={
  *              "security"="(is_granted('ROLE_FORMATEUR'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="PUT", 
  *              "path"="/admin/promos/{id}"
  *          },
- *          "put_Promo_Apprenant"={
+ *          "update_Promo_Apprenant"={
  *              "security"="(is_granted('ROLE_FORMATEUR'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="PUT", 
  *              "path"="/admin/promos/{id}/apprenants"
  *          },
- *          "put_Promo_Formateur"={
+ *          "update_promo_formateur"={
  *              "security"="(is_granted('ROLE_FORMATEUR'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="PUT", 
@@ -102,7 +107,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "method"="PUT", 
  *              "path"="/admin/promos/{id}/groupes/{idb}"
  *          },
- *   }
+ *      }
  * )
  */
 
@@ -112,74 +117,111 @@ class Promos
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({
+     *      "promo:read",
+     *      "promo:groupe:principal:read",
+     *      "promo:referentiel:read",
+     *      "promo:formateur:read",
+     *      "promo:apprenant:read"
+     * })
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:write"})
+     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
      */
     private $langue;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:write"})
+     * @Groups({
+     *      "promo:read",
+     *      "promo:write",
+     *      "promo:groupe:principal:read",
+     *      "promo:referentiel:read",
+     *      "promo:formateur:read",
+     *      "promo:apprenant:read"
+     * })
      */
     private $titre;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"promo:write"})
+     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
      */
     private $description;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:write"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"promo:read", "promo:write"})
      */
     private $lieu;
     
     /**
      * @ORM\Column(type="date")
-     * @Groups({"promo:write"})
+     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read"})
      */
     private $dateProvisoire;
 
     /**
      * @ORM\Column(type="date", nullable=true)
-     * @Groups({"promo:write"})
+     * @Groups({"promo:read", "promo:write"})
      */
     private $dateFin;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:write"})
+     * @Groups({"promo:read", "promo:write"})
      */
     private $fabrique;
 
     /**
      * @ORM\OneToMany(targetEntity=Groupes::class, mappedBy="promos",cascade={"persist"})
-     * @Groups({"promo:write"})
+     * @ApiSubresource(maxDepth=3)
+     * @Groups({
+     *      "promo:read",
+     *      "promo:write",
+     *      "promo:groupe:principal:read",
+     *      "promo:apprenant:read"
+     * })
      */
     private $groupes;
 
     /**
      * @ORM\ManyToOne(targetEntity=Referentiel::class, inversedBy="promos", cascade={"persist"})
-     * @Groups({"promo:write"})
+     * @Groups({
+     *      "promo:read",
+     *      "promo:write",
+     *      "promo:groupe:principal:read",
+     *      "promo:referentiel:read"
+     * })
      * 
      */
     private $referentiel;
 
     /**
      * @ORM\ManyToMany(targetEntity=Formateur::class, inversedBy="promos")
-     * @Groups({"promo:write"})
+     * @Groups({
+     *      "promo:read",
+     *      "promo:write",
+     *      "promo:groupe:principal:read",
+     *      "promo:formateur:read"
+     * })
      */
     private $formateur;
 
     /**
      * @ORM\Column(type="date")
+     * @Groups({"promo:read", "promo:groupe:principal:read"})
      */
     private $dateDebut;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class)
+     * @Groups({"promo:read"})
+     */
+    private $user;
 
     public function __construct()
     {
@@ -354,6 +396,18 @@ class Promos
     public function setDateDebut(\DateTimeInterface $dateDebut): self
     {
         $this->dateDebut = $dateDebut;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

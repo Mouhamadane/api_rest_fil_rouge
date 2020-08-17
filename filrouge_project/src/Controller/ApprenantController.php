@@ -29,21 +29,4 @@ class ApprenantController extends AbstractController
         return $this->json($apprenants,Response::HTTP_OK,);
     }
 
-    /**
-    * @Route(
-    *   name="apprenant",
-    *   path="api/apprenants/{id}",
-    *   methods={"GET"},
-    *   defaults={
-    *       "_controller"="\app\ApprenantController::getApprenant",
-    *       "_api_resource_class"=Apprenant::class,
-    *       "_api_collection_operation_name"="get_apprenant"
-    *   }
-    * )
-    */
-    public function getApprenant(ApprenantRepository $repo, $id)
-    {
-        $apprenant = $repo->findOneByProfil("apprenant", $id);
-        return $this->json($apprenant, Response::HTTP_OK,);
-    }
 }
