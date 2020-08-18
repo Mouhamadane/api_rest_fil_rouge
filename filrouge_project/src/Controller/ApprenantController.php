@@ -23,10 +23,10 @@ class ApprenantController extends AbstractController
     *   }
     * )
     */
-    public function getApprenants(ApprenantRepository $repo)
+    public function getApparent(ApprenantRepository $repo)
     {
-        $apprenants= $repo->findAll();
-        return $this->json($apprenants,Response::HTTP_OK,);
+        $apprenants = $repo->findAll();
+        return $this->json($apprenants,Response::HTTP_OK);
     }
 
 }
