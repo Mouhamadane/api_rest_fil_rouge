@@ -83,13 +83,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "method"="GET", 
  *              "path"="/admin/promos/{id}/formateurs"
  *          },
- *          "update_Promo"={
+ *          "update_promo"={
  *              "security"="(is_granted('ROLE_FORMATEUR'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="PUT", 
  *              "path"="/admin/promos/{id}"
  *          },
- *          "update_Promo_Apprenant"={
+ *          "update_promo_apprenant"={
  *              "security"="(is_granted('ROLE_FORMATEUR'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="PUT", 
@@ -101,11 +101,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "method"="PUT", 
  *              "path"="/admin/promos/{id}/formateurs"
  *          },
- *           "put_Promo_Groupe"={
+ *           "update_promo_groupe"={
  *              "security"="(is_granted('ROLE_FORMATEUR'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="PUT", 
- *              "path"="/admin/promos/{id}/groupes/{idb}"
+ *              "path"="/admin/promos/{id}/groupes/{idgrpe}",
  *          },
  *      }
  * )

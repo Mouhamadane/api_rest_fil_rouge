@@ -157,4 +157,139 @@ class PromosController extends AbstractController
         $this->em->flush();
         return $this->json("Promo ajoutée avec succès", Response::HTTP_CREATED);
     }
+
+    /**
+     * @Route(
+     *      path="/api/admin/promos/{id}", 
+     *      name="update_promo",
+     *      methods="PUT",
+     *      defaults={
+     *           "_controller"="\app\PromosController::updatePromo",
+     *           "_api_resource_class"=Promos::class,
+     *           "_api_item_operation_name"="update_promo"
+     *  }
+     * )
+     */
+    public function updatePromo(Request $req, PromosRepository $repo, int $id)
+    {
+        $ref = json_decode($req->getContent(), true);
+        $promo = $repo->find($id);
+        if(!empty($ref["referentiel"]) and isset($ref["referentiel"]["id"])){
+            if($ref["referentiel"]["id"] === $promo->getReferentiel()->getId()){
+                if(isset($ref["referentiel"]["libelle"])){
+                    $promo->getReferentiel()->setLibelle($ref["referentiel"]["libelle"]);
+                }
+            }
+        }
+        $this->em->flush();
+        return $this->json($promo, Response::HTTP_OK);
+    }
+
+    /**
+     * @Route(
+     *      path="/api/admin/promos/{id}/apprenants", 
+     *      name="update_promo_apprenant",
+     *      methods="PUT",
+     *      defaults={
+     *           "_controller"="\app\PromosController::updatePromoApprenant",
+     *           "_api_resource_class"=Promos::class,
+     *           "_api_item_operation_name"="update_promo_apprenant"
+     *  }
+     * )
+     */
+    public function updatePromoApprenant(Request $req, PromosRepository $repo, int $id, \Swift_Mailer $mailer, ApprenantRepository $repoApprenant)
+    {
+        $promo = $repo->find($id);
+        $tab = json_decode($req->getContent(), true);
+        if(!empty($tab["apprenants"])){
+            foreach($tab["apprenants"] as $apprenant){
+                if(isset($apprenant["id"]) && !isset($apprenant["email"])){
+                    foreach($promo->getGroupes() as $k=>$groupe){
+                        foreach($groupe->getApprenant() as $app){
+                            if($app->getId() == $apprenant["id"]){
+                                $promo->getGroupes()[$k]->removeApprenant($app);
+                            }
+                        }
+                    }
+                }elseif(!isset($apprenant["id"]) && isset($apprenant["email"])){
+                    $newApprenant = $repoApprenant->findOneBy($apprenant);
+                    if ($newApprenant) {
+                        foreach($promo->getGroupes() as $k=>$groupe){
+                            if($groupe->getType() == "principal"){
+                                $promo->getGroupes()[$k]->addApprenant($newApprenant);
+                            }
+                        }
+                        $message = (new \Swift_Message("Admission Sonatel Academy"))
+                            ->setFrom("damanyelegrand@gmail.com")
+                            ->setTo($newApprenant->getEmail())
+                            ->setBody("Bonjour ".$newApprenant->getPrenom()." ".$newApprenant->getNom()." vous êtes selectionnés à la 3èm cohorte de la Sonatel Academy.\nNous vous souhaitons la bienvenue et vous prions de suivre ce lien afin de confirmer votre admission.\nMerci.");
+                        $mailer->send($message);
+                    }
+                }
+            }
+        }
+        $this->em->flush();
+        return $this->json($promo, Response::HTTP_OK);
+    }
+
+    /**
+     * @Route(
+     *      path="/api/admin/promos/{id}/formateurs", 
+     *      name="update_promo_formateur",
+     *      methods="PUT",
+     *      defaults={
+     *           "_controller"="\app\PromosController::updatePromoFormateur",
+     *           "_api_resource_class"=Promos::class,
+     *           "_api_item_operation_name"="update_promo_formateur"
+     *  }
+     * )
+     */
+    public function updatePromoFormateur(Request $req, PromosRepository $repo, int $id, \Swift_Mailer $mailer, FormateurRepository $repoForm)
+    {
+        $promo = $repo->find($id);
+        $tab = json_decode($req->getContent(), true);
+        if(!empty($tab["formateurs"])){
+            foreach($tab["formateurs"] as $id){
+                $trouve = false;
+                foreach($promo->getFormateur() as $formateur){
+                    if($formateur->getId() == $id["id"]){
+                        $trouve = true;
+                        $promo->removeFormateur($formateur);
+                    }
+                }
+                if(!$trouve){
+                    $formateur = $repoForm->findOneBy($id);
+                    if($formateur){
+                        $promo->addFormateur($formateur);
+                    }
+                }
+            }
+        }
+        $this->em->flush();
+        return $this->json($promo, Response::HTTP_OK);
+    }
+    
+    /**
+     * @Route(
+     *      path="/api/admin/promos/{id}/groupes/{idgrpe}", 
+     *      name="update_promo_groupe",
+     *      methods="PUT",
+     *      defaults={
+     *           "_controller"="\app\PromosController::updatePromoGroupe",
+     *           "_api_resource_class"=Promos::class,
+     *           "_api_item_operation_name"="update_promo_groupe"
+     *  }
+     * )
+     */
+    public function updatePromoGroupe(Request $req, PromosRepository $repo, int $id, int $idgrpe)
+    {
+        $promo = $repo->find($id);
+        foreach($promo->getGroupes() as $groupe){
+            if($groupe->getId() == $idgrpe){
+                $groupe->setStatut(false);
+            }
+        }
+        $this->em->flush();
+        return $this->json($promo, Response::HTTP_OK);
+    }
 }
