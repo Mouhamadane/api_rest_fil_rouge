@@ -60,11 +60,17 @@ class Apprenant extends User
      */
     private $profilSortie;
 
+    /**
+     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="apprenant")
+     */
+    private $promoBriefApprenants;
+
     public function __construct()
     {
         $this->groupes = new ArrayCollection();
         $this->livrables = new ArrayCollection();
         $this->livrableRendus = new ArrayCollection();
+        $this->promoBriefApprenants = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -170,6 +176,37 @@ class Apprenant extends User
     public function setProfilSortie(?ProfilSortie $profilSortie): self
     {
         $this->profilSortie = $profilSortie;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoBriefApprenant[]
+     */
+    public function getPromoBriefApprenants(): Collection
+    {
+        return $this->promoBriefApprenants;
+    }
+
+    public function addPromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if (!$this->promoBriefApprenants->contains($promoBriefApprenant)) {
+            $this->promoBriefApprenants[] = $promoBriefApprenant;
+            $promoBriefApprenant->setApprenant($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if ($this->promoBriefApprenants->contains($promoBriefApprenant)) {
+            $this->promoBriefApprenants->removeElement($promoBriefApprenant);
+            // set the owning side to null (unless already changed)
+            if ($promoBriefApprenant->getApprenant() === $this) {
+                $promoBriefApprenant->setApprenant(null);
+            }
+        }
 
         return $this;
     }

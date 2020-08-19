@@ -2,13 +2,22 @@
 
 namespace App\Entity;
 
-use App\Repository\BriefRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\BriefRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity(repositoryClass=BriefRepository::class)
+ * @ApiResource(
+ *      collectionOperations={
+ *          "get_formateur_promo_brief"={
+ *              "method"="GET",
+ *              "path"="formateurs/{id}/promos/{idpromo}/briefs/{idbrief}"
+ *          }
+ *      }
+ * )
  */
 class Brief
 {
