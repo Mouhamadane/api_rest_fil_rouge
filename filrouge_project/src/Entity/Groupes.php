@@ -74,10 +74,16 @@ class Groupes
      */
     private $dateCreation;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Brief::class, mappedBy="groupes")
+     */
+    private $briefs;
+
     public function __construct()
     {
         $this->formateur = new ArrayCollection();
         $this->apprenant = new ArrayCollection();
+        $this->briefs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -193,6 +199,34 @@ class Groupes
     public function setDateCreation(\DateTimeInterface $dateCreation): self
     {
         $this->dateCreation = $dateCreation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Brief[]
+     */
+    public function getBriefs(): Collection
+    {
+        return $this->briefs;
+    }
+
+    public function addBrief(Brief $brief): self
+    {
+        if (!$this->briefs->contains($brief)) {
+            $this->briefs[] = $brief;
+            $brief->addGroupe($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBrief(Brief $brief): self
+    {
+        if ($this->briefs->contains($brief)) {
+            $this->briefs->removeElement($brief);
+            $brief->removeGroupe($this);
+        }
 
         return $this;
     }
