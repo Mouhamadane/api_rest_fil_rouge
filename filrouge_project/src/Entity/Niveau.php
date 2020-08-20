@@ -16,38 +16,39 @@ class Niveau
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"competence:read", "referentiel:read:all"})
+     * @Groups({"competence:read", "referentiel:read:all", "brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libelle ne doit pas être vide")
-     * @Groups({"competence:read", "competence:write", "referentiel:read:all"})
+     * @Groups({"competence:read", "competence:write", "referentiel:read:all", "brief:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Critère d'évaluation ne doit pas être vide")
-     * @Groups({"competence:read", "competence:write", "referentiel:read:all"})
+     * @Groups({"competence:read", "competence:write", "referentiel:read:all", "brief:read"})
      */
     private $critereEvaluation;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Groupe d'action ne doit pas être vide")
-     * @Groups({"competence:read", "competence:write", "referentiel:read:all"})
+     * @Groups({"competence:read", "competence:write", "referentiel:read:all", "brief:read"})
      */
     private $groupeAction;
 
     /**
      * @ORM\ManyToOne(targetEntity=Competence::class, inversedBy="niveaux", cascade={"persist"})
+     * @Groups({"brief:read"})
      */
     private $competence;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="niveaux")
+     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="niveaux", cascade={"persist"})
      */
     private $brief;
 

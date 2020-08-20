@@ -101,6 +101,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "method"="PUT", 
  *              "path"="/admin/promos/{id}/formateurs"
  *          },
+ *           "ajouter_promo_groupe"={
+ *              "security"="(is_granted('ROLE_FORMATEUR'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "method"="PUT", 
+ *              "path"="/admin/promos/{id}/groupes",
+ *          },
  *           "update_promo_groupe"={
  *              "security"="(is_granted('ROLE_FORMATEUR'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",

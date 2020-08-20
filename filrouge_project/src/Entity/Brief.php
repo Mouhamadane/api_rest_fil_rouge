@@ -7,15 +7,37 @@ use App\Repository\BriefRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=BriefRepository::class)
  * @ApiResource(
+ *      normalizationContext={"groups"={"brief:read"}},
  *      collectionOperations={
  *          "get_formateur_promo_brief"={
  *              "method"="GET",
- *              "path"="formateurs/{id}/promos/{idpromo}/briefs/{idbrief}"
- *          }
+ *              "path"="formateurs/{id}/promos/{idpromo}/briefs/{idbrief}",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *          },
+ *          "get_apprenant_promo_brief"={
+ *              "method"="GET",
+ *              "path"="apprenants/{id}/promos/{idpromo}/briefs/{idbrief}",
+ *              "security"="is_granted('ROLE_APPRENANT')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *          },
+ *          "dupliquer_brief"={
+ *              "method"="POST",
+ *              "path"="formateurs/briefs/{id}",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *          },
+ *          "ajouter_brief"={
+ *              "method"="POST",
+ *              "path"="formateurs/briefs",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *          }          
  *      }
  * )
  */
@@ -25,46 +47,55 @@ class Brief
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $langue;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $contexte;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $livrablesAttendus;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $modalitePedagogique;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $criterePerformance;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $modaliteEvaluation;
 
@@ -75,36 +106,43 @@ class Brief
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"brief:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $statut;
 
     /**
-     * @ORM\ManyToMany(targetEntity=LivrablesAttendus::class, mappedBy="briefs")
+     * @ORM\ManyToMany(targetEntity=LivrablesAttendus::class, mappedBy="briefs", cascade={"persist"})
+     * @Groups({"brief:read"})
      */
     private $livrablesAttenduses;
 
     /**
      * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief")
+     * @Groups({"brief:read"})
      */
     private $ressources;
 
     /**
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="briefs")
+     * @Groups({"brief:read"})
      */
     private $tags;
 
     /**
-     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief")
+     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief", cascade={"persist"})
+     * @Groups({"brief:read"})
      */
     private $niveaux;
 
     /**
      * @ORM\ManyToOne(targetEntity=Referentiel::class)
+     * @Groups({"brief:read"})
      */
     private $referentiel;
 

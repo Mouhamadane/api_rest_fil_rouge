@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\LivrablesRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\LivrablesRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=LivrablesRepository::class)
@@ -14,11 +15,13 @@ class Livrables
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $url;
 
