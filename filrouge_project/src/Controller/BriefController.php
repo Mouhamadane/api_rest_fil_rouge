@@ -5,10 +5,15 @@ namespace App\Controller;
 use App\Entity\Brief;
 use App\Entity\LivrablesAttendus;
 use App\Entity\PromoBrief;
+use App\Entity\PromoBriefApprenant;
+use App\Entity\Ressource;
+use App\Repository\ApprenantRepository;
 use App\Repository\BriefRepository;
 use App\Repository\TagRepository;
 use App\Repository\NiveauRepository;
 use App\Repository\GroupesRepository;
+use App\Repository\PromoBriefRepository;
+use App\Repository\PromosRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ReferentielRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,12 +30,25 @@ class BriefController extends AbstractController
     private $serializer;
     private $em;
     private $security;
+    private $repoNiveau;
+    private $repoTag;
+    private $validator;
 
-    public function __construct(SerializerInterface $serializer, EntityManagerInterface $em, Security $security)
+    public function __construct(
+        SerializerInterface $serializer,
+        EntityManagerInterface $em,
+        Security $security,
+        ValidatorInterface $validator,
+        TagRepository $repoTag,
+        NiveauRepository $repoNiveau
+    )
     {
         $this->serializer = $serializer;
         $this->em = $em;
         $this->security = $security;
+        $this->repoNiveau = $repoNiveau;
+        $this->repoTag = $repoTag;
+        $this->validator = $validator;
     }
 
     /**
@@ -71,9 +89,9 @@ class BriefController extends AbstractController
                 $newBrief->addLivrablesAttendus($livrableAtt);
             }
             
-            foreach($brief->getNiveaux() as $niveau){
+            /* foreach($brief->getNiveaux() as $niveau){
                 $newBrief->addNiveau($niveau);
-            }
+            } */
             
             foreach($brief->getRessources() as $res){
                 $newBrief->addRessource($res);
@@ -93,6 +111,32 @@ class BriefController extends AbstractController
 
     /**
      * @Route(
+     *      name="ajouter_livrables",
+     *      path="api/apprenants/{id}/groupes/{idg}/livrables",
+     *      methods="POST",
+     *      defaults={
+     *          "_controller"="\app\BriefController::ajouterLivrables",
+     *          "_api_resource_class"=Brief::class,
+     *          "_api_collection_operation"="ajouter_livrables"
+     *      }
+     * )
+     */
+    public function ajouterLivrable(Request $req, int $id, int $idg, ApprenantRepository $repoApp, GroupesRepository $repoGroupe) {
+        $apprenant = $repoApp->find($id);
+        if($apprenant === $this->security->getUser()){
+            $groupe = $repoGroupe->find($idg);
+            if($groupe){
+                
+            }else{
+                return $this->json(["message" => "Le groupe n'esxite pas"], Response::HTTP_BAD_REQUEST);
+            }
+        }else{
+            return $this->json(["message" => "Vous n'avez pas accès à cette ressource"], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * @Route(
      *      name="ajouter_brief",
      *      path="api/formateurs/briefs",
      *      methods="POST",
@@ -105,11 +149,8 @@ class BriefController extends AbstractController
      */
     public function ajouterBrief(
         Request $req,
-        TagRepository $repoTag,
-        NiveauRepository $repoNiveau,
         ReferentielRepository $repoRef,
         GroupesRepository $repoGrpe,
-        ValidatorInterface $validator,
         \Swift_Mailer $mailer
     ) {
         $brief = new Brief;
@@ -128,7 +169,7 @@ class BriefController extends AbstractController
 
         if(isset($briefTab["tags"]) && !empty($briefTab["tags"])){
             foreach($briefTab["tags"] as $idTag){
-                $tag = $repoTag->find($idTag);
+                $tag = $this->repoTag->find($idTag);
                 if($tag){
                     $brief->addTag($tag);
                 }
@@ -137,9 +178,13 @@ class BriefController extends AbstractController
 
         if(isset($briefTab["niveaux"]) && !empty($briefTab["niveaux"])){
             foreach($briefTab["niveaux"] as $idNiveau){
-                $niveau = $repoNiveau->find($idNiveau);
+                $niveau = $this->repoNiveau->find($idNiveau);
                 if($niveau){
-                    $brief->addNiveau($niveau);
+                    if($niveau->getBrief()){
+                        return $this->json(["message" => "Le niveau de competence". $niveau->getCompetence()->getLibelle() ."est déjà affecté."], Response::HTTP_BAD_REQUEST);
+                    }else{
+                        $brief->addNiveau($niveau);
+                    }
                 }
             }
         }
@@ -188,12 +233,165 @@ class BriefController extends AbstractController
             $brief->setStatut("brouillon");
         }
         $brief->setFormateur($this->security->getUser());
-        $errors = $validator->validate($brief);
+        $errors = $this->validator->validate($brief);
         if (count($errors)){
             $errors = $this->serializer->serialize($errors,"json");
             return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
         }
         $this->em->flush();
         return $this->json(["message" => "Brief créé"], Response::HTTP_CREATED);
+    }
+
+    /**
+     * @Route(
+     *      name="update_brief",
+     *      path="api/formateurs/promos/{id}/briefs/{idb}",
+     *      methods="PUT",
+     *      defaults={
+     *          "_controller"="\app\BriefController::updateBrief",
+     *          "_api_resource_class"=Brief::class,
+     *          "_api_collection_operation"="update_brief"
+     *      }
+     * )
+     */
+    public function updateBrief(Request $req, PromoBriefRepository $repo, int $id, int $idb) {
+        $promoBrief = $repo->findByPromoAndBrief($id, $idb);
+        // Si le brief de la promo existe!!!
+        if($promoBrief){
+            $tab = json_decode($req->getContent(), true);
+
+            // Archiver le brief,Clocturer le brief
+            if(isset($tab["statut"]) && !empty($tab["statut"])){
+                if($tab["statut"] == "cloturer"){
+                    $promoBrief->setStatut("cloture");
+                    $message = ["message" => "Le brief de la promo cloturé"];
+                }elseif($tab["statut"] === "archiver"){
+                    if($promoBrief->getBrief()->getFormateur() === $this->security->getUser()){
+                        $promoBrief->getBrief()->setStatut("archive");
+                        $message = ["message" => "Brief supprimé(archive)"];
+                    }else{
+                        return $this->json(["message" => "Vous n'avez pas le droit d'archiver le brief."], Response::HTTP_UNAUTHORIZED);
+                    }
+                }
+            }
+
+            // Ajout ou Supprimer un niveau de compétence
+            if(isset($tab["niveaux"]) && !empty($tab["niveaux"])){
+                foreach($tab["niveaux"] as $idNiveau){
+                    $trouve = false;
+                    foreach($promoBrief->getBrief()->getNiveaux() as $niv){
+                        if($niv->getId() == $idNiveau["id"]){
+                            $trouve = true;
+                            $promoBrief->getBrief()->removeNiveau($niv);
+                            $message[] = ["message" => "Niveau brief supprimé"];
+                        }
+                    }
+                    if(!$trouve){
+                        $niveau = $this->repoNiveau->find($idNiveau);
+                        if($niveau){
+                            // Vérifier si le niveau est déjà affecter à un brief
+                            if($niveau->getBrief()){
+                                return $this->json(["message" => "Le niveau de competence". $niveau->getCompetence()->getLibelle() ."est déjà affecté."], Response::HTTP_BAD_REQUEST);
+                            }else{
+                                $promoBrief->getBrief()->addNiveau($niveau);
+                                $message[] = ["message" => "Niveau brief ajouté"];
+                            }
+                        }else{
+                            return $this->json(["message" => "Niveau Not Found."], Response::HTTP_NOT_FOUND);
+                        }
+                    }
+                }
+            }
+
+            // Ajout ou Supprimer livrables attendus,
+            if(isset($tab["livrablesAttendus"]) && !empty($tab["livrablesAttendus"])){
+                foreach($tab["livrablesAttendus"] as $val){
+                    if(!empty($val) && isset($val["id"]) && !isset($val["libelle"])){
+                        foreach($promoBrief->getBrief()->getLivrablesAttenduses() as $livrableAtt){
+                            if($livrableAtt->getId() == $val["id"]){
+                                $promoBrief->getBrief()->removeLivrablesAttendus($livrableAtt);
+                                $message[] = ["message" => "Livrable attendu brief supprimé"];
+                            }
+                        }
+                    }elseif(!empty($val) && !isset($val["id"]) && isset($val["libelle"])){
+                        $livAtt = new LivrablesAttendus;
+                        $livAtt->setLibelle($val["libelle"]);
+                        $promoBrief->getBrief()->addLivrablesAttendus($livAtt);
+                        $message[] = ["message" => "Livrable attendu brief ajouté"];
+                    }
+                }
+            }
+
+            // Ajout ou Supprimer Tags
+            if(isset($tab["tags"]) && !empty($tab["tags"])){
+                foreach($tab["tags"] as $val){
+                    $trouve = false;
+                    foreach($promoBrief->getBrief()->getTags() as $tag){
+                        if($tag->getId() == $val["id"]){
+                            $trouve = true;
+                            $promoBrief->getBrief()->removeTag($tag);
+                            $message[] = ["message" => "Tag brief supprimé"];
+                        }
+                    }
+                    if(!$trouve){
+                        $tag = $this->repoTag->find($val);
+                        if($tag){
+                            $promoBrief->getBrief()->addTag($tag);
+                            $message[] = ["message" => "Tag brief ajouté"];
+                        }else{
+                            return $this->json(["message" => "Tag Not Found."], Response::HTTP_NOT_FOUND);
+                        }
+                    }
+                }
+            }
+
+            // Ajout ou Supprimer ressource
+            if(isset($tab["ressources"]) && !empty($tab["ressources"])){
+                foreach($tab["ressources"] as $val){
+                    if(!empty($val) && isset($val["id"]) && !isset($val["titre"]) && !isset($val["url"])){
+                        foreach($promoBrief->getBrief()->getRessources() as $res){
+                            if($res->getId() == $val["id"]){
+                                $promoBrief->getBrief()->removeRessource($res);
+                                $message[] = ["message" => "Ressource brief supprimé"];
+                            }
+                        }
+                    }elseif(!empty($val) && !isset($val["id"]) && isset($val["titre"]) && isset($val["url"])){
+                        $ressource = new Ressource;
+                        $ressource->setTitre($val["titre"]);
+                        $ressource->setUrl($val["url"]);
+                        $promoBrief->getBrief()->addRessource($ressource);
+                        $message[] = ["message" => "Ressource brief ajouté"];
+                    }
+                }
+            }
+            
+            $errors = $this->validator->validate($promoBrief);
+            if (count($errors)){
+                $errors = $this->serializer->serialize($errors,"json");
+                return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
+            }
+            $this->em->flush();
+            return $this->json($message, Response::HTTP_OK);
+
+        }else{
+            return $this->json(["message" => "PromoBrief Not Found"], Response::HTTP_NOT_FOUND);
+        }
+        
+    }
+
+    /**
+     * @Route(
+     *      name="assigner_brief",
+     *      path="api/formateurs/promos/{id}/briefs/{idb}/assignation",
+     *      methods="PUT",
+     *      defaults={
+     *          "_controller"="\app\BriefController::assignerBrief",
+     *          "_api_resource_class"=Brief::class,
+     *          "_api_collection_operation"="assigner_brief"
+     *      }
+     * )
+     */
+    public function assignerBrief(Request $req, PromosRepository $repoPromo, BriefRepository $repoBrief, int $id, int $idb) {
+        
     }
 }

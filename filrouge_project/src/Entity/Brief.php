@@ -14,22 +14,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *      normalizationContext={"groups"={"brief:read"}},
  *      collectionOperations={
- *          "get_formateur_promo_brief"={
- *              "method"="GET",
- *              "path"="formateurs/{id}/promos/{idpromo}/briefs/{idbrief}",
- *              "security"="is_granted('ROLE_FORMATEUR')",
- *              "security_message"="Vous n'avez pas accès à cette ressource"
- *          },
- *          "get_apprenant_promo_brief"={
- *              "method"="GET",
- *              "path"="apprenants/{id}/promos/{idpromo}/briefs/{idbrief}",
- *              "security"="is_granted('ROLE_APPRENANT')",
- *              "security_message"="Vous n'avez pas accès à cette ressource"
- *          },
  *          "dupliquer_brief"={
  *              "method"="POST",
  *              "path"="formateurs/briefs/{id}",
  *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *          },
+ *          "ajouter_livrables"={
+ *              "method"="POST",
+ *              "path"="apprenants/{id}/groupes/{idg}/livrables",
+ *              "security"="is_granted('ROLE_APPRENANT')",
  *              "security_message"="Vous n'avez pas accès à cette ressource"
  *          },
  *          "ajouter_brief"={
@@ -38,6 +32,20 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas accès à cette ressource"
  *          }          
+ *      },
+ *      itemOperations={
+ *          "assigner_brief"={
+ *              "method"="PUT",
+ *              "path"="formateurs/promos/{id}/briefs/{idb}/assignation",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *          },
+ *          "update_brief"={
+ *              "method"="PUT",
+ *              "path"="formateurs/promos/{id}/briefs/{idb}",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *          }
  *      }
  * )
  */
@@ -123,7 +131,7 @@ class Brief
     private $livrablesAttenduses;
 
     /**
-     * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief")
+     * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief", cascade={"persist"})
      * @Groups({"brief:read"})
      */
     private $ressources;

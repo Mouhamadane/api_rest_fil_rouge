@@ -38,7 +38,7 @@ class Ressource
     private $pieceJointe;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="ressources")
+     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="ressources", cascade={"persist"})
      */
     private $brief;
 
