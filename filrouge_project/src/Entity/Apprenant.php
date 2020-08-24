@@ -12,7 +12,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=ApprenantRepository::class)
  * @ApiResource(
- *      normalizationContext={"groups"={"user:read"}},
  *      collectionOperations={
  *          "get_apprenants"={
  *              "method"="GET",
@@ -23,7 +22,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      },
  *      itemOperations={
  *          "get_apprenant"={
- *              "normalization_context"={"groups"={"user:read","user:read:all"}},
  *              "method"="GET",
  *              "path"="/apprenants/{id}"
  *          },
@@ -41,7 +39,7 @@ class Apprenant extends User
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, mappedBy="apprenant")
-     * @Groups({"promo:write"})
+     * @Groups({"promo:write","brief:read"})
      */
     protected $groupes;
 

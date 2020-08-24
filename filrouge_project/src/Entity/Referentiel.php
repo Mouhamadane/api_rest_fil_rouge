@@ -14,7 +14,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=ReferentielRepository::class)
  * @ApiResource(
- *      normalizationContext={"groups"={"referentiel:read"}},
+ *       attributes={
+ *          "security"="is_granted('ROLE_ADMIN')",
+ *          "security_message"="Vous n'avez pas accès aux tags",
+ *           "normalizationContext"={"groups"={"brief:read"}},
+ *      },
  *      collectionOperations={
  *          "get_referentiels"={
  *              "method"="GET",
@@ -62,7 +66,7 @@ class Referentiel
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"referentiel:read", "promo:write", "promo:referentiel:read"})
+     * @Groups({"referentiel:read", "promo:write", "promo:referentiel:read" })
      */
     private $id;
 

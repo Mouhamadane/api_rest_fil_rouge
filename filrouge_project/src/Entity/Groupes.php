@@ -24,6 +24,7 @@ class Groupes
      *      "promo:read",
      *      "promo:groupe:principal:read",
      *      "promo:apprenant:read"
+     *     
      * })
      */
     private $id;

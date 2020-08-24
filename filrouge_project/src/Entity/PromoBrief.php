@@ -44,6 +44,11 @@ class PromoBrief
      */
     private $promoBriefApprenants;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Promos::class, inversedBy="promoBrief")
+     */
+    private $promo;
+
     public function __construct()
     {
         $this->livrablePartiels = new ArrayCollection();
@@ -149,6 +154,18 @@ class PromoBrief
                 $promoBriefApprenant->setPromoBrief(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPromo(): ?Promos
+    {
+        return $this->promo;
+    }
+
+    public function setPromo(?Promos $promo): self
+    {
+        $this->promo = $promo;
 
         return $this;
     }

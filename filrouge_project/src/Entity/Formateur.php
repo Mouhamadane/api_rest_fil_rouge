@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=FormateurRepository::class)
  * @ApiResource(
- *      normalizationContext={"groups"={"user:read"}},
+ *      normalizationContext={"groups"={"user:read","brief:read"}},
  *      collectionOperations={
  *          "get_formateurs"={
  *              "method"="GET",
@@ -23,7 +23,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      },
  *      itemOperations={
  *          "get_formateur"={
- *              "normalization_context"={"groups"={"user:read","user:read:all"}},
+ *              "normalization_context"={"groups"={"user:read","user:read:all","brief:read"}},
  *              "method"="GET",
  *              "path"="/formateurs/{id}",
  *              "security"="is_granted('ROLE_CM')",
@@ -38,7 +38,7 @@ class Formateur extends User
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promo:write"})
+     * @Groups({"promo:write","brief:read"})
      */
     protected $id;
 

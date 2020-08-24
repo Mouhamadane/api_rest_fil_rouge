@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=PromosRepository::class)
  * @ApiResource( 
- *      normalizationContext={"groups"={"promo:read"}},
+ *      normalizationContext={"groups"={"promo:read","brief:read"}},
  *      denormalizationContext={"groups"={"promo:write"}},
  *      collectionOperations={
  *         "get_Promos"={
@@ -122,14 +122,15 @@ class Promos
      *      "promo:groupe:principal:read",
      *      "promo:referentiel:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "brief:read"
      * })
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
+     * @Groups({"promo:read", "promo:write","brief:read", "promo:groupe:principal:read", "promo:referentiel:read"})
      */
     private $langue;
 
@@ -141,38 +142,39 @@ class Promos
      *      "promo:groupe:principal:read",
      *      "promo:referentiel:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "brief:read"
      * })
      */
     private $titre;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
+     * @Groups({"promo:read", "brief:read","promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"promo:read", "promo:write"})
+     * @Groups({"promo:read","brief:read", "promo:write"})
      */
     private $lieu;
     
     /**
      * @ORM\Column(type="date")
-     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read"})
+     * @Groups({"promo:read", "promo:write","brief:read", "promo:groupe:principal:read"})
      */
     private $dateProvisoire;
 
     /**
      * @ORM\Column(type="date", nullable=true)
-     * @Groups({"promo:read", "promo:write"})
+     * @Groups({"promo:read","brief:read", "promo:write"})
      */
     private $dateFin;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:read", "promo:write"})
+     * @Groups({"promo:read","brief:read", "promo:write"})
      */
     private $fabrique;
 
@@ -183,7 +185,8 @@ class Promos
      *      "promo:read",
      *      "promo:write",
      *      "promo:groupe:principal:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "brief:read"
      * })
      */
     private $groupes;
@@ -194,7 +197,8 @@ class Promos
      *      "promo:read",
      *      "promo:write",
      *      "promo:groupe:principal:read",
-     *      "promo:referentiel:read"
+     *      "promo:referentiel:read",
+     *       "brief:read"
      * })
      * 
      */
@@ -206,7 +210,8 @@ class Promos
      *      "promo:read",
      *      "promo:write",
      *      "promo:groupe:principal:read",
-     *      "promo:formateur:read"
+     *      "promo:formateur:read",
+     *      "brief:read"
      * })
      */
     private $formateur;
@@ -223,10 +228,16 @@ class Promos
      */
     private $user;
 
+    /**
+     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promo")
+     */
+    private $promoBrief;
+
     public function __construct()
     {
         $this->groupes = new ArrayCollection();
         $this->formateur = new ArrayCollection();
+        $this->promoBrief = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -408,6 +419,37 @@ class Promos
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoBrief[]
+     */
+    public function getPromoBrief(): Collection
+    {
+        return $this->promoBrief;
+    }
+
+    public function addPromoBrief(PromoBrief $promoBrief): self
+    {
+        if (!$this->promoBrief->contains($promoBrief)) {
+            $this->promoBrief[] = $promoBrief;
+            $promoBrief->setPromo($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoBrief(PromoBrief $promoBrief): self
+    {
+        if ($this->promoBrief->contains($promoBrief)) {
+            $this->promoBrief->removeElement($promoBrief);
+            // set the owning side to null (unless already changed)
+            if ($promoBrief->getPromo() === $this) {
+                $promoBrief->setPromo(null);
+            }
+        }
 
         return $this;
     }
