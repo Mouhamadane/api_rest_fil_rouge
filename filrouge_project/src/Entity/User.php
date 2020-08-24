@@ -58,7 +58,13 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promo:read", "promo:groupe:principal:read", "promo:formateur:read", "promo:apprenant:read"})
+     * @Groups({
+     *     "promo:read",
+     *     "promo:groupe:principal:read",
+     *     "apprenant:competence:read",
+     *     "promo:formateur:read",
+     *     "promo:apprenant:read"
+     * })
      */
     protected $id;
 
@@ -67,6 +73,7 @@ class User implements UserInterface
      * @Groups({
      *      "profil:read:all",
      *      "promo:read",
+     *      "apprenant:competence:read",
      *      "promo:write",
      *      "promo:formateur:read",
      *      "promo:apprenant:read"
@@ -91,7 +98,8 @@ class User implements UserInterface
      *      "groupecompetence:read",
      *      "promo:groupe:principal:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *
      * })
      */
     protected $nom;
@@ -102,6 +110,7 @@ class User implements UserInterface
      *      "profil:read:all",
      *      "user:read",
      *      "promo:read",
+     *      "apprenant:competence:read",
      *      "groupecompetence:read",
      *      "promo:groupe:principal:read",
      *      "promo:formateur:read",
@@ -113,7 +122,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"user:read:all"})
+     * @Groups({"user:read:all","apprenant:competence:read"})
      * 
      */
     protected $statut=false;
@@ -121,13 +130,13 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="blob", nullable=true)
-     * @Groups({"user:read:all"})
+     * @Groups({"user:read:all","apprenant:competence:read"})
      */
     protected $avatar;
 
     /**
      * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="user")
-     * @Groups({"user:read:all"})
+     * @Groups({"user:read:all","apprenant:competence:read"})
      */
     protected $profil;
 

@@ -223,10 +223,17 @@ class Promos
      */
     private $user;
 
+    /**
+     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promosbrief")
+     */
+    private $promosbrief;
+
+
     public function __construct()
     {
         $this->groupes = new ArrayCollection();
         $this->formateur = new ArrayCollection();
+        $this->promosbrief = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -411,4 +418,36 @@ class Promos
 
         return $this;
     }
+
+    /**
+     * @return Collection|PromoBrief[]
+     */
+    public function getPromosbrief(): Collection
+    {
+        return $this->promosbrief;
+    }
+
+    public function addPromosbrief(PromoBrief $promosbrief): self
+    {
+        if (!$this->promosbrief->contains($promosbrief)) {
+            $this->promosbrief[] = $promosbrief;
+            $promosbrief->setPromosbrief($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromosbrief(PromoBrief $promosbrief): self
+    {
+        if ($this->promosbrief->contains($promosbrief)) {
+            $this->promosbrief->removeElement($promosbrief);
+            // set the owning side to null (unless already changed)
+            if ($promosbrief->getPromosbrief() === $this) {
+                $promosbrief->setPromosbrief(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

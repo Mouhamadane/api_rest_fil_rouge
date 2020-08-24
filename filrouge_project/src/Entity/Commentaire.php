@@ -3,10 +3,13 @@
 namespace App\Entity;
 
 use App\Repository\CommentaireRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=CommentaireRepository::class)
+ *
  */
 class Commentaire
 {
@@ -19,26 +22,31 @@ class Commentaire
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"commentaire:write"})
      */
     private $content;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"commentaire:write"})
      */
     private $date;
 
     /**
      * @ORM\Column(type="blob", nullable=true)
+     * @Groups({"commentaire:write"})
      */
     private $pieceJointe;
 
     /**
      * @ORM\ManyToOne(targetEntity=LivrableRendu::class, inversedBy="commentaires")
+     * @Groups({"commentaire:write"})
      */
     private $livrableRendu;
 
     /**
      * @ORM\ManyToOne(targetEntity=Formateur::class, inversedBy="commentaires")
+     * @Groups({"commentaire:write"})
      */
     private $formateur;
 

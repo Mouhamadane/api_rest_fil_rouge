@@ -39,9 +39,15 @@ class PromoBrief
      */
     private $livrablePartiels;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Promos::class, inversedBy="promosbrief")
+     */
+    private $promosbrief;
+
     public function __construct()
     {
         $this->livrablePartiels = new ArrayCollection();
+        $this->promosbrief = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -112,6 +118,31 @@ class PromoBrief
                 $livrablePartiel->setPromoBrief(null);
             }
         }
+
+        return $this;
+    }
+
+    public function removePromosbrief(Promos $promosbrief): self
+    {
+        if ($this->promosbrief->contains($promosbrief)) {
+            $this->promosbrief->removeElement($promosbrief);
+            // set the owning side to null (unless already changed)
+            if ($promosbrief->getPromosbrief() === $this) {
+                $promosbrief->setPromosbrief(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getPromosbrief(): ?Promos
+    {
+        return $this->promosbrief;
+    }
+
+    public function setPromosbrief(?Promos $promosbrief): self
+    {
+        $this->promosbrief = $promosbrief;
 
         return $this;
     }
