@@ -12,6 +12,7 @@ use App\Repository\BriefRepository;
 use App\Repository\TagRepository;
 use App\Repository\NiveauRepository;
 use App\Repository\GroupesRepository;
+use App\Repository\LivrablesAttendusRepository;
 use App\Repository\PromoBriefRepository;
 use App\Repository\PromosRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -64,8 +65,8 @@ class BriefController extends AbstractController
      * )
      */
     public function dupliquerBrief(BriefRepository $repo, int $id, ValidatorInterface $validator) {
-        $newBrief = new Brief;
         $brief = $repo->find($id);
+        $newBrief = new Brief;
         if($brief){
             $newBrief
                 ->setLangue($brief->getLangue())
@@ -78,7 +79,7 @@ class BriefController extends AbstractController
                 ->setmodalitePedagogique($brief->getmodalitePedagogique())
                 ->setReferentiel($brief->getReferentiel())
                 ->setFormateur($this->security->getUser())
-                ->setStatut("valide")
+                ->setStatut("non_assigne")
                 ->setDateCreation(new \DateTime());
 
             foreach($brief->getTags() as $tag){
@@ -86,22 +87,22 @@ class BriefController extends AbstractController
             }
 
             foreach($brief->getLivrablesAttenduses() as $livrableAtt){
+                $livrableAtt->clearLivrables();
                 $newBrief->addLivrablesAttendus($livrableAtt);
             }
             
-            /* foreach($brief->getNiveaux() as $niveau){
-                $newBrief->addNiveau($niveau);
-            } */
-            
             foreach($brief->getRessources() as $res){
-                $newBrief->addRessource($res);
+                $newRes = clone $res;
+                $newRes->setId();
+                $newBrief->addRessource($newRes);
             }
-            $errors = $validator->validate($brief);
+            $errors = $validator->validate($newBrief);
             if (count($errors)){
                 $errors = $this->serializer->serialize($errors,"json");
                 return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
             }
-            $this->em->persist($brief);
+            $brief = null;
+            $this->em->persist($newBrief);
             $this->em->flush();
             return $this->json(["message" => "Brief dupliqué"], Response::HTTP_CREATED);
         }else{
@@ -151,6 +152,7 @@ class BriefController extends AbstractController
         Request $req,
         ReferentielRepository $repoRef,
         GroupesRepository $repoGrpe,
+        LivrablesAttendusRepository $repoLA,
         \Swift_Mailer $mailer
     ) {
         $brief = new Brief;
@@ -165,8 +167,10 @@ class BriefController extends AbstractController
             ->setModalitePedagogique($briefTab["modalitePedagogique"])
             ->setCriterePerformance($briefTab["criterePerformance"])
             ->setModaliteEvaluation($briefTab["modaliteEvaluation"])
-            ->setDateCreation(new \DateTime());
+            ->setDateCreation(new \DateTime())
+        ;
 
+        // Affecter des tags
         if(isset($briefTab["tags"]) && !empty($briefTab["tags"])){
             foreach($briefTab["tags"] as $idTag){
                 $tag = $this->repoTag->find($idTag);
@@ -176,6 +180,7 @@ class BriefController extends AbstractController
             }
         }
 
+        // Afecter des niveaux de compétence
         if(isset($briefTab["niveaux"]) && !empty($briefTab["niveaux"])){
             foreach($briefTab["niveaux"] as $idNiveau){
                 $niveau = $this->repoNiveau->find($idNiveau);
@@ -189,14 +194,17 @@ class BriefController extends AbstractController
             }
         }
         
+        // Ajouter livrables attendus
         if(isset($briefTab["livrablesAttenduses"]) && !empty($briefTab["livrablesAttenduses"])){
-            foreach($briefTab["livrablesAttenduses"] as $lvb){
-                $livrableAtt = new LivrablesAttendus();
-                $livrableAtt->setLibelle($lvb["libelle"]);
-                $brief->addLivrablesAttendus($livrableAtt);
+            foreach($briefTab["livrablesAttenduses"] as $val){
+                $livrableAtt = $repoLA->find($val);
+                if($livrableAtt){
+                    $brief->addLivrablesAttendus($livrableAtt);
+                }
             }
         }
 
+        // Affecter référentiel
         if(isset($briefTab["referentiel"]) && !empty($briefTab["referentiel"])){
             $ref = $repoRef->find($briefTab["referentiel"]);
             if($ref){
@@ -208,31 +216,52 @@ class BriefController extends AbstractController
             return $this->json(["message" => "Le referentiel est obligatoire"], Response::HTTP_BAD_REQUEST);
         }
 
+        // Affecter groupes
         if(!empty($briefTab["groupes"])){
             foreach($briefTab["groupes"] as $grpe){
                 $groupe = $repoGrpe->find($grpe);
                 if($groupe){
                     $brief->addGroupe($groupe);
-                    foreach($groupe->getApprenant() as $appren){
-                        $message = (new \Swift_Message("Admission Sonatel Academy"))
-                            ->setFrom("damanyelegrand@gmail.com")
-                            ->setTo($appren->getEmail())
-                            ->setBody("Bonjour ".$appren->getPrenom()." ".$appren->getNom()."\nLe brief ". $brief->getTitre() ." vous a été assigné.\nMerci.");
-                        $mailer->send($message);
-                    }
                     $promoBrief = new PromoBrief();
                     $promoBrief
                         ->setStatut("en_cours")
                         ->setPromos($groupe->getPromos())
                         ->setBrief($brief);
+                    foreach($groupe->getApprenant() as $appren){
+                        $pba = new PromoBriefApprenant;
+                        $pba
+                            ->setStatut("assigne")
+                            ->setPromoBrief($promoBrief)
+                            ->setApprenant($appren);
+                        $this->em->persist($pba);
+                        $texte = (new \Swift_Message("Admission Sonatel Academy"))
+                            ->setFrom("damanyelegrand@gmail.com")
+                            ->setTo($appren->getEmail())
+                            ->setBody("Bonjour ".$appren->getPrenom()." ".$appren->getNom()."\nLe brief ". $brief->getTitre() ." vous a été assigné.\nMerci.");
+                        $mailer->send($texte);
+                    }
                     $this->em->persist($promoBrief);
                 }
             }
             $brief->setStatut("assigne");
         }else{
-            $brief->setStatut("brouillon");
+            $brief->setStatut("valide");
         }
         $brief->setFormateur($this->security->getUser());
+
+        // Ajout ou Supprimer ressource
+        if(isset($briefTab["ressources"]) && !empty($briefTab["ressources"])){
+            foreach($briefTab["ressources"] as $val){
+                if(!empty($val) && isset($val["titre"]) && isset($val["url"])){
+                    $ressource = new Ressource;
+                    $ressource->setTitre($val["titre"]);
+                    $ressource->setUrl($val["url"]);
+                    $brief->addRessource($ressource);
+                    $message[] = ["message" => "Ressource brief ajouté"];
+                }
+            }
+        }
+
         $errors = $this->validator->validate($brief);
         if (count($errors)){
             $errors = $this->serializer->serialize($errors,"json");
@@ -391,7 +420,97 @@ class BriefController extends AbstractController
      *      }
      * )
      */
-    public function assignerBrief(Request $req, PromosRepository $repoPromo, BriefRepository $repoBrief, int $id, int $idb) {
-        
+    public function assignerBrief(Request $req, PromosRepository $repoPromo, BriefRepository $repoBrief, PromoBriefRepository $repo, GroupesRepository $repoGroupe, int $id, int $idb, \Swift_Mailer $mailer) {
+        $promo = $repoPromo->find($id);
+        if($promo){
+            $brief = $repoBrief->find($idb);
+            if($brief){
+                $tab = json_decode($req->getContent(), true);
+                // Affecter ou Désaffecter un brief à un apprenant ou des apprenants
+                if(isset($tab["apprenants"]) && !empty($tab["apprenants"])){
+                    foreach($promo()->getGroupes() as $groupe){
+                        if($groupe->getType() === "principal"){
+                            $gp = $groupe;
+                            break;
+                        }
+                    }
+                    foreach($tab["apprenants"] as $val){
+                        $trouve = false;
+                        foreach($gp->getApprenant() as $apprenant){
+                            if($apprenant->getEmail() == $val["email"]){
+                                $trouve = true;
+                                $isAssign = false;
+                                foreach($apprenant->getPromoBriefApprenants() as $promoBA){
+                                    // Désaffecter un brief à un étudiant
+                                    if($promoBA->getPromoBrief()->getBrief() == $brief){
+                                        $isAssign = true;
+                                        $apprenant->removePromoBriefApprenant($promoBA);
+                                        $message[] = ["message" => "Brief désassigné à ".$val["email"]];
+                                    }
+                                } 
+                                // Affecter un brief à un étudiant
+                                if(!$isAssign){
+                                    $promoBrief = $repo->findByPromoAndBrief($id, $idb);
+                                    if(!$promoBrief){
+                                        $promoBrief = new PromoBrief;
+                                        $promoBrief
+                                            ->setStatut("en_cours")
+                                            ->setPromos($promo)
+                                            ->setBrief($brief)
+                                        ;
+                                    }
+                                    $pba = new PromoBriefApprenant;
+                                    $pba
+                                        ->setStatut("assigne")
+                                        ->setPromoBrief($promoBrief);
+                                    $texte = (new \Swift_Message("Admission Sonatel Academy"))
+                                        ->setFrom("damanyelegrand@gmail.com")
+                                        ->setTo($apprenant->getEmail())
+                                        ->setBody("Bonjour ".$apprenant->getPrenom()." ".$apprenant->getNom()."\nLe brief ". $brief->getTitre() ." vous a été assigné.\nMerci.");
+                                    $mailer->send($texte);
+                                    $apprenant->addPromoBriefApprenant($pba);
+                                    $message[] = ["message" => "Brief assigné à ".$val["email"]];
+                                }
+                            }
+                        }
+                        if(!$trouve){
+                            return $this->json(["message" => $val["email"]." n'est pas dans le groupe principale de la promo"], Response::HTTP_NOT_FOUND);
+                        }
+                    }
+                }
+            }
+
+            // Affecter brief à un ou plusieurs groupes
+            if(isset($tab["groupes"]) && !empty($tab["groupes"])){
+                foreach($tab["groupes"] as $val){
+                    $groupe = $repoGroupe->find($val);
+                    if($groupe){
+                        if($groupe->getPromos() == $promoBrief->getPromos()){
+                            if (!$groupe->getBriefs()->contains($promoBrief->getBrief())){
+                                dd("assigné groupe");
+                            }else{
+                                return $this->json(["message" => "Le brief est déjà assigné au groupe"], Response::HTTP_NOT_FOUND);
+                            }
+                        }else{
+                            return $this->json(["message" => "Le groupe n'est pas dans la promo"], Response::HTTP_NOT_FOUND);
+                        }
+                        dd("Groupe trouvé");
+                    }else{
+                        return $this->json(["message" => "Groupe Not Found"], Response::HTTP_NOT_FOUND);
+                    }
+                }
+            }
+
+            $errors = $this->validator->validate($promoBrief);
+            if (count($errors)){
+                $errors = $this->serializer->serialize($errors,"json");
+                return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
+            }
+            $this->em->flush();
+            return $this->json($message, Response::HTTP_OK);
+
+        }else{
+            return $this->json(["message" => "PromoBrief Not Found"], Response::HTTP_NOT_FOUND);
+        }
     }
 }

@@ -40,6 +40,11 @@ class Livrables
         return $this->id;
     }
 
+    public function setId()
+    {
+        return $this->id = null;
+    }
+
     public function getUrl(): ?string
     {
         return $this->url;

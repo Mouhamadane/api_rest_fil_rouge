@@ -34,6 +34,7 @@ class LivrablesAttendus
 
     /**
      * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="livrablesAttendus")
+     * @Groups({"brief:read"})
      */
     private $livrables;
 
@@ -46,6 +47,11 @@ class LivrablesAttendus
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getLibelle(): ?string
@@ -102,6 +108,11 @@ class LivrablesAttendus
         }
 
         return $this;
+    }
+    
+    public function clearLivrables()
+    {
+        return $this->livrables = new ArrayCollection();
     }
 
     public function removeLivrable(Livrables $livrable): self

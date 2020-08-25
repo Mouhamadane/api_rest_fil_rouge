@@ -34,7 +34,8 @@ class Groupes
      *      "promo:read",
      *      "promo:write",
      *      "promo:groupe:principal:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "brief:read"
      * })
      */
     private $nom;

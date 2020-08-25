@@ -47,6 +47,11 @@ class Ressource
         return $this->id;
     }
 
+    public function setId()
+    {
+        return $this->id = null;
+    }
+
     public function getTitre(): ?string
     {
         return $this->titre;

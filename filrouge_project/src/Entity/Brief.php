@@ -34,6 +34,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          }          
  *      },
  *      itemOperations={
+ *          "get",
  *          "assigner_brief"={
  *              "method"="PUT",
  *              "path"="formateurs/promos/{id}/briefs/{idb}/assignation",
@@ -176,6 +177,11 @@ class Brief
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getLangue(): ?string
@@ -328,6 +334,11 @@ class Brief
         return $this;
     }
 
+    public function clearLivrablesAttendus()
+    {
+        return $this->livrablesAttenduses = new ArrayCollection();
+    }
+
     public function removeLivrablesAttendus(LivrablesAttendus $livrablesAttendus): self
     {
         if ($this->livrablesAttenduses->contains($livrablesAttendus)) {
@@ -453,6 +464,11 @@ class Brief
         }
 
         return $this;
+    }
+
+    public function clearGroupe()
+    {
+        return $this->groupes = new ArrayCollection();
     }
 
     public function removeGroupe(Groupes $groupe): self
