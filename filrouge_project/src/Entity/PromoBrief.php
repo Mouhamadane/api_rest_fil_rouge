@@ -41,9 +41,15 @@ class PromoBrief
      */
     private $promos;
 
+    /**
+     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="promoBrief")
+     */
+    private $promoBriefApprenants;
+
     public function __construct()
     {
         $this->livrablePartiels = new ArrayCollection();
+        $this->promoBriefApprenants = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -116,6 +122,37 @@ class PromoBrief
     public function setPromos(?Promos $promos): self
     {
         $this->promos = $promos;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoBriefApprenant[]
+     */
+    public function getPromoBriefApprenants(): Collection
+    {
+        return $this->promoBriefApprenants;
+    }
+
+    public function addPromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if (!$this->promoBriefApprenants->contains($promoBriefApprenant)) {
+            $this->promoBriefApprenants[] = $promoBriefApprenant;
+            $promoBriefApprenant->setPromoBrief($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if ($this->promoBriefApprenants->contains($promoBriefApprenant)) {
+            $this->promoBriefApprenants->removeElement($promoBriefApprenant);
+            // set the owning side to null (unless already changed)
+            if ($promoBriefApprenant->getPromoBrief() === $this) {
+                $promoBriefApprenant->setPromoBrief(null);
+            }
+        }
 
         return $this;
     }
