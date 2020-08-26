@@ -59,11 +59,6 @@ class LivrablePartiels
      */
     private $livrableRendus;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=BriefLA::class, inversedBy="livrables")
-     */
-    private $briefLA;
-
     public function __construct()
     {
         $this->niveaux = new ArrayCollection();
@@ -200,18 +195,6 @@ class LivrablePartiels
                 $livrableRendu->setLivrablePartiel(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getBriefLA(): ?BriefLA
-    {
-        return $this->briefLA;
-    }
-
-    public function setBriefLA(?BriefLA $briefLA): self
-    {
-        $this->briefLA = $briefLA;
 
         return $this;
     }

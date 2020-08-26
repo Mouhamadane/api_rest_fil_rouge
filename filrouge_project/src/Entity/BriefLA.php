@@ -30,7 +30,7 @@ class BriefLA
     private $livrableAttendu;
 
     /**
-     * @ORM\OneToMany(targetEntity=LivrablePartiels::class, mappedBy="briefLA")
+     * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="briefLA")
      */
     private $livrables;
 
@@ -69,14 +69,14 @@ class BriefLA
     }
 
     /**
-     * @return Collection|LivrablePartiels[]
+     * @return Collection|Livrables[]
      */
     public function getLivrables(): Collection
     {
         return $this->livrables;
     }
 
-    public function addLivrable(LivrablePartiels $livrable): self
+    public function addLivrable(Livrables $livrable): self
     {
         if (!$this->livrables->contains($livrable)) {
             $this->livrables[] = $livrable;
@@ -86,7 +86,7 @@ class BriefLA
         return $this;
     }
 
-    public function removeLivrable(LivrablePartiels $livrable): self
+    public function removeLivrable(Livrables $livrable): self
     {
         if ($this->livrables->contains($livrable)) {
             $this->livrables->removeElement($livrable);
