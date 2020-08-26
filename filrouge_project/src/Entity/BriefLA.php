@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\BriefLARepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\BriefLARepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=BriefLARepository::class)
@@ -16,6 +17,7 @@ class BriefLA
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read"})
      */
     private $id;
 
@@ -26,11 +28,13 @@ class BriefLA
 
     /**
      * @ORM\ManyToOne(targetEntity=LivrablesAttendus::class, inversedBy="briefLAs")
+     * @Groups({"brief:read"})
      */
     private $livrableAttendu;
 
     /**
      * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="briefLA")
+     * @Groups({"brief:read"})
      */
     private $livrables;
 
@@ -42,6 +46,11 @@ class BriefLA
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getBrief(): ?Brief
@@ -81,6 +90,15 @@ class BriefLA
         if (!$this->livrables->contains($livrable)) {
             $this->livrables[] = $livrable;
             $livrable->setBriefLA($this);
+        }
+
+        return $this;
+    }
+
+    public function clearLivrables(): self
+    {
+        if (!empty($this->livrables)) {
+            $this->livrables = new ArrayCollection();
         }
 
         return $this;

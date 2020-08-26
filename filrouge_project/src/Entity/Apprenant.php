@@ -60,10 +60,6 @@ class Apprenant extends User
      */
     private $profilSortie;
 
-    /**
-     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="apprenant", cascade={"persist"})
-     */
-    private $promoBriefApprenants;
     /* 
      * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="apprenants")
      */
@@ -191,22 +187,6 @@ class Apprenant extends User
         return $this;
     }
 
-    /**
-     * @return Collection|PromoBriefApprenant[]
-     */
-    public function getPromoBriefApprenants(): Collection
-    {
-        return $this->promoBriefApprenants;
-    }
-
-    public function addPromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
-    {
-        if (!$this->promoBriefApprenants->contains($promoBriefApprenant)) {
-            $this->promoBriefApprenants[] = $promoBriefApprenant;
-            $promoBriefApprenant->setApprenant($this);
-        }
-        return ($this);
-    }
     /*
      * @return Collection|StatistiquesCompetences[]
      */
@@ -220,19 +200,6 @@ class Apprenant extends User
         if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
             $this->statistiquesCompetences[] = $statistiquesCompetence;
             $statistiquesCompetence->setApprenant($this);
-        }
-
-        return $this;
-    }
-
-    public function removePromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
-    {
-        if ($this->promoBriefApprenants->contains($promoBriefApprenant)) {
-            $this->promoBriefApprenants->removeElement($promoBriefApprenant);
-            // set the owning side to null (unless already changed)
-            if ($promoBriefApprenant->getApprenant() === $this) {
-                $promoBriefApprenant->setApprenant(null);
-            }
         }
 
         return $this;

@@ -160,6 +160,7 @@ class Brief
 
     /**
      * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="brief", cascade={"persist"})
+     * @Groups({"brief:read"})
      */
     private $briefLAs;
 
@@ -473,6 +474,14 @@ class Brief
             $briefLA->setBrief($this);
         }
 
+        return $this;
+    }
+
+    public function clearBriefLAs(): self
+    {
+        if (!empty($this->briefLAs)) {
+            $this->briefLAs = new ArrayCollection();
+        }
         return $this;
     }
 

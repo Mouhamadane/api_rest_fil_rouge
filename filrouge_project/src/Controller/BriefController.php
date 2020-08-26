@@ -4,28 +4,29 @@ namespace App\Controller;
 
 use App\Entity\Brief;
 use App\Entity\BriefLA;
-use App\Entity\LivrablesAttendus;
-use App\Entity\PromoBrief;
-use App\Entity\PromoBriefApprenant;
 use App\Entity\Ressource;
-use App\Repository\ApprenantRepository;
-use App\Repository\BriefRepository;
+use App\Entity\PromoBrief;
+use App\Entity\LivrablesAttendus;
 use App\Repository\TagRepository;
+use App\Entity\PromoBriefApprenant;
+use App\Repository\BriefRepository;
 use App\Repository\NiveauRepository;
-use App\Repository\GroupesRepository;
-use App\Repository\LivrablesAttendusRepository;
-use App\Repository\PromoBriefRepository;
 use App\Repository\PromosRepository;
+use App\Repository\GroupesRepository;
+use App\Repository\ApprenantRepository;
+use App\Repository\PromoBriefRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ReferentielRepository;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Response;
+use App\Repository\LivrablesAttendusRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Security\Core\Security;
 
 class BriefController extends AbstractController
 {
@@ -65,34 +66,36 @@ class BriefController extends AbstractController
      *      }
      * )
      */
-    public function dupliquerBrief(BriefRepository $repo, int $id, ValidatorInterface $validator) {
+    public function dupliquerBrief(BriefRepository $repo, int $id, ValidatorInterface $validator, NormalizerInterface $normalizer) {
         $brief = $repo->find($id);
-        $newBrief = new Brief;
         if($brief){
+            $newBrief = clone $brief;
+            $newBrief->setId();
             $newBrief
-                ->setLangue($brief->getLangue())
-                ->setTitre($brief->getTitre())
-                ->setDescription($brief->getDescription())
-                ->setContexte($brief->getContexte())
-                ->setLivrablesAttendus($brief->getLivrablesAttendus())
-                ->setModaliteEvaluation($brief->getModaliteEvaluation())
-                ->setCriterePerformance($brief->getCriterePerformance())
-                ->setmodalitePedagogique($brief->getmodalitePedagogique())
-                ->setReferentiel($brief->getReferentiel())
                 ->setFormateur($this->security->getUser())
                 ->setStatut("non_assigne")
                 ->setDateCreation(new \DateTime());
-
-            foreach($brief->getTags() as $tag){
-                $newBrief->addTag($tag);
-            }
-
             
-            foreach($brief->getRessources() as $res){
-                $newRes = clone $res;
-                $newRes->setId();
-                $newBrief->addRessource($newRes);
+            // Desaffecter les niveaux de competences du Brief dupliqué 
+            foreach($newBrief->getNiveaux() as $niveau){
+                $newBrief->removeNiveau($niveau);
             }
+            
+            // Supprimer les livrables des livrables attendus du brief dupliqué
+
+            $newBrief->clearBriefLAs();
+            foreach($brief->getBriefLAs() as $k => $briefLA){
+                $newBriefLA = clone $briefLA;
+                $newBriefLA->setId();
+                if(!empty($newBriefLA->getLivrables())){
+                    $newBriefLA->clearLivrables();
+                }
+                $newBrief->addBriefLA($newBriefLA);
+            }
+            
+            // Supprimer les groupes du brief dupliqué
+            $newBrief->clearGroupe();
+            // dd($normalizer->normalize($newBrief->getGroupes(), 'json', ["groups" => "brief:read"]));
             $errors = $validator->validate($newBrief);
             if (count($errors)){
                 $errors = $this->serializer->serialize($errors,"json");
