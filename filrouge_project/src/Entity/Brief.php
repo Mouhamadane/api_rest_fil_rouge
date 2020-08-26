@@ -75,11 +75,6 @@ class Brief
     private $statut;
 
     /**
-     * @ORM\ManyToMany(targetEntity=LivrablesAttendus::class, mappedBy="briefs")
-     */
-    private $livrablesAttenduses;
-
-    /**
      * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief")
      */
     private $ressources;
@@ -109,6 +104,11 @@ class Brief
      */
     private $formateur;
 
+    /**
+     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="brief")
+     */
+    private $briefLAs;
+
     public function __construct()
     {
         $this->livrablesAttenduses = new ArrayCollection();
@@ -116,6 +116,7 @@ class Brief
         $this->tags = new ArrayCollection();
         $this->niveaux = new ArrayCollection();
         $this->groupes = new ArrayCollection();
+        $this->briefLAs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -256,34 +257,6 @@ class Brief
     }
 
     /**
-     * @return Collection|LivrablesAttendus[]
-     */
-    public function getLivrablesAttenduses(): Collection
-    {
-        return $this->livrablesAttenduses;
-    }
-
-    public function addLivrablesAttendus(LivrablesAttendus $livrablesAttendus): self
-    {
-        if (!$this->livrablesAttenduses->contains($livrablesAttendus)) {
-            $this->livrablesAttenduses[] = $livrablesAttendus;
-            $livrablesAttendus->addBrief($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLivrablesAttendus(LivrablesAttendus $livrablesAttendus): self
-    {
-        if ($this->livrablesAttenduses->contains($livrablesAttendus)) {
-            $this->livrablesAttenduses->removeElement($livrablesAttendus);
-            $livrablesAttendus->removeBrief($this);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection|Ressource[]
      */
     public function getRessources(): Collection
@@ -417,6 +390,37 @@ class Brief
     public function setFormateur(?Formateur $formateur): self
     {
         $this->formateur = $formateur;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|BriefLA[]
+     */
+    public function getBriefLAs(): Collection
+    {
+        return $this->briefLAs;
+    }
+
+    public function addBriefLA(BriefLA $briefLA): self
+    {
+        if (!$this->briefLAs->contains($briefLA)) {
+            $this->briefLAs[] = $briefLA;
+            $briefLA->setBrief($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBriefLA(BriefLA $briefLA): self
+    {
+        if ($this->briefLAs->contains($briefLA)) {
+            $this->briefLAs->removeElement($briefLA);
+            // set the owning side to null (unless already changed)
+            if ($briefLA->getBrief() === $this) {
+                $briefLA->setBrief(null);
+            }
+        }
 
         return $this;
     }
