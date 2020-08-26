@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Brief;
+use App\Entity\BriefLA;
 use App\Entity\LivrablesAttendus;
 use App\Entity\PromoBrief;
 use App\Entity\PromoBriefApprenant;
@@ -189,15 +190,24 @@ class BriefController extends AbstractController
                 }
             }
         }
-        
+         
         // Ajouter livrables attendus
-        if(isset($briefTab["livrablesAttenduses"]) && !empty($briefTab["livrablesAttenduses"])){
-            foreach($briefTab["livrablesAttenduses"] as $val){
+        if(isset($briefTab["livrablesAtt"]) && !empty($briefTab["livrablesAtt"])){
+            $inserted = false;
+            foreach($briefTab["livrablesAtt"] as $val){
                 $livrableAtt = $repoLA->find($val);
                 if($livrableAtt){
-                   // $brief->addLivrablesAttendus($livrableAtt);
+                    $briefLA = new BriefLA;
+                    $briefLA->setLivrableAttendu($livrableAtt);
+                    $brief->addBriefLA($briefLA);
+                    $inserted = true;
                 }
             }
+            if(!$inserted){
+                return $this->json(["message" => "Veuillez affecter au moins un livrable attendu"], Response::HTTP_BAD_REQUEST);
+            }
+        }else{
+            return $this->json(["message" => "Veuillez affecter au moins un livrable attendu"], Response::HTTP_BAD_REQUEST);
         }
 
         // Affecter référentiel

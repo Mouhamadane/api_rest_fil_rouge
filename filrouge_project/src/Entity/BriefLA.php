@@ -20,7 +20,7 @@ class BriefLA
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="briefLAs")
+     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="briefLAs", cascade={"persist"})
      */
     private $brief;
 
