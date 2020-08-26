@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\BriefRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -16,26 +17,31 @@ class Brief
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"livrable:briefs:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"livrable:briefs:read"})
      */
     private $langue;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"livrable:briefs:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"livrable:briefs:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"livrable:briefs:read"})
      */
     private $contexte;
 
@@ -101,6 +107,7 @@ class Brief
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, inversedBy="briefs")
+     * @Groups ({"livrable:briefs:read"})
      */
     private $groupes;
 

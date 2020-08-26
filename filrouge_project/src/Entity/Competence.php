@@ -52,14 +52,14 @@ class Competence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"competence:read", "groupecompetence:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read"})
+     * @Groups({"competence:read","competence:stat", "groupecompetence:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
-     * @Groups({"groupecompetence:read", "groupecompetence:write", "competence:read", "competence:write", "referentiel:read:all", "promo:referentiel:read"})
+     * @Groups({"groupecompetence:read","competence:stat", "groupecompetence:write", "competence:read", "competence:write", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $libelle;
 
@@ -71,13 +71,13 @@ class Competence
     /**
      * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="competence", cascade={"persist"})
      * @Assert\Valid
-     * @Groups({"competence:read", "competence:write", "referentiel:read:all"})
+     * @Groups({"referentiel:read:all"})
      */
     private $niveaux;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"groupecompetence:read", "competence:read"})
+     * @Groups({"groupecompetence:read","competence:stat", "competence:read"})
      */
     private $isDeleted;
 

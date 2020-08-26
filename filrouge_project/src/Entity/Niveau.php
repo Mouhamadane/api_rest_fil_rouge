@@ -43,11 +43,13 @@ class Niveau
 
     /**
      * @ORM\ManyToOne(targetEntity=Competence::class, inversedBy="niveaux", cascade={"persist"})
+     * @Groups({"competence:read","livrable:briefs:read"})
      */
     private $competence;
 
     /**
      * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="niveaux")
+     * @Groups({"livrable:briefs:read"})
      */
     private $brief;
 
