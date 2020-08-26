@@ -86,12 +86,6 @@ class BriefController extends AbstractController
                 $newBrief->addTag($tag);
             }
 
-            foreach($brief->getLivrablesAttenduses() as $livrableAtt){
-                foreach($livrableAtt->getLivrables() as $liv){
-                    $livrableAtt->removeLivrable($liv);
-                }
-                $newBrief->addLivrablesAttendus($livrableAtt);
-            }
             
             foreach($brief->getRessources() as $res){
                 $newRes = clone $res;
@@ -201,7 +195,7 @@ class BriefController extends AbstractController
             foreach($briefTab["livrablesAttenduses"] as $val){
                 $livrableAtt = $repoLA->find($val);
                 if($livrableAtt){
-                    $brief->addLivrablesAttendus($livrableAtt);
+                   // $brief->addLivrablesAttendus($livrableAtt);
                 }
             }
         }
