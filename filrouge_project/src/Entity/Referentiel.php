@@ -258,7 +258,7 @@ class Referentiel
     {
         if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
             $this->statistiquesCompetences[] = $statistiquesCompetence;
-            $statistiquesCompetence->setRefentiel($this);
+            $statistiquesCompetence->setReferentiel($this);
         }
 
         return $this;
@@ -269,8 +269,8 @@ class Referentiel
         if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
             $this->statistiquesCompetences->removeElement($statistiquesCompetence);
             // set the owning side to null (unless already changed)
-            if ($statistiquesCompetence->getRefentiel() === $this) {
-                $statistiquesCompetence->setRefentiel(null);
+            if ($statistiquesCompetence->getReferentiel() === $this) {
+                $statistiquesCompetence->setReferentiel(null);
             }
         }
 

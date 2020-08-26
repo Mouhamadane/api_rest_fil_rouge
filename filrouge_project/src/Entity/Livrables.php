@@ -27,6 +27,11 @@ class Livrables
      */
     private $apprenant;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=BriefLA::class, inversedBy="livrables")
+     */
+    private $briefLA;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -52,6 +57,18 @@ class Livrables
     public function setApprenant(?Apprenant $apprenant): self
     {
         $this->apprenant = $apprenant;
+
+        return $this;
+    }
+
+    public function getBriefLA(): ?BriefLA
+    {
+        return $this->briefLA;
+    }
+
+    public function setBriefLA(?BriefLA $briefLA): self
+    {
+        $this->briefLA = $briefLA;
 
         return $this;
     }
