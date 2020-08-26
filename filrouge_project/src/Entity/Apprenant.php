@@ -64,6 +64,10 @@ class Apprenant extends User
      * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="apprenant", cascade={"persist"})
      */
     private $promoBriefApprenants;
+    /* 
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="apprenants")
+     */
+    private $statistiquesCompetences;
 
     public function __construct()
     {
@@ -71,6 +75,7 @@ class Apprenant extends User
         $this->livrables = new ArrayCollection();
         $this->livrableRendus = new ArrayCollection();
         $this->promoBriefApprenants = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -194,6 +199,22 @@ class Apprenant extends User
             $this->promoBriefApprenants[] = $promoBriefApprenant;
             $promoBriefApprenant->setApprenant($this);
         }
+        return ($this);
+    }
+    /*
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setApprenant($this);
+        }
 
         return $this;
     }
@@ -205,6 +226,19 @@ class Apprenant extends User
             // set the owning side to null (unless already changed)
             if ($promoBriefApprenant->getApprenant() === $this) {
                 $promoBriefApprenant->setApprenant(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getApprenant() === $this) {
+                $statistiquesCompetence->setApprenant(null);
             }
         }
 

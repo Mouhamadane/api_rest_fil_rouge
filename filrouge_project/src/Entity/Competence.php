@@ -96,11 +96,17 @@ class Competence
      */
     private $isDeleted;
 
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="competences")
+     */
+    private $statistiquesCompetences;
+
     public function __construct()
     {
         $this->isDeleted = false;
         $this->groupeCompetences = new ArrayCollection();
         $this->niveaux = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -185,6 +191,37 @@ class Competence
     public function setIsDeleted(bool $isDeleted): self
     {
         $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setCompetences($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getCompetences() === $this) {
+                $statistiquesCompetence->setCompetences(null);
+            }
+        }
 
         return $this;
     }

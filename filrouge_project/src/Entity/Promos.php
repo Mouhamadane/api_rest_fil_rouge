@@ -229,10 +229,22 @@ class Promos
      */
     private $user;
 
+    /**
+     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promos")
+     */
+    private $promoBrief;
+
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="promos")
+     */
+    private $statistiquesCompetences;
+
     public function __construct()
     {
         $this->groupes = new ArrayCollection();
         $this->formateur = new ArrayCollection();
+        $this->promoBrief = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -414,6 +426,68 @@ class Promos
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoBrief[]
+     */
+    public function getPromoBrief(): Collection
+    {
+        return $this->promoBrief;
+    }
+
+    public function addPromoBrief(PromoBrief $promoBrief): self
+    {
+        if (!$this->promoBrief->contains($promoBrief)) {
+            $this->promoBrief[] = $promoBrief;
+            $promoBrief->setPromos($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoBrief(PromoBrief $promoBrief): self
+    {
+        if ($this->promoBrief->contains($promoBrief)) {
+            $this->promoBrief->removeElement($promoBrief);
+            // set the owning side to null (unless already changed)
+            if ($promoBrief->getPromos() === $this) {
+                $promoBrief->setPromos(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setPromos($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getPromos() === $this) {
+                $statistiquesCompetence->setPromos(null);
+            }
+        }
 
         return $this;
     }

@@ -26,11 +26,6 @@ class Livrables
     private $url;
 
     /**
-     * @ORM\ManyToOne(targetEntity=LivrablesAttendus::class, inversedBy="livrables")
-     */
-    private $livrablesAttendus;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="livrables")
      */
     private $apprenant;
@@ -53,18 +48,6 @@ class Livrables
     public function setUrl(string $url): self
     {
         $this->url = $url;
-
-        return $this;
-    }
-
-    public function getLivrablesAttendus(): ?LivrablesAttendus
-    {
-        return $this->livrablesAttendus;
-    }
-
-    public function setLivrablesAttendus(?LivrablesAttendus $livrablesAttendus): self
-    {
-        $this->livrablesAttendus = $livrablesAttendus;
 
         return $this;
     }

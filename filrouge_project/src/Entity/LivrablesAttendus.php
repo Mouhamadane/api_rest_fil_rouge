@@ -28,20 +28,15 @@ class LivrablesAttendus
     private $libelle;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Brief::class, inversedBy="livrablesAttenduses", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="livrableAttendu")
      */
-    private $briefs;
-
-    /**
-     * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="livrablesAttendus")
-     * @Groups({"brief:read"})
-     */
-    private $livrables;
+    private $briefLAs;
 
     public function __construct()
     {
         $this->briefs = new ArrayCollection();
         $this->livrables = new ArrayCollection();
+        $this->briefLAs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -67,44 +62,18 @@ class LivrablesAttendus
     }
 
     /**
-     * @return Collection|Brief[]
+     * @return Collection|BriefLA[]
      */
-    public function getBriefs(): Collection
+    public function getBriefLAs(): Collection
     {
-        return $this->briefs;
+        return $this->briefLAs;
     }
 
-    public function addBrief(Brief $brief): self
+    public function addBriefLA(BriefLA $briefLA): self
     {
-        if (!$this->briefs->contains($brief)) {
-            $this->briefs[] = $brief;
-        }
-
-        return $this;
-    }
-
-    public function removeBrief(Brief $brief): self
-    {
-        if ($this->briefs->contains($brief)) {
-            $this->briefs->removeElement($brief);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Livrables[]
-     */
-    public function getLivrables(): Collection
-    {
-        return $this->livrables;
-    }
-
-    public function addLivrable(Livrables $livrable): self
-    {
-        if (!$this->livrables->contains($livrable)) {
-            $this->livrables[] = $livrable;
-            $livrable->setLivrablesAttendus($this);
+        if (!$this->briefLAs->contains($briefLA)) {
+            $this->briefLAs[] = $briefLA;
+            $briefLA->setLivrableAttendu($this);
         }
 
         return $this;
@@ -115,13 +84,13 @@ class LivrablesAttendus
         return $this->livrables = new ArrayCollection();
     }
 
-    public function removeLivrable(Livrables $livrable): self
+    public function removeBriefLA(BriefLA $briefLA): self
     {
-        if ($this->livrables->contains($livrable)) {
-            $this->livrables->removeElement($livrable);
+        if ($this->briefLAs->contains($briefLA)) {
+            $this->briefLAs->removeElement($briefLA);
             // set the owning side to null (unless already changed)
-            if ($livrable->getLivrablesAttendus() === $this) {
-                $livrable->setLivrablesAttendus(null);
+            if ($briefLA->getLivrableAttendu() === $this) {
+                $briefLA->setLivrableAttendu(null);
             }
         }
 
