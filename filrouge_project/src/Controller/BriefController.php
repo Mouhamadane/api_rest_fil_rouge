@@ -87,7 +87,9 @@ class BriefController extends AbstractController
             }
 
             foreach($brief->getLivrablesAttenduses() as $livrableAtt){
-                $livrableAtt->clearLivrables();
+                foreach($livrableAtt->getLivrables() as $liv){
+                    $livrableAtt->removeLivrable($liv);
+                }
                 $newBrief->addLivrablesAttendus($livrableAtt);
             }
             
