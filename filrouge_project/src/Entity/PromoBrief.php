@@ -24,10 +24,7 @@ class PromoBrief
      */
     private $statut;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Promos::class)
-     */
-    private $promos;
+    
 
     /**
      * @ORM\ManyToOne(targetEntity=Brief::class)
@@ -40,9 +37,15 @@ class PromoBrief
     private $livrablePartiels;
 
     /**
+
      * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="promoBrief")
      */
     private $promoBriefApprenants;
+
+/**
+     * @ORM\ManyToOne(targetEntity=Promos::class, inversedBy="promoBrief")
+     */
+    private $promos;
 
 
     public function __construct()
@@ -68,17 +71,7 @@ class PromoBrief
         return $this;
     }
 
-    public function getPromos(): ?Promos
-    {
-        return $this->promos;
-    }
-
-    public function setPromos(?Promos $promos): self
-    {
-        $this->promos = $promos;
-
-        return $this;
-    }
+    
 
     public function getBrief(): ?Brief
     {
@@ -123,6 +116,7 @@ class PromoBrief
         return $this;
     }
 
+
     /**
      * @return Collection|PromoBriefApprenant[]
      */
@@ -155,4 +149,17 @@ class PromoBrief
     }
 
    
+
+    public function getPromos(): ?Promos
+    {
+        return $this->promos;
+    }
+
+    public function setPromos(?Promos $promos): self
+    {
+        $this->promos = $promos;
+
+        return $this;
+    }
+
 }

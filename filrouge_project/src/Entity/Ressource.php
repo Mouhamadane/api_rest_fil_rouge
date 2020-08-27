@@ -8,7 +8,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=RessourceRepository::class)
- * normalizationContext={"groups"={"brief:read"}},
  */
 class Ressource
 {
@@ -16,31 +15,34 @@ class Ressource
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read", "briefpromo:read","promo_brief:read","briefassigne:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read", "briefpromo:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","promo_brief:read", "briefpromo:read","briefassigne:read"})
      */
     private $url;
 
-    /**
-     * @ORM\Column(type="blob", nullable=true)
-     * @Groups({"brief:read"})
-     */
-    private $pieceJointe;
+   
 
     /**
      * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="ressources")
      */
     private $brief;
+
+    /**
+     * @ORM\Column(type="blob")
+     * @Groups({"brief:read"})
+     */
+    private $PieceJointe;
 
     public function getId(): ?int
     {
@@ -71,17 +73,7 @@ class Ressource
         return $this;
     }
 
-    public function getPieceJointe()
-    {
-        return $this->pieceJointe;
-    }
-
-    public function setPieceJointe($pieceJointe): self
-    {
-        $this->pieceJointe = $pieceJointe;
-
-        return $this;
-    }
+    
 
     public function getBrief(): ?Brief
     {
@@ -91,6 +83,18 @@ class Ressource
     public function setBrief(?Brief $brief): self
     {
         $this->brief = $brief;
+
+        return $this;
+    }
+
+    public function getPieceJointe()
+    {
+        return base64_encode((stream_get_contents($this->PieceJointe))) ;
+    }
+
+    public function setPieceJointe($PieceJointe): self
+    {
+        $this->PieceJointe = $PieceJointe;
 
         return $this;
     }

@@ -10,7 +10,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=LivrablePartielsRepository::class)
- * "normalizationContext"={"groups"={"brief:read"}}
  */
 class LivrablePartiels
 {
@@ -18,37 +17,34 @@ class LivrablePartiels
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read"})
+     *@Groups({"briefbrouillons", "briefpromo:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"briefbrouillons", "briefpromo:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"brief:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"brief:read"})
+     * @Groups({"briefbrouillons"})
      */
     private $delai;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"brief:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
      */
     private $type;
 

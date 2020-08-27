@@ -123,14 +123,15 @@ class Promos
      *      "promo:referentiel:read",
      *      "promo:formateur:read",
      *      "promo:apprenant:read",
-     *      "brief:read"
+     *      "brief:read",
+     *      "briefassigne:read",
      * })
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:read", "promo:write","brief:read", "promo:groupe:principal:read", "promo:referentiel:read"})
+     * @Groups({"promo:read","briefassigne:read", "briefpromo:read", "promo:write","brief:read", "promo:groupe:principal:read", "promo:referentiel:read"})
      */
     private $langue;
 
@@ -143,6 +144,7 @@ class Promos
      *      "promo:referentiel:read",
      *      "promo:formateur:read",
      *      "promo:apprenant:read",
+     *      "briefpromo:read",
      *      "brief:read"
      * })
      */
@@ -150,7 +152,7 @@ class Promos
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"promo:read", "brief:read","promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
+     * @Groups({"promo:read", "briefpromo:read", "brief:read","promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
      */
     private $description;
 
@@ -198,7 +200,8 @@ class Promos
      *      "promo:write",
      *      "promo:groupe:principal:read",
      *      "promo:referentiel:read",
-     *       "brief:read"
+     *      "brief:read",
+     *      "briefassigne:read"
      * })
      * 
      */
@@ -229,15 +232,22 @@ class Promos
     private $user;
 
     /**
-     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promo")
+     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promos")
      */
     private $promoBrief;
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="promos")
+     */
+    private $statistiquesCompetences;
+
 
     public function __construct()
     {
         $this->groupes = new ArrayCollection();
         $this->formateur = new ArrayCollection();
         $this->promoBrief = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -435,7 +445,8 @@ class Promos
     {
         if (!$this->promoBrief->contains($promoBrief)) {
             $this->promoBrief[] = $promoBrief;
-            $promoBrief->setPromo($this);
+            $promoBrief->setPromos($this);
+
         }
 
         return $this;
@@ -446,8 +457,40 @@ class Promos
         if ($this->promoBrief->contains($promoBrief)) {
             $this->promoBrief->removeElement($promoBrief);
             // set the owning side to null (unless already changed)
-            if ($promoBrief->getPromo() === $this) {
-                $promoBrief->setPromo(null);
+
+            if ($promoBrief->getPromos() === $this) {
+                $promoBrief->setPromos(null); }
+
+        return $this;
+    }
+}
+
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setPromos($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getPromos() === $this) {
+                $statistiquesCompetence->setPromos(null);
+
             }
         }
 

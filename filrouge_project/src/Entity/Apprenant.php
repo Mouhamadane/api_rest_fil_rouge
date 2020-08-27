@@ -30,13 +30,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Apprenant extends User
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    protected $id;
-
+    
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, mappedBy="apprenant")
      * @Groups({"promo:write","brief:read"})
@@ -62,6 +56,10 @@ class Apprenant extends User
      * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="apprenant")
      */
     private $promoBriefApprenants;
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="apprenants")
+     */
+    private $statistiquesCompetences;
 
     public function __construct()
     {
@@ -69,6 +67,8 @@ class Apprenant extends User
         $this->livrables = new ArrayCollection();
         $this->livrableRendus = new ArrayCollection();
         $this->promoBriefApprenants = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -179,6 +179,7 @@ class Apprenant extends User
     }
 
     /**
+
      * @return Collection|PromoBriefApprenant[]
      */
     public function getPromoBriefApprenants(): Collection
@@ -189,8 +190,22 @@ class Apprenant extends User
     public function addPromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
     {
         if (!$this->promoBriefApprenants->contains($promoBriefApprenant)) {
-            $this->promoBriefApprenants[] = $promoBriefApprenant;
-            $promoBriefApprenant->setApprenant($this);
+            $this->promoBriefApprenants[] = $promoBriefApprenant;}
+        }
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setApprenant($this);
+
         }
 
         return $this;
@@ -202,7 +217,18 @@ class Apprenant extends User
             $this->promoBriefApprenants->removeElement($promoBriefApprenant);
             // set the owning side to null (unless already changed)
             if ($promoBriefApprenant->getApprenant() === $this) {
-                $promoBriefApprenant->setApprenant(null);
+                $promoBriefApprenant->setApprenant(null);}
+            }
+            return $this;
+        }
+
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getApprenant() === $this) {
+                $statistiquesCompetence->setApprenant(null);
             }
         }
 

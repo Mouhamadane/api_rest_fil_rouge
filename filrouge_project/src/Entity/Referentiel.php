@@ -66,42 +66,42 @@ class Referentiel
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"referentiel:read", "promo:write", "promo:referentiel:read" })
+     * @Groups({"referentiel:read",  "briefpromo:read","promo:write", "briefassigne:read","promo:referentiel:read","promo_brief:read" })
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
-     * @Groups({"referentiel:read", "promo:referentiel:read"})
+     * @Groups({"referentiel:read",  "briefpromo:read","promo:referentiel:read","briefassigne:read","promo_brief:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Presentation ne doit pas être vide")
-     * @Groups({"referentiel:read", "promo:referentiel:read"})
+     * @Groups({"referentiel:read", "promo:referentiel:read","promo_brief:read"})
      */
     private $presentation;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Critère d'admission ne doit pas être vide")
-     * @Groups({"referentiel:read", "promo:referentiel:read"})
+     * @Groups({"referentiel:read", "promo:referentiel:read","promo_brief:read"})
      */
     private $critereAdmission;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Critère ne doit pas être vide")
-     * @Groups({"referentiel:read"})
+     * @Groups({"referentiel:read","promo_brief:read"})
      */
     private $critereEvaluation;
 
     /**
      * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="referentiels")
      * @ApiSubresource(maxDepth=3)
-     * @Groups({"referentiel:read", "referentiel:read:all", "promo:referentiel:read"})
+     * @Groups({"referentiel:read","briefassigne:read", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $groupeCompetences;
 
@@ -116,10 +116,16 @@ class Referentiel
      */
     private $promos;
 
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="refentiel")
+     */
+    private $statistiquesCompetences;
+
     public function __construct()
     {
         $this->groupeCompetences = new ArrayCollection();
         $this->promos = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -238,6 +244,37 @@ class Referentiel
             // set the owning side to null (unless already changed)
             if ($promo->getReferentiel() === $this) {
                 $promo->setReferentiel(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setReferentiel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getReferentiel() === $this) {
+                $statistiquesCompetence->setReferentiel(null);
             }
         }
 

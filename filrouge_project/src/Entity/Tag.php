@@ -14,8 +14,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *      attributes={
  *          "security"="is_granted('ROLE_ADMIN')",
- *          "security_message"="Vous n'avez pas accès aux tags",
- *          "normalizationContext"={"groups"={"tag:read","brief:read"}},
+ *          "security_message"="Vous n'avez pas accès aux tags"
+ *         
  *      },
  *    
  *      collectionOperations={
@@ -46,25 +46,24 @@ class Tag
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"tag:read", "grptag:update","brief:read"})
+     * @Groups({"tag:read", "grptag:update", "briefpromo:read","briefassigne:read","brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"tag:read", "grptag:read", "grptag:write","brief:read"})
+     * @Groups({"tag:read", "grptag:read",  "briefpromo:read","briefassigne:read","grptag:write","brief:read","promo_brief:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"tag:read", "grptag:write","brief:read"})
+     * @Groups({"tag:read", "grptag:write","brief:read","promo_brief:read"})
      */
     private $descriptif;
 
     /**
      * @ORM\ManyToMany(targetEntity=GroupeTag::class, inversedBy="tags", cascade={"persist"})
-     * @Groups({"tag:read","brief:read"})
      */
     private $groupeTags;
 

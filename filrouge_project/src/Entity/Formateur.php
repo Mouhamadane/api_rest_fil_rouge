@@ -34,16 +34,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Formateur extends User
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     * @Groups({"promo:write","brief:read"})
-     */
-    protected $id;
+    
 
     /**
      * @ORM\ManyToMany(targetEntity=Promos::class, mappedBy="formateur")
+     *  @Groups({"promo_brief:read" ,"briefpromo:read"})
      */
     protected $promos;
 
