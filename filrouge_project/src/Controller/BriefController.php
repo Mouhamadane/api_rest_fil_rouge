@@ -94,7 +94,9 @@ class BriefController extends AbstractController
             }
             
             // Supprimer les groupes du brief dupliqué
-            $newBrief->clearGroupe();
+            if(!empty($newBrief->getGroupes())){
+                $newBrief->clearGroupe();
+            }
             // dd($normalizer->normalize($newBrief->getGroupes(), 'json', ["groups" => "brief:read"]));
             $errors = $validator->validate($newBrief);
             if (count($errors)){
@@ -292,7 +294,13 @@ class BriefController extends AbstractController
      *      }
      * )
      */
-    public function updateBrief(Request $req, PromoBriefRepository $repo, int $id, int $idb) {
+    public function updateBrief(
+        Request $req,
+        PromoBriefRepository $repo,
+        LivrablesAttendusRepository $repoLA,
+        int $id,
+        int $idb
+    ) {
         $promoBrief = $repo->findByPromoAndBrief($id, $idb);
         // Si le brief de la promo existe!!!
         if($promoBrief){
@@ -345,17 +353,30 @@ class BriefController extends AbstractController
             if(isset($tab["livrablesAttendus"]) && !empty($tab["livrablesAttendus"])){
                 foreach($tab["livrablesAttendus"] as $val){
                     if(!empty($val) && isset($val["id"]) && !isset($val["libelle"])){
-                        foreach($promoBrief->getBrief()->getLivrablesAttenduses() as $livrableAtt){
-                            if($livrableAtt->getId() == $val["id"]){
-                                $promoBrief->getBrief()->removeLivrablesAttendus($livrableAtt);
-                                $message[] = ["message" => "Livrable attendu brief supprimé"];
+                        $trouve = false;
+                        foreach($promoBrief->getBrief()->getBriefLAs() as $briefLA){
+                            if($briefLA->getLivrableAttendu()->getId() == $val["id"]){
+                                $trouve = true;
+                                $promoBrief->getBrief()->removeBriefLA($briefLA);
+                                $message[] = ["message" => "Le livrable attendu ". $briefLA->getLivrableAttendu()->getLibelle() ." supprimé"];
+                            }
+                        }
+                        if(!$trouve){
+                            $livrableAtt = $repoLA->find($val["id"]);
+                            if($livrableAtt){
+                                $briefLA = new BriefLA;
+                                $briefLA->setLivrableAttendu($livrableAtt);
+                                $promoBrief->getBrief()->addBriefLA($briefLA);
+                                $message[] = ["message" => "Livrable attendu ". $livrableAtt->getLibelle() ." ajouté"];
                             }
                         }
                     }elseif(!empty($val) && !isset($val["id"]) && isset($val["libelle"])){
                         $livAtt = new LivrablesAttendus;
                         $livAtt->setLibelle($val["libelle"]);
-                        $promoBrief->getBrief()->addLivrablesAttendus($livAtt);
-                        $message[] = ["message" => "Livrable attendu brief ajouté"];
+                        $briefLA = new BriefLA;
+                        $briefLA->setLivrableAttendu($livAtt);
+                        $promoBrief->getBrief()->addBriefLA($briefLA);
+                        $message[] = ["message" => "Livrable attendu ". $val["libelle"] ." brief ajouté"];
                     }
                 }
             }
@@ -437,18 +458,22 @@ class BriefController extends AbstractController
                 $tab = json_decode($req->getContent(), true);
                 // Affecter ou Désaffecter un brief à un apprenant ou des apprenants
                 if(isset($tab["apprenants"]) && !empty($tab["apprenants"])){
+                    // Recuperer le groupe principal
                     foreach($promo()->getGroupes() as $groupe){
                         if($groupe->getType() === "principal"){
                             $gp = $groupe;
                             break;
                         }
                     }
+
                     foreach($tab["apprenants"] as $val){
                         $trouve = false;
+                        // Pour chaque apprenant chercher s'il est dans le groupe principal
                         foreach($gp->getApprenant() as $apprenant){
                             if($apprenant->getEmail() == $val["email"]){
                                 $trouve = true;
                                 $isAssign = false;
+                                // Verifier si le brief lui est deja affecté
                                 foreach($apprenant->getPromoBriefApprenants() as $promoBA){
                                     // Désaffecter un brief à un étudiant
                                     if($promoBA->getPromoBrief()->getBrief() == $brief){
@@ -487,39 +512,66 @@ class BriefController extends AbstractController
                         }
                     }
                 }
-            }
-
-            // Affecter brief à un ou plusieurs groupes
-            if(isset($tab["groupes"]) && !empty($tab["groupes"])){
-                foreach($tab["groupes"] as $val){
-                    $groupe = $repoGroupe->find($val);
-                    if($groupe){
-                        if($groupe->getPromos() == $promoBrief->getPromos()){
-                            if (!$groupe->getBriefs()->contains($promoBrief->getBrief())){
-                                dd("assigné groupe");
+                // Affecter brief à un ou plusieurs groupes
+                if(isset($tab["groupes"]) && !empty($tab["groupes"])){
+                    foreach($tab["groupes"] as $val){
+                        $groupe = $repoGroupe->find($val);
+                        if($groupe){
+                            // Verifier si le groupe est secondaire
+                            if($groupe->getType() === "secondaire"){
+                                // Verifier si le groupe appartient à la promo
+                                if($groupe->getPromos() === $promo){
+                                    // Verifier si le brief est deja assigné au groupe
+                                    if (!$groupe->getBriefs()->contains($brief)){
+                                        $brief->addGroupe($groupe);
+                                        $promoBrief = new PromoBrief;
+                                        $promoBrief
+                                            ->setStatut("en_cours")
+                                            ->setPromos($promo)
+                                            ->setBrief($brief);
+                                        foreach($groupe->getApprenant() as $appren){
+                                            $pba = new PromoBriefApprenant;
+                                            $pba
+                                                ->setStatut("assigne")
+                                                ->setPromoBrief($promoBrief)
+                                                ->setApprenant($appren);
+                                            $this->em->persist($pba);
+                                            $texte = (new \Swift_Message("Admission Sonatel Academy"))
+                                                ->setFrom("damanyelegrand@gmail.com")
+                                                ->setTo($appren->getEmail())
+                                                ->setBody("Bonjour ".$appren->getPrenom()." ".$appren->getNom()."\nLe brief ". $brief->getTitre() ." vous a été assigné.\nMerci.");
+                                            $mailer->send($texte);
+                                        }
+                                        $this->em->persist($promoBrief);
+                                        $message[] = ["message" => "Le brief est assigné au ".$groupe->getNom()];
+                                    }else{
+                                        return $this->json(["message" => "Le brief est déjà assigné au groupe"], Response::HTTP_NOT_FOUND);
+                                    }
+                                }else{
+                                    return $this->json(["message" => "Le groupe n'est pas dans la promo"], Response::HTTP_NOT_FOUND);
+                                }
                             }else{
-                                return $this->json(["message" => "Le brief est déjà assigné au groupe"], Response::HTTP_NOT_FOUND);
+                                return $this->json(["message" => "Le groupe ". $groupe->getNom() ." n'est pas secondaire"], Response::HTTP_NOT_FOUND);
                             }
                         }else{
-                            return $this->json(["message" => "Le groupe n'est pas dans la promo"], Response::HTTP_NOT_FOUND);
+                            return $this->json(["message" => "Groupe Not Found"], Response::HTTP_NOT_FOUND);
                         }
-                        dd("Groupe trouvé");
-                    }else{
-                        return $this->json(["message" => "Groupe Not Found"], Response::HTTP_NOT_FOUND);
                     }
                 }
-            }
 
-            $errors = $this->validator->validate($promoBrief);
-            if (count($errors)){
-                $errors = $this->serializer->serialize($errors,"json");
-                return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
-            }
-            $this->em->flush();
-            return $this->json($message, Response::HTTP_OK);
+                $errors = $this->validator->validate($promoBrief);
+                if (count($errors)){
+                    $errors = $this->serializer->serialize($errors,"json");
+                    return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
+                }
+                $this->em->flush();
+                return $this->json($message, Response::HTTP_OK);
 
+            }else{
+                return $this->json(["message" => "Brief Not Found"], Response::HTTP_NOT_FOUND);
+            }
         }else{
-            return $this->json(["message" => "PromoBrief Not Found"], Response::HTTP_NOT_FOUND);
+            return $this->json(["message" => "Promo Not Found"], Response::HTTP_NOT_FOUND);
         }
     }
 }

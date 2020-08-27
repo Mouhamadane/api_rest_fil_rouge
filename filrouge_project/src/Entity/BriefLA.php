@@ -27,7 +27,7 @@ class BriefLA
     private $brief;
 
     /**
-     * @ORM\ManyToOne(targetEntity=LivrablesAttendus::class, inversedBy="briefLAs")
+     * @ORM\ManyToOne(targetEntity=LivrablesAttendus::class, inversedBy="briefLAs", cascade={"persist"})
      * @Groups({"brief:read"})
      */
     private $livrableAttendu;

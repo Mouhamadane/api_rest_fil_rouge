@@ -28,7 +28,7 @@ class LivrablesAttendus
     private $libelle;
 
     /**
-     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="livrableAttendu")
+     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="livrableAttendu", cascade={"persist"})
      */
     private $briefLAs;
 

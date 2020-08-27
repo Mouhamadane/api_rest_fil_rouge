@@ -37,7 +37,7 @@ class PromoBrief
     private $livrablePartiels;
     
     /** 
-     * @ORM\ManyToOne(targetEntity=Promos::class, inversedBy="promoBrief")
+     * @ORM\ManyToOne(targetEntity=Promos::class, inversedBy="promoBrief", cascade={"persist"})
      */
     private $promos;
 

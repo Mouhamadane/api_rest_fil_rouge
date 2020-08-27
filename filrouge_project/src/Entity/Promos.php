@@ -230,7 +230,7 @@ class Promos
     private $user;
 
     /**
-     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promos")
+     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promos", cascade={"persist"})
      */
     private $promoBrief;
 
