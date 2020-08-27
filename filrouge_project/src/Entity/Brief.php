@@ -13,6 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity(repositoryClass=BriefRepository::class)
  * @ApiResource(
  *      collectionOperations={
+ *         "GET",
  *          "get_brief"={
  *              "method"="GET",
  *              "path"="formateurs/briefs",
