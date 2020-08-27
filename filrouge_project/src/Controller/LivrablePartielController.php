@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\ApprenantRepository;
 use App\Repository\BriefRepository;
 use App\Repository\FormateurRepository;
+use App\Repository\LivrablePartielsRepository;
 use App\Repository\PromosRepository;
 use App\Repository\ReferentielRepository;
 use App\Repository\StatistiquesCompetencesRepository;
@@ -136,10 +137,7 @@ class LivrablePartielController extends AbstractController
      */
 
     public function getApprenantBriefs(ApprenantRepository $appRepo,$id,$idp,$idr,SerializerInterface $serializer){
-        $appenant = $appRepo->find($id);
-        $grpApp = $appenant->getGroupes();
-        $grpAppTab = $serializer->normalize($grpApp,'json',["groups"=>"livrable:briefs:read"]);
-        dd($grpAppTab);
+
     }
     /**
      * @Route(
@@ -149,21 +147,39 @@ class LivrablePartielController extends AbstractController
      * )
      */
 
-    public function getReferentielIdCompetences(StatistiquesCompetencesRepository $statRepo, SerializerInterface $serializer,$id,$idp,$idr){
-        $stats = $statRepo->findAll();
-        foreach ($stats as $stat){
-            $promo = $stat->getPromos();
-            $apprenant = $stat->getApprenant();
-            $referentiel = $promo->getReferentiel();
-            if(($promo->getId() == $idp) && ($apprenant->getId() == $id) && ($referentiel->getId()==$idr)){
-                $competence = $stat->getCompetence();
-                $competenceTab = $serializer->normalize($competence,'json',["groups"=>"competence:read"]);
-                $tab[] = ["competence"=>$competenceTab];
+    public function getApprenantCompetencesStat(ApprenantRepository $repository,StatistiquesCompetencesRepository $statRepo, SerializerInterface $serializer,$id,$idp,$idr){
+        $appenant = $repository->find($id);
+        $appenantTab = $serializer->normalize($appenant,'json');
+        if ($appenant){
+            $stats = $statRepo->findAll();
+            foreach ($stats as $stat){
+                $promoId = $stat->getPromos()->getId();
+                $refId = $stat->getReferentiel()->getId();
+                $appenantId = $stat->getApprenant()->getId();
+                if ($promoId == $idp && $appenantId == $id && $refId == $idr){
+                    $competence = $stat->getCompetence();
+                    $competenceTab = $serializer->normalize($competence,'json');
+                    $tabCompetence[] = $competenceTab;
+                }
             }
-        }
-        if (empty($tab)){
-            return $this->json("Aucune competence trouvee",203,[]);
+            $tab [] = ["apprenant"=> $appenantTab,"competence"=>$tabCompetence];
         }
         return $this->json($tab,200,[]);
+    }
+    //En cours
+    /**
+     * @Route(path="/api/apprenants/livrablepartiels/{id}/commentaires",
+     *        name="commentaires_livrables",
+     *        methods={"GET"}
+     *)
+     */
+
+    public function getCommentaireLivrable(LivrablePartielsRepository $repository,SerializerInterface $serializer,$id){
+        $livrablePartiel = $repository->find($id);
+        $livrableRendu = $livrablePartiel->getLivrableRendus();
+        $livrableRenduTab = $serializer->normalize($livrableRendu,'json',["groups"=>"commentaire:write"]);
+        dd($livrableRenduTab);
+
+
     }
 }

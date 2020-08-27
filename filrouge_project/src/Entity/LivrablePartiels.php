@@ -128,7 +128,7 @@ class LivrablePartiels
 
     /**
      * @ORM\ManyToOne(targetEntity=PromoBrief::class, inversedBy="livrablePartiels")
-     * @Groups ({"livrablePartiel:read"})
+     * @Groups ({"livrablePartiel:read","commentaire:write"})
      */
     private $promoBrief;
 
