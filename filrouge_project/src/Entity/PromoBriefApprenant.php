@@ -49,18 +49,6 @@ class PromoBriefApprenant
         return $this;
     }
 
-    public function getApprenant(): ?Apprenant
-    {
-        return $this->apprenant;
-    }
-
-    public function setApprenant(?Apprenant $apprenant): self
-    {
-        $this->apprenant = $apprenant;
-
-        return $this;
-    }
-
     public function getPromoBrief(): ?PromoBrief
     {
         return $this->promoBrief;
@@ -69,6 +57,18 @@ class PromoBriefApprenant
     public function setPromoBrief(?PromoBrief $promoBrief): self
     {
         $this->promoBrief = $promoBrief;
+
+        return $this;
+    }
+
+    public function getApprenant(): ?Apprenant
+    {
+        return $this->apprenant;
+    }
+
+    public function setApprenant(?Apprenant $apprenant): self
+    {
+        $this->apprenant = $apprenant;
 
         return $this;
     }

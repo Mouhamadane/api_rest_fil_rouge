@@ -47,7 +47,6 @@ class PromoBrief
      */
     private $promos;
 
-
     public function __construct()
     {
         $this->livrablePartiels = new ArrayCollection();
