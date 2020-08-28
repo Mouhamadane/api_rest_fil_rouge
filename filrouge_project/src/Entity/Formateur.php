@@ -64,10 +64,6 @@ class Formateur extends User
         $this->commentaires = new ArrayCollection();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     /**
      * @return Collection|Promos[]

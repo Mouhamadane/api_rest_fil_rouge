@@ -19,6 +19,25 @@ class CommentaireGeneralRepository extends ServiceEntityRepository
         parent::__construct($registry, CommentaireGeneral::class);
     }
 
+    public function findChatByApprenanAndPromo($idp,$ida): array
+    {
+        $entityManager = $this->getEntityManager();
+        $query = $entityManager->createQuery(
+            'SELECT c
+        FROM App\Entity\CommentaireGeneral c
+        JOIN c.filDeDiscussion fd
+        JOIN  fd.promo p
+        JOIN p.user u
+        WHERE p.id = :idp
+        AND u.id =:ida'
+        )->setParameter('idp', $idp)
+        ->setParameter('ida', $ida)
+        ;
+
+        return $query->getResult();
+
+    }
+
     // /**
     //  * @return CommentaireGeneral[] Returns an array of CommentaireGeneral objects
     //  */

@@ -67,10 +67,7 @@ class Apprenant extends User
         $this->livrableRendus = new ArrayCollection();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+
 
     /**
      * @return Collection|Groupes[]

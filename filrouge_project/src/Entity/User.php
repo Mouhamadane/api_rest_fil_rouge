@@ -58,8 +58,10 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promo:read", "promo:groupe:principal:read", "promo:formateur:read", "promo:apprenant:read"})
+     * @Groups({"promo:read", "promo:groupe:principal:read", "promo:formateur:read", "promo:apprenant:read","profilsortie:read"})
+     *
      */
+
     protected $id;
 
     /**
@@ -69,7 +71,9 @@ class User implements UserInterface
      *      "promo:read",
      *      "promo:write",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "profilsortie:read"
+     * 
      * })
      */
     protected $email;
@@ -91,7 +95,9 @@ class User implements UserInterface
      *      "groupecompetence:read",
      *      "promo:groupe:principal:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "profilsortie:read",
+     *      "profilsortieEtudiant:read"
      * })
      */
     protected $nom;
@@ -105,7 +111,9 @@ class User implements UserInterface
      *      "groupecompetence:read",
      *      "promo:groupe:principal:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "profilsortie:read"
+     * 
      * })
      */
     protected $prenom;

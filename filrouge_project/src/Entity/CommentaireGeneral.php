@@ -2,11 +2,29 @@
 
 namespace App\Entity;
 
-use App\Repository\CommentaireGeneralRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
+use App\Repository\CommentaireGeneralRepository;
 
 /**
  * @ORM\Entity(repositoryClass=CommentaireGeneralRepository::class)
+ * @ApiResource(
+ *   collectionOperations={
+ *   "getCommentaire"={
+ *              "method"="GET", 
+ *              "path"="users/promo/{id}/apprenant/{ida}/chats/date",
+ * 
+ * 
+ * 
+ *          },
+ *   "AddCommentaire"={
+ *              "method"="POST", 
+ *              "path"="users/promo/{id}/apprenant/{ida}/chats",
+ *              "defaults"={"id"=null}
+ * 
+ * },
+ * }
+ * )
  */
 class CommentaireGeneral
 {
@@ -73,7 +91,7 @@ class CommentaireGeneral
 
     public function getPieceJointe()
     {
-        return $this->pieceJointe;
+        return base64_encode((stream_get_contents($this->pieceJointe))) ;
     }
 
     public function setPieceJointe($pieceJointe): self

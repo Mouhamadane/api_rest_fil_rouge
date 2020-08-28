@@ -223,6 +223,12 @@ class Promos
      */
     private $user;
 
+    /**
+     * @ORM\OneToOne(targetEntity=FilDeDiscussion::class, cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $filDeDiscussion;
+
     public function __construct()
     {
         $this->groupes = new ArrayCollection();
@@ -408,6 +414,18 @@ class Promos
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getFilDeDiscussion(): ?FilDeDiscussion
+    {
+        return $this->filDeDiscussion;
+    }
+
+    public function setFilDeDiscussion(FilDeDiscussion $filDeDiscussion): self
+    {
+        $this->filDeDiscussion = $filDeDiscussion;
 
         return $this;
     }
