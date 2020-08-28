@@ -27,6 +27,7 @@ class Livrables
 
     /**
      * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="livrables")
+     * @Groups({"brief:read"})
      */
     private $apprenant;
 

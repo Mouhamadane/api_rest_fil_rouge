@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Brief;
 use App\Entity\BriefLA;
+use App\Entity\Livrables;
 use App\Entity\Ressource;
 use App\Entity\PromoBrief;
 use App\Entity\LivrablesAttendus;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\LivrablesAttendusRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -36,6 +38,7 @@ class BriefController extends AbstractController
     private $repoNiveau;
     private $repoTag;
     private $validator;
+    private $normalizer;
 
     public function __construct(
         SerializerInterface $serializer,
@@ -43,7 +46,8 @@ class BriefController extends AbstractController
         Security $security,
         ValidatorInterface $validator,
         TagRepository $repoTag,
-        NiveauRepository $repoNiveau
+        NiveauRepository $repoNiveau,
+        NormalizerInterface $normalizer
     )
     {
         $this->serializer = $serializer;
@@ -52,6 +56,7 @@ class BriefController extends AbstractController
         $this->repoNiveau = $repoNiveau;
         $this->repoTag = $repoTag;
         $this->validator = $validator;
+        $this->normalizer = $normalizer;
     }
 
     /**
@@ -66,7 +71,7 @@ class BriefController extends AbstractController
      *      }
      * )
      */
-    public function dupliquerBrief(BriefRepository $repo, int $id, ValidatorInterface $validator, NormalizerInterface $normalizer) {
+    public function dupliquerBrief(BriefRepository $repo, int $id, ValidatorInterface $validator) {
         $brief = $repo->find($id);
         if($brief){
             $newBrief = clone $brief;
@@ -97,7 +102,7 @@ class BriefController extends AbstractController
             if(!empty($newBrief->getGroupes())){
                 $newBrief->clearGroupe();
             }
-            // dd($normalizer->normalize($newBrief->getGroupes(), 'json', ["groups" => "brief:read"]));
+            // dd($this->normalizer->normalize($newBrief->getGroupes(), 'json', ["groups" => "brief:read"]));
             $errors = $validator->validate($newBrief);
             if (count($errors)){
                 $errors = $this->serializer->serialize($errors,"json");
@@ -124,12 +129,63 @@ class BriefController extends AbstractController
      *      }
      * )
      */
-    public function ajouterLivrable(Request $req, int $id, int $idg, ApprenantRepository $repoApp, GroupesRepository $repoGroupe) {
+    public function ajouterLivrable(Request $req, int $id, int $idg, PromoBriefRepository $repoPB, ApprenantRepository $repoApp, GroupesRepository $repoGroupe) {
         $apprenant = $repoApp->find($id);
-        if($apprenant === $this->security->getUser()){
+        if($apprenant == $this->security->getUser()){
+
             $groupe = $repoGroupe->find($idg);
+            // Verifier si le groupe existe
             if($groupe){
-                
+                // Verifier si apprenant est dans ce groupe
+                if($groupe->getApprenant()->contains($apprenant)){
+                    $briefEnCours = null;
+                    $trouve = false;
+                    // Chercher le brief en cours de ce groupe
+                    foreach($groupe->getBriefs() as $b){
+                        $pb = $repoPB->findByPromoAndBrief($groupe->getPromos()->getId(), $b->getId());
+                        if($pb && $pb->getStatut() === "en_cours"){
+                            $trouve = true;
+                            $briefEnCours = $b;
+                        }
+                    }
+                    if($trouve){
+                        $tab = json_decode($req->getContent(), true);
+                        if(isset($tab["livrables"]) && !empty($tab["livrables"])){
+                            $livrables = new ArrayCollection();
+                            foreach($tab["livrables"] as $val){
+                                foreach($briefEnCours->getBriefLAs() as $k => $bla){
+                                    if($bla->getLivrableAttendu()->getLibelle() === ucfirst(key($val))){
+                                        $livrable = new Livrables;
+                                        $livrable->setUrl($val[key($val)]);
+                                        $apprenant->addLivrable($livrable);
+                                        $bla->addLivrable($livrable);
+                                        $this->em->persist($livrable);
+                                        $livrables[] = $livrable;
+                                    }
+                                }
+                            }
+                            if($groupe->getType() === "secondaire"){
+                                // On affecte les livrables pour les autres apprenants du groupe
+                                foreach($groupe->getApprenant() as $app){
+                                    if($app != $apprenant){
+                                        foreach($livrables as $liv){
+                                            $newLiv = clone $liv;
+                                            $app->addLivrable($newLiv);
+                                            $this->em->persist($newLiv);
+                                        }
+                                    }
+                                }
+                            }
+                            // dd($this->normalizer->normalize($groupe->getApprenant(), 'json', ["groups" => "brief:read"]));
+                            $this->em->flush();
+                            return $this->json(["message" => "Livrables créés et affectés aux apprenants du groupe ". $groupe->getNom() ." par ".$apprenant->getPrenom() ." ".$apprenant->getNom()], Response::HTTP_CREATED);
+                        }
+                    }else{
+                        return $this->json(["message" => "Pas de brief en cours pour ce groupe"], Response::HTTP_BAD_REQUEST);
+                    }
+                }else{
+                    return $this->json(["message" => "Vous n'avez pas accès à ce groupe"], Response::HTTP_BAD_REQUEST);
+                }
             }else{
                 return $this->json(["message" => "Le groupe n'esxite pas"], Response::HTTP_BAD_REQUEST);
             }
@@ -155,6 +211,7 @@ class BriefController extends AbstractController
         ReferentielRepository $repoRef,
         GroupesRepository $repoGrpe,
         LivrablesAttendusRepository $repoLA,
+        PromoBriefRepository $repoPB,
         \Swift_Mailer $mailer
     ) {
         $brief = new Brief;
@@ -195,6 +252,7 @@ class BriefController extends AbstractController
                 }
             }
         }
+
          
         // Ajouter livrables attendus
         if(isset($briefTab["livrablesAtt"]) && !empty($briefTab["livrablesAtt"])){
@@ -232,26 +290,37 @@ class BriefController extends AbstractController
             foreach($briefTab["groupes"] as $grpe){
                 $groupe = $repoGrpe->find($grpe);
                 if($groupe){
-                    $brief->addGroupe($groupe);
-                    $promoBrief = new PromoBrief();
-                    $promoBrief
-                        ->setStatut("en_cours")
-                        ->setPromos($groupe->getPromos())
-                        ->setBrief($brief);
-                    foreach($groupe->getApprenant() as $appren){
-                        $pba = new PromoBriefApprenant;
-                        $pba
-                            ->setStatut("assigne")
-                            ->setPromoBrief($promoBrief)
-                            ->setApprenant($appren);
-                        $this->em->persist($pba);
-                        $texte = (new \Swift_Message("Admission Sonatel Academy"))
-                            ->setFrom("damanyelegrand@gmail.com")
-                            ->setTo($appren->getEmail())
-                            ->setBody("Bonjour ".$appren->getPrenom()." ".$appren->getNom()."\nLe brief ". $brief->getTitre() ." vous a été assigné.\nMerci.");
-                        $mailer->send($texte);
+                    // On verifie si le groupe a deja un brief en cours
+                    $trouve = false;
+                    foreach($groupe->getBriefs() as $b){
+                        $pb = $repoPB->findByPromoAndBrief($groupe->getPromos()->getId(), $b->getId());
+                        if($pb && $pb->getStatut() === "en_cours"){
+                            $trouve = true;
+                        }
+                    }if(!$trouve){
+                        $brief->addGroupe($groupe);
+                        $promoBrief = new PromoBrief();
+                        $promoBrief
+                            ->setStatut("en_cours")
+                            ->setPromos($groupe->getPromos())
+                            ->setBrief($brief);
+                        foreach($groupe->getApprenant() as $appren){
+                            $pba = new PromoBriefApprenant;
+                            $pba
+                                ->setStatut("assigne")
+                                ->setPromoBrief($promoBrief)
+                                ->setApprenant($appren);
+                            $this->em->persist($pba);
+                            $texte = (new \Swift_Message("Admission Sonatel Academy"))
+                                ->setFrom("damanyelegrand@gmail.com")
+                                ->setTo($appren->getEmail())
+                                ->setBody("Bonjour ".$appren->getPrenom()." ".$appren->getNom()."\nLe brief ". $brief->getTitre() ." vous a été assigné.\nMerci.");
+                            $mailer->send($texte);
+                        }
+                        $this->em->persist($promoBrief);
+                    }else{
+                        $this->json(["message" => "Le groupe a deja un brief en cours"], Response::HTTP_BAD_REQUEST);
                     }
-                    $this->em->persist($promoBrief);
                 }
             }
             $brief->setStatut("assigne");
