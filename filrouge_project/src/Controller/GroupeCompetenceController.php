@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Competence;
 use App\Entity\GroupeCompetence;
+use App\Repository\ApprenantRepository;
 use App\Repository\CompetenceRepository;
 use App\Repository\GroupeCompetenceRepository;
+use App\Repository\LivrablePartielsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -86,8 +88,8 @@ class GroupeCompetenceController extends AbstractController
      *      methods="PUT",
      *      defaults={
      *          "_controller"="\app\GroupeCompetenceController::updateGrpCompetence",
-    *           "_api_resource_class"=GroupeCompetence::class,
-    *           "_api_item_operation_name"="update_grpecompetence"
+     *           "_api_resource_class"=GroupeCompetence::class,
+     *           "_api_item_operation_name"="update_grpecompetence"
      *      }
      * )
      */
@@ -124,4 +126,5 @@ class GroupeCompetenceController extends AbstractController
         return $this->json($grpc, Response::HTTP_OK);
         // dd($grpc);
     }
+
 }

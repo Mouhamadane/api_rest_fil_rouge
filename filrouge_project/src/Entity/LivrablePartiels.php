@@ -7,6 +7,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -57,13 +58,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          "add_livrablePartiel"={
  *              "security"="(is_granted('ROLE_FORMATEUR'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
- *              "method"="GET",
- *              "path"="/formateurs/promo/{idp}/brief/{idb}/livrablepartiels"
- *          },
- *          "delete_livrablePartiel"={
- *              "security"="(is_granted('ROLE_FORMATEUR'))",
- *              "security_message"="Vous n'avez pas access à cette Ressource",
- *              "method"="DELETE",
+ *              "method"="PUT",
  *              "path"="/formateurs/promo/{idp}/brief/{idb}/livrablepartiels"
  *          },
  *          "update_livrablePartiel_Apprenant"={
@@ -94,6 +89,7 @@ class LivrablePartiels
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
      * @Groups({"livrablePartiel:read"})
      */
     private $libelle;
@@ -118,6 +114,8 @@ class LivrablePartiels
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le type ne doit pas être vide")
+     *
      */
     private $type;
 

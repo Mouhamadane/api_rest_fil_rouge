@@ -17,36 +17,35 @@ class Commentaire
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"commentaire:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"commentaire:write"})
+     * @Groups({"commentaire:read"})
      */
     private $content;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"commentaire:write"})
+     * @Groups({"commentaire:read"})
      */
     private $date;
 
     /**
      * @ORM\Column(type="blob", nullable=true)
-     * @Groups({"commentaire:write"})
+     * @Groups({"commentaire:read"})
      */
     private $pieceJointe;
 
     /**
      * @ORM\ManyToOne(targetEntity=LivrableRendu::class, inversedBy="commentaires")
-     * @Groups({"commentaire:write"})
      */
     private $livrableRendu;
 
     /**
      * @ORM\ManyToOne(targetEntity=Formateur::class, inversedBy="commentaires")
-     * @Groups({"commentaire:write"})
      */
     private $formateur;
 

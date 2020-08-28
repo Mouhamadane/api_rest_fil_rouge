@@ -2,15 +2,20 @@
 
 namespace App\Controller;
 
+use App\Entity\Niveau;
+use DateTime;
+use App\Entity\LivrablePartiels;
 use App\Repository\ApprenantRepository;
 use App\Repository\BriefRepository;
 use App\Repository\FormateurRepository;
 use App\Repository\LivrablePartielsRepository;
+use App\Repository\LivrableRenduRepository;
 use App\Repository\PromosRepository;
 use App\Repository\ReferentielRepository;
 use App\Repository\StatistiquesCompetencesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,9 +23,15 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizableInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class LivrablePartielController extends AbstractController
 {
+    private $user;
+    public function __construct(TokenStorageInterface $tokenStorage)
+    {
+        $this->user = $tokenStorage->getToken()->getUser();
+    }
     /**
      * @Route(
      *   name="promo_competences",
@@ -30,6 +41,7 @@ class LivrablePartielController extends AbstractController
      */
     public function getApprenantCompetences(FormateurRepository $repo,SerializerInterface $serializer,PromosRepository $promosRepository, $idp,$idr)
     {
+        //Manque collection Apprenant
        $promo = $promosRepository->find($idp);
        if($promo){
            $referentiel = $promo->getReferentiel();
@@ -85,50 +97,7 @@ class LivrablePartielController extends AbstractController
             }
         }
     }
-    /**
-     * @Route(path="/api/formateurs/promo/{id1}/brief/{id2}/livrablepartiels",
-     *        name="apigetFormateurPromoIdBriefIdLivablespartiels",
-     *        methods={"GET"}
-     *)
-     */
 
-    public function getBriefLivablesPartiels(PromosRepository $promoRepo,BriefRepository $briefRepo,SerializerInterface $serializer,$id1,$id2){
-
-        $promo=$promoRepo->find($id1);
-        if ($promo) {
-            $promo_briefs=$promo->getPromos();
-            dd($promo_briefs);
-            $promo_briefs=$serializer->normalize($promo_briefs,'json');
-            foreach ($promo_briefs as $key_promo_brief => $promo_brief) {
-                dd($promo_brief);
-                if ($promo_brief["brief"]) {
-                    # code...
-                }
-            }
-        }
-    }
-    /**
-     * @Route(path="/api/formateurs/promo/{idp}/brief/{idb}/livrablepartiels",
-     *        name="apigetFormateurPromoIdBriefIdLivablespartiels",
-     *        methods={"GET"}
-     *)
-     */
-
-    public function getLivrablePartiel(PromosRepository $promoRepo,SerializerInterface $serializer,$idp,$idb){
-        $promo =$promoRepo->find($idp);
-        if ($promo) {
-            $promoBriefs = $promo->getPromosbrief();
-            foreach ($promoBriefs as $promoBrief) {
-                if ($promoBrief->getBrief()->getId() == $idb) {
-                    $livrablesPartiels = $promoBrief->getLivrablePartiels();
-                    $livrablesPartielTab = $serializer->normalize($livrablesPartiels,'json');
-                    dd($livrablesPartielTab);
-                    return $this->json($livrablesPartiels,Response::HTTP_OK);
-                }
-            }
-            return $this->json("Aucun librable partiel trouvé",Response::HTTP_BAD_REQUEST);
-        }
-    }
     /**
      * @Route(path="/api/apprenant/{id}/promo/{idp}/referentiel/{idr}/statistisques/briefs",
      *        name="apigetApprenantIdPromoIdReferentielIdStatistiquesBriefs",
@@ -137,7 +106,29 @@ class LivrablePartielController extends AbstractController
      */
 
     public function getApprenantBriefs(ApprenantRepository $appRepo,$id,$idp,$idr,SerializerInterface $serializer){
-
+        $apprenant = $appRepo->find($id);
+        $groupes = $apprenant->getGroupes();
+        foreach ($groupes as $groupe){
+            if ($groupe->getPromos()->getId() == $idp){
+                $briefs = $groupe->getBriefs();
+                $nbreAssigne=0;$nreValid=0;$nbreNonValid=0;
+                foreach ($briefs as $brief){
+                    $AppBriefs = $brief->getPromoBriefApp();
+                    foreach ($AppBriefs as $appbrief){
+                        $statut = $appbrief->getStatut();
+                        if ($statut === "valide"){
+                            $nreValid +=1;
+                        }elseif ($statut ==="non valide"){
+                            $nbreNonValid +=1;
+                        }else{
+                            $nbreAssigne +=1;
+                        }
+                    }
+                }
+            }
+            $tab [] =["Apprenant"=>$apprenant,"Valide"=>$nreValid,"Non Valide"=>$nbreNonValid,"Assigne"=>$nbreAssigne];
+        }
+        return $this->json($tab,200,[]);
     }
     /**
      * @Route(
@@ -151,22 +142,17 @@ class LivrablePartielController extends AbstractController
         $appenant = $repository->find($id);
         $appenantTab = $serializer->normalize($appenant,'json');
         if ($appenant){
-            $stats = $statRepo->findAll();
+            $stats = $statRepo->findBy(["apprenant"=>$id,"promos"=>$idp,"referentiel"=>$idr]);
             foreach ($stats as $stat){
-                $promoId = $stat->getPromos()->getId();
-                $refId = $stat->getReferentiel()->getId();
-                $appenantId = $stat->getApprenant()->getId();
-                if ($promoId == $idp && $appenantId == $id && $refId == $idr){
-                    $competence = $stat->getCompetence();
-                    $competenceTab = $serializer->normalize($competence,'json');
-                    $tabCompetence[] = $competenceTab;
-                }
+                $competence = $stat->getCompetence();
+                $niveaux = ["niveau 1"=>$stat->getNiveau1(),"niveau 2"=>$stat->getNiveau2(),"niveau 3"=>$stat->getNiveau3()];
+                $tab [] = [$competence,$niveaux];
+
             }
-            $tab [] = ["apprenant"=> $appenantTab,"competence"=>$tabCompetence];
+            $result = [$appenant, $tab];
         }
-        return $this->json($tab,200,[]);
+        return $this->json($result,200,[]);
     }
-    //En cours
     /**
      * @Route(path="/api/apprenants/livrablepartiels/{id}/commentaires",
      *        name="commentaires_livrables",
@@ -174,12 +160,120 @@ class LivrablePartielController extends AbstractController
      *)
      */
 
-    public function getCommentaireLivrable(LivrablePartielsRepository $repository,SerializerInterface $serializer,$id){
-        $livrablePartiel = $repository->find($id);
-        $livrableRendu = $livrablePartiel->getLivrableRendus();
-        $livrableRenduTab = $serializer->normalize($livrableRendu,'json',["groups"=>"commentaire:write"]);
-        dd($livrableRenduTab);
+    public function getCommentaireLivrable(LivrableRenduRepository $repository,SerializerInterface $serializer,$id){
+        $apprenantID = $this->user->getId();
+        $livrableRendu = $repository->findOneBy(array("apprenant"=>$apprenantID,"livrablePartiel"=>$id));
+        if ($livrableRendu){
+            $commentaire = $livrableRendu->getCommentaires();
+            $commentTab = $serializer->normalize($commentaire,'json',["groups"=>"commentaire:read"]);
+            return $this->json($commentTab,Response::HTTP_OK,[]);
+        }else{
+            return $this->json("Aucun commentaire", Response::HTTP_OK);
+        }
+    }
+    //METHODES PUT
+    /**
+     * @Route(path="/api/formateurs/promo/{idp}/brief/{idb}/livrablepartiels",
+     *        name="AddLivrablePartielorDelete",
+     *        methods={"PUT"},
+     *     defaults={
+     *          "__controller"="App\Controller\LivrablePartielController::putDeletAppLiv",
+     *          "__api_resource_class"=LivrablePartiels::class,
+     *          "__api_item_operation_name"="put_or_delete_live"
+     *     }
+     *)
+     */
 
+    public function putLivrablePartiel(Request $request,BriefRepository $briefRepository,EntityManagerInterface $manager,ApprenantRepository $appRepo,$idb,SerializerInterface $serializer,ValidatorInterface $validator, \Swift_Mailer $mailer){
+        $livrablePartiel = new LivrablePartiels();
+        $livTab = json_decode($request->getContent(),true);
+        if (!empty($livTab) && !empty($livTab["brief"])){
+            $brief = $briefRepository->find($idb);
+            foreach ($livTab["livrablePartiel"] as $liv){
+                if (!empty($liv["id"]) && !empty($liv["libelle"])){
+                    $livrablePartiel
+                        ->setLibelle($liv["libelle"])
+                        ->setDescription($liv["description"])
+                        ->setDateCreation(new \DateTime())
+                        ->setDelai(new \DateTime($liv["delai"]))
+                        ->setType($liv["type"]);
+                    if (!empty($liv["niveaux"])){
+                        foreach ($liv["niveaux"] as $val){
+                            $niveau = new Niveau();
+                            $niveau
+                                ->setLibelle($val["libelle"])
+                                ->setCritereEvaluation($val["critereEvaluation"])
+                                ->setGroupeAction($val["groupeAction"]);
+
+                        }
+                        $livrablePartiel->addNiveau($niveau);
+                    }
+                    if (!empty($liv["apprenant"])){
+                        foreach ($liv["apprenant"] as $email){
+                            $apprenant = $appRepo->findOneBy(["email"=>$email["email"]]);
+                            if ($apprenant){
+                                $message = (new \Swift_Message("Admission Sonatel Academy"))
+                                    ->setFrom("damanyelegrand@gmail.com")
+                                    ->setTo($apprenant->getEmail())
+                                    ->setBody("Bonjour ".$apprenant->getPrenom()." ".$apprenant->getNom()." un nouveau livrable vous a été assigné .\nBon courage.\nMerci.");
+                                $mailer->send($message);
+                            }
+                        }
+                    }
+
+                }
+                elseif (!empty($liv["id"]) && !isset($liv["libelle"])){
+                    foreach ($brief->getPromoBriefs() as $promoBrief){
+                        if($promoBrief->getLivrablePartiels()->getId() == $liv["id"]){
+                            $promoBrief->removeLivrablePartiel($liv);
+                        }
+
+                    }
+                }
+
+            }
+
+        }
+        $errors = $validator->validate($livrablePartiel);
+        if (count($errors)){
+            $errors = $serializer->serialize($errors,"json");
+            return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
+        }
+        $manager->flush();
+        return $this->json("done", Response::HTTP_OK);
+    }
+    /**
+     * @Route(
+     *     name="get_deux_it",
+     *     path="/api/apprenants/{id}/livrablepartiels/{idl}",
+     *     methods={"PUT"},
+     *     defaults={
+     *          "__controller"="App\Controller\LivrablePartielController::putAppLiv",
+     *          "__api_resource_class"=LivrablePartiels::class,
+     *          "__api_item_operation_name"="get_deux_it"
+     *     }
+     * )
+     */
+
+    public function putAppLiv(Request $request,EntityManagerInterface $manager, ApprenantRepository $appRepo, LivrablePartielsRepository $liveRepo, int $id, int $idl)
+    {
+        $statut = json_decode($request->getContent(),true);
+        $apprenant = $appRepo->findOneBY(["id" => $id]);
+        $livrapartiel = $liveRepo->findOneBY(["id" => $idl]);
+        if (!$apprenant) {
+            return new JsonResponse("Cet Apprenant n'existe pas", Response::HTTP_BAD_REQUEST, [], true);
+        }
+        if (!$livrapartiel) {
+            return new JsonResponse("Ce livrable partiel n'existe pas", Response::HTTP_BAD_REQUEST, [], true);
+
+        }
+        foreach ($apprenant->getLivrableRendus() as $livrableRendu) {
+            if ($livrableRendu->getLivrablePartiel()->getId() == $idl){
+                $livrableRendu->setStatut($statut["statut"]);
+            }
+        }
+        $manager->flush();
+        return $this->json("Modification is done", Response::HTTP_OK);
 
     }
 }
