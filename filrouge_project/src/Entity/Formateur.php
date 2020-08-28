@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=FormateurRepository::class)
  * @ApiResource(
- *      normalizationContext={"groups"={"user:read","brief:read"}},
+ *      normalizationContext={"groups"={"user:read"}},
  *      collectionOperations={
  *          "get_formateurs"={
  *              "method"="GET",
@@ -23,7 +23,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      },
  *      itemOperations={
  *          "get_formateur"={
- *              "normalization_context"={"groups"={"user:read","user:read:all","brief:read"}},
+ *              "normalization_context"={"groups"={"user:read","user:read:all"}},
  *              "method"="GET",
  *              "path"="/formateurs/{id}",
  *              "security"="is_granted('ROLE_CM')",
@@ -35,10 +35,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Formateur extends User
 {
     
-
+/**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     * @Groups({"promo:write"})
+     */
+    protected $id;
     /**
      * @ORM\ManyToMany(targetEntity=Promos::class, mappedBy="formateur")
-     *  @Groups({"promo_brief:read" ,"briefpromo:read"})
      */
     protected $promos;
 
@@ -52,11 +57,17 @@ class Formateur extends User
      */
     private $commentaires;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Brief::class, mappedBy="formateur")
+     */
+    private $briefs;
+
     public function __construct()
     {
         $this->promos = new ArrayCollection();
         $this->groupes = new ArrayCollection();
         $this->commentaires = new ArrayCollection();
+        $this->briefs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -145,6 +156,37 @@ class Formateur extends User
             // set the owning side to null (unless already changed)
             if ($commentaire->getFormateur() === $this) {
                 $commentaire->setFormateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Brief[]
+     */
+    public function getBriefs(): Collection
+    {
+        return $this->briefs;
+    }
+
+    public function addBrief(Brief $brief): self
+    {
+        if (!$this->briefs->contains($brief)) {
+            $this->briefs[] = $brief;
+            $brief->setFormateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBrief(Brief $brief): self
+    {
+        if ($this->briefs->contains($brief)) {
+            $this->briefs->removeElement($brief);
+            // set the owning side to null (unless already changed)
+            if ($brief->getFormateur() === $this) {
+                $brief->setFormateur(null);
             }
         }
 

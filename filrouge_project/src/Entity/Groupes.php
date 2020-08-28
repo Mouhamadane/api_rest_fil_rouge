@@ -24,8 +24,7 @@ class Groupes
      *      "promo:read",
      *      "promo:groupe:principal:read",
      *      "promo:apprenant:read",
-     *      "promo_brief:read",
-     *      "briefpromo:read"
+     *    
      *     
      * })
      */
@@ -38,15 +37,14 @@ class Groupes
      *      "promo:write",
      *      "promo:groupe:principal:read",
      *      "promo:apprenant:read",
-     *      "promo_brief:read",
-     *      "briefpromo:read"
+     *     
      * })
      */
     private $nom;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"promo:write","promo_brief:read"})
+     * @Groups({"promo:write"})
      */
     private $statut;
 
@@ -68,7 +66,7 @@ class Groupes
 
     /**
      * @ORM\ManyToMany(targetEntity=Apprenant::class, inversedBy="groupes")
-     * @Groups({"promo:write", "promo:groupe:principal:read", "promo:apprenant:read","promo_brief:read"})
+     * @Groups({"promo:write", "promo:groupe:principal:read", "promo:apprenant:read"})
      * @ApiSubresource
      */
     private $apprenant;

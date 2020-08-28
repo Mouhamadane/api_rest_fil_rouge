@@ -30,10 +30,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Apprenant extends User
 {
+    /**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     * @Groups({"promo:write"})
+     */
+    protected $id;
     
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, mappedBy="apprenant")
-     * @Groups({"promo:write","brief:read"})
+     * @Groups({"promo:write"})
      */
     protected $groupes;
 

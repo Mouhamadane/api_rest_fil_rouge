@@ -37,45 +37,41 @@ public function promoBriefs(PromosRepository $promoRepo,$id,BriefRepository $bri
       }
        /**
      * @Route(
-     *     path="api/formateurs/{id}/briefs)/brouillons",
+     *     path="api/formateurs/{id}/briefs/brouillons",
      *     methods={"GET"},
      *     name=" briefbrouillons"
      * )
     */
-public function briefbrouillons( $id,BriefRepository $briefrepo,FormateurRepository $formateurrepo){
-    dd("ok");
-    $formateur=$formateurrepo->findOneBy(['id'=>$id]);
-    dd($formateur);
-   $brief=new Brief();
-   $briefs=[];
-    if($formateur){
-       if($formateur==$this->get('security.token_storage')->getToken()->getUser()){
+   /* public function briefbrouillons( $id,BriefRepository $briefrepo,FormateurRepository $formateurrepo){
+        $formateur=$formateurrepo->find($id);
+        $brief=new Brief();
+        $briefs=[];
+        if($formateur){
+            if($formateur==$this->get('security.token_storage')->getToken()->getUser()){
 
-       
-     foreach($formateur->getBrief() as $brief){
-            if($brief->getStatut()=='brouillon'){
-                $briefs[]=$brief;  
+        
+                foreach($formateur->getBriefs() as $brief){
+                    if($brief->getStatut()=='brouillon'){
+                        $briefs[]=$brief;  
+                    } 
+                }
+                return $this->json($briefs, Response::HTTP_OK,[],['groups'=>['briefbrouillons:read']]);
+
             }
-           
-          
+            return $this->json("vous navez pas acces a cette ressource", Response::HTTP_NOT_FOUND);
+
         }
- return $this->json($briefs, Response::HTTP_OK,[],['groups'=>['briefbrouillons:read']]);
-
-    }
-    return $this->json("inexistante", Response::HTTP_NOT_FOUND);
-
-      }
       
       
     }
       /**
      * @Route(
-     *     path="api/formateurs/{id}/briefs)/valide",
+     *     path="api/formateurs/{id}/briefs/valide",
      *     methods={"GET"},
      *     name=" briefvalide"
      * )
     */
-public function briefvalide( $id,BriefRepository $briefrepo,FormateurRepository $formateurrepo){
+/*public function briefvalide( $id,BriefRepository $briefrepo,FormateurRepository $formateurrepo){
     $formateur=$formateurrepo->findOneBy(['id'=>$id]);
    $brief=new Brief();
    $briefs=[];
@@ -83,7 +79,7 @@ public function briefvalide( $id,BriefRepository $briefrepo,FormateurRepository 
        if($formateur==$this->get('security.token_storage')->getToken()->getUser()){
 
        
-     foreach($formateur->getBrief() as $brief){
+     foreach($formateur->getBriefs() as $brief){
             if($brief->getStatut()=='valide'){
                 $briefs[]=$brief;  
             }
@@ -115,7 +111,7 @@ public function briefapprenant( $id,PromosRepository $promoRepo){
                
     foreach($briefs as$promobrief ){
        
-                 $brief=$promobrief ->getBrief();
+                 $brief=$promobrief ->getBriefs();
                   $briefassigne[]=$brief;
                                                 
     }
@@ -125,35 +121,37 @@ public function briefapprenant( $id,PromosRepository $promoRepo){
                  } return $this->json("inexistante", Response::HTTP_NOT_FOUND);
                 }
 
-    /**
+    
+      /**
      * @Route(
-     *     path="api/formateurs/promos/{idp}/briefs/{idb}",
+     *     path="api/formateurs/{id}/briefs/{statut}",
      *     methods={"GET"},
-     *     name="briefpromo"
+     *     name=" briefbrouillons"
      * )
     */
-      
-      
-    
-    public function briefpromo( $idp,$idb,PromosRepository $promoRepo, BriefRepository $briefrepo){
-        $promo=$promoRepo->find($idp);
-        dd($promo);
-     if($promo){
-            $brief=$briefrepo->findOneBy(['id'=>$idb]);
-            if($brief){
-                        $promoBriefs=$promo->getPromoBrief();
-                        foreach($promoBriefs as $pb ){
-                            if($pb->getBrief()==$brief)
-                            {
-                            return $this->json($brief, Response::HTTP_OK,[],['groups'=>['briefpromo:read']]);
+    public function briefStatut( $id,$statut,BriefRepository $briefrepo,FormateurRepository $formateurrepo){
+        $formateur=$formateurrepo->find($id);
+        $brief=new Brief();
+        $briefs=[];
+        if($formateur){
+            if($formateur==$this->get('security.token_storage')->getToken()->getUser()){
 
-                            }
-                        }
+        
+                foreach($formateur->getBriefs() as $brief){
+                    if($brief->getStatut()==$statut){
+                        $briefs[]=$brief;  
+                    } 
+                
+                }
+           
+                return $this->json($briefs, Response::HTTP_OK,[],['groups'=>['briefbrouillons:read']]);
+
             }
-            return $this->json("inexistante", Response::HTTP_NOT_FOUND);
-      
+            return $this->json("vous navez pas acces a cette ressource", Response::HTTP_NOT_FOUND);
+
         }
-          return $this->json("inexistante", Response::HTTP_NOT_FOUND);
+      
+      
     }
     
 }

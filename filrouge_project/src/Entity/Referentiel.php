@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *       attributes={
  *          "security"="is_granted('ROLE_ADMIN')",
  *          "security_message"="Vous n'avez pas accès aux tags",
- *           "normalizationContext"={"groups"={"brief:read"}},
+ *           
  *      },
  *      collectionOperations={
  *          "get_referentiels"={
@@ -66,42 +66,42 @@ class Referentiel
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"referentiel:read",  "briefpromo:read","promo:write", "briefassigne:read","promo:referentiel:read","promo_brief:read" })
+     * @Groups({"referentiel:read", "promo:write", "briefassigne:read","promo:referentiel:read" })
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
-     * @Groups({"referentiel:read",  "briefpromo:read","promo:referentiel:read","briefassigne:read","promo_brief:read"})
+     * @Groups({"referentiel:read",  "promo:referentiel:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Presentation ne doit pas être vide")
-     * @Groups({"referentiel:read", "promo:referentiel:read","promo_brief:read"})
+     * @Groups({"referentiel:read", "promo:referentiel:read"})
      */
     private $presentation;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Critère d'admission ne doit pas être vide")
-     * @Groups({"referentiel:read", "promo:referentiel:read","promo_brief:read"})
+     * @Groups({"referentiel:read", "promo:referentiel:read"})
      */
     private $critereAdmission;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Critère ne doit pas être vide")
-     * @Groups({"referentiel:read","promo_brief:read"})
+     * @Groups({"referentiel:read"})
      */
     private $critereEvaluation;
 
     /**
      * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="referentiels")
      * @ApiSubresource(maxDepth=3)
-     * @Groups({"referentiel:read","briefassigne:read", "referentiel:read:all", "promo:referentiel:read"})
+     * @Groups({"referentiel:read", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $groupeCompetences;
 

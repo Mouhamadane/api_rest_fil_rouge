@@ -12,6 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=BriefRepository::class)
  * @ApiResource(
+ *      normalizationContext={"groups"={"brief:read"}},
  *      collectionOperations={
  *         "GET",
  *          "get_brief"={
@@ -19,14 +20,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "path"="formateurs/briefs",
  *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
  *              "security_message"= "Vous n'avez pas acces à cette ressource",
- *               "normalization_context"={"groups"={"brief:read"}}
+ *              
  *          },
- *          "get_brief_groupe_promo"={
- *              "method"="GET",
- *              "path"="formateurs/promos/{id}/groupes/{ida}/briefs",
- *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
- *              "security_message"= "Vous n'avez pas acces à cette ressource"
- *          },
+ *
  *          " promoBriefs"={
  *              "method"="GET",
  *              "path"="formateurs/promos/{id}/briefs",
@@ -68,117 +64,104 @@ class Brief
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read","briefvalide:read", "briefpromo:read","promo_brief:read","briefbrouillons:read"})
+     *@Groups({"brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read","briefvalide:read","promo_brief:read","briefbrouillons:read"})
+     *@Groups({"brief:read"})
      */
     private $langue;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read","promo_brief:read", "briefpromo:read","briefbrouillons:read"})
+     *@Groups({"brief:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="text")
-     *  @Groups({"brief:read","promo_brief:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
-     *  @Groups({"brief:read","promo_brief:read"})
      */
     private $contexte;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"brief:read","promo_brief:read", "briefpromo:read","briefvalide:read",})
      */
     private $livrablesAttendus;
 
     /**
      * @ORM\Column(type="text")
-     *  @Groups({"brief:read","promo_brief:read",})
      */
     private $modalitePedagogique;
 
     /**
      * @ORM\Column(type="text")
-     *  @Groups({"brief:read","promo_brief:read"})
      */
     private $criterePerformance;
 
     /**
      * @ORM\Column(type="text")
-     *  @Groups({"brief:read","promo_brief:read"})
      */
     private $modaliteEvaluation;
 
     /**
      * @ORM\Column(type="blob", nullable=true)
-     *  @Groups({"promo_brief:read","briefbrouillons:read"})
      * 
      */
     private $avatar;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"brief:read","promo_brief:read","briefbrouillons:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read","promo_brief:read","briefbrouillons:read"})
      */
     private $statut;
 
     /**
      * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief")
-     * @Groups({"brief:read","promo_brief:read","briefvalide:read","briefbrouillons:read"})
      */
     private $ressources;
 
     /**
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="briefs")
-     * @Groups({"brief:read","promo_brief:read","briefvalide:read","briefbrouillons:read", "briefpromo:read"})
      */
     private $tags;
 
     /**
      * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief")
-     * @Groups({"brief:read","promo_brief:read","briefbrouillons:read", "briefpromo:read","briefvalide:read"})
      */
     private $niveaux;
 
     /**
      * @ORM\ManyToOne(targetEntity=Referentiel::class)
-     * @Groups({"promo_brief:read", "briefpromo:read"})
      */
     private $referentiel;
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, inversedBy="briefs")
-     * @Groups({"promo_brief:read", "briefpromo:read","briefbrouillons:read"})
      */
     private $groupes;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Formateur::class)
-     * @Groups({"promo_brief:read","briefpromo:read"})
-     */
-    private $formateur;
+  
 
     /**
      * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="brief")
      */
     private $briefLAs;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Formateur::class, inversedBy="briefs")
+     */
+    private $formateur;
 
     public function __construct()
     {
@@ -453,18 +436,7 @@ class Brief
         return $this;
     }
 
-    public function getFormateur(): ?Formateur
-    {
-        return $this->formateur;
-    }
-
-    public function setFormateur(?Formateur $formateur): self
-    {
-        $this->formateur = $formateur;
-
-        return $this;
-    }
-
+   
     /**
      * @return Collection|BriefLA[]
      */
@@ -492,6 +464,18 @@ class Brief
                 $briefLA->setBrief(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getFormateur(): ?Formateur
+    {
+        return $this->formateur;
+    }
+
+    public function setFormateur(?Formateur $formateur): self
+    {
+        $this->formateur = $formateur;
 
         return $this;
     }

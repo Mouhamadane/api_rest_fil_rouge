@@ -11,7 +11,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=NiveauRepository::class)
  *  @ApiResource( 
- * normalizationContext={"groups"={"briefbrouillons:read","niveau:read"}}
  * )
  */
 class Niveau

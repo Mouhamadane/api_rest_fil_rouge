@@ -11,7 +11,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource( 
- * normalizationContext={"groups"={"briefbrouillons:read"}}
  * )
  * @ORM\Entity(repositoryClass=LivrablesAttendusRepository::class)
  */
@@ -21,13 +20,11 @@ class LivrablesAttendus
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read","promo_brief:read", "briefpromo:read","briefassigne:read","briefbrouillons:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read","promo_brief:read", "briefpromo:read","briefassigne:read","briefbrouillons:read"})
      */
     private $libelle;
 

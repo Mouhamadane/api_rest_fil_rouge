@@ -70,10 +70,9 @@ class User implements UserInterface
      *      "promo:write",
      *      "promo:formateur:read",
      *      "promo:apprenant:read",
-     *      "brief:read",
      *      "briefpromo:read",
-     *      "briefvalide:read",
-     *      "promo_brief:read"
+     *      "briefvalide:read"
+     *     
      *
      * })
      */

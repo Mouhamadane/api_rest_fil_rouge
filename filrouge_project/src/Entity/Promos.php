@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=PromosRepository::class)
  * @ApiResource( 
- *      normalizationContext={"groups"={"promo:read","brief:read"}},
+ *      normalizationContext={"groups"={"promo:read"}},
  *      denormalizationContext={"groups"={"promo:write"}},
  *      collectionOperations={
  *         "get_Promos"={
@@ -122,16 +122,15 @@ class Promos
      *      "promo:groupe:principal:read",
      *      "promo:referentiel:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read",
-     *      "brief:read",
-     *      "briefassigne:read",
+     *      "promo:apprenant:read"
+     *      
      * })
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:read","briefassigne:read", "briefpromo:read", "promo:write","brief:read", "promo:groupe:principal:read", "promo:referentiel:read"})
+     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
      */
     private $langue;
 
@@ -143,40 +142,39 @@ class Promos
      *      "promo:groupe:principal:read",
      *      "promo:referentiel:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read",
-     *      "briefpromo:read",
-     *      "brief:read"
+     *      "promo:apprenant:read"
+     *      
      * })
      */
     private $titre;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"promo:read", "briefpromo:read", "brief:read","promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
+     * @Groups({"promo:read","promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"promo:read","brief:read", "promo:write"})
+     * @Groups({"promo:read", "promo:write"})
      */
     private $lieu;
     
     /**
      * @ORM\Column(type="date")
-     * @Groups({"promo:read", "promo:write","brief:read", "promo:groupe:principal:read"})
+     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read"})
      */
     private $dateProvisoire;
 
     /**
      * @ORM\Column(type="date", nullable=true)
-     * @Groups({"promo:read","brief:read", "promo:write"})
+     * @Groups({"promo:read", "promo:write"})
      */
     private $dateFin;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:read","brief:read", "promo:write"})
+     * @Groups({"promo:read", "promo:write"})
      */
     private $fabrique;
 
@@ -187,8 +185,8 @@ class Promos
      *      "promo:read",
      *      "promo:write",
      *      "promo:groupe:principal:read",
-     *      "promo:apprenant:read",
-     *      "brief:read"
+     *      "promo:apprenant:read"
+     *     
      * })
      */
     private $groupes;
@@ -199,9 +197,8 @@ class Promos
      *      "promo:read",
      *      "promo:write",
      *      "promo:groupe:principal:read",
-     *      "promo:referentiel:read",
-     *      "brief:read",
-     *      "briefassigne:read"
+     *      "promo:referentiel:read"
+     *      
      * })
      * 
      */
@@ -213,8 +210,8 @@ class Promos
      *      "promo:read",
      *      "promo:write",
      *      "promo:groupe:principal:read",
-     *      "promo:formateur:read",
-     *      "brief:read"
+     *      "promo:formateur:read"
+     *     
      * })
      */
     private $formateur;
