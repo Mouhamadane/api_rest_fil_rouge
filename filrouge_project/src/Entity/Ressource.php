@@ -15,23 +15,24 @@ class Ressource
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $url;
 
-   
-
     /**
-     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="ressources")
+     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="ressources", cascade={"persist"})
      */
     private $brief;
 
@@ -43,6 +44,11 @@ class Ressource
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getTitre(): ?string

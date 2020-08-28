@@ -52,14 +52,37 @@ class Competence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+<<<<<<< HEAD
      * @Groups({"competence:read", "groupecompetence:read","brief:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read"})
+=======
+     * @Groups({
+     *      "competence:read",
+     *      "groupecompetence:read",
+     *      "groupecompetence:write",
+     *      "referentiel:read:all",
+     *      "promo:referentiel:read",
+     *      "brief:read"
+     * })
+>>>>>>> 28dcade482d1e6fe1c44b52996d9382737e010cb
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
+<<<<<<< HEAD
      * @Groups({"groupecompetence:read", "groupecompetence:write", "brief:read","competence:read", "competence:write", "referentiel:read:all", "promo:referentiel:read"})
+=======
+     * @Groups({
+     *      "groupecompetence:read",
+     *      "groupecompetence:write",
+     *      "competence:read",
+     *      "competence:write",
+     *      "referentiel:read:all",
+     *      "promo:referentiel:read",
+     *      "brief:read"
+     * })
+>>>>>>> 28dcade482d1e6fe1c44b52996d9382737e010cb
      */
     private $libelle;
 

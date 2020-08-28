@@ -199,7 +199,6 @@ class Apprenant extends User
         if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
             $this->statistiquesCompetences[] = $statistiquesCompetence;
             $statistiquesCompetence->setApprenant($this);
-
         }
 
         return $this;

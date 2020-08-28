@@ -64,49 +64,55 @@ class Brief
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     *@Groups({"brief:read"})
+     * @Groups({"brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     *@Groups({"brief:read"})
+     * @Groups({"brief:read"})
      */
     private $langue;
 
     /**
      * @ORM\Column(type="string", length=255)
-     *@Groups({"brief:read"})
+     * @Groups({"brief:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $contexte;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $livrablesAttendus;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $modalitePedagogique;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $criterePerformance;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $modaliteEvaluation;
 
@@ -118,31 +124,36 @@ class Brief
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"brief:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $statut;
 
     /**
-     * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief")
+     * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief", cascade={"persist"})
      */
     private $ressources;
 
     /**
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="briefs")
+     * @Groups({"brief:read"})
      */
     private $tags;
 
     /**
-     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief")
+     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief", cascade={"persist"})
+     * @Groups({"brief:read"})
      */
     private $niveaux;
 
     /**
      * @ORM\ManyToOne(targetEntity=Referentiel::class)
+     * @Groups({"brief:read"})
      */
     private $referentiel;
 
@@ -154,7 +165,8 @@ class Brief
   
 
     /**
-     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="brief")
+     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="brief", cascade={"persist"})
+     * @Groups({"brief:read"})
      */
     private $briefLAs;
 
@@ -176,6 +188,11 @@ class Brief
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getLangue(): ?string
@@ -427,6 +444,11 @@ class Brief
         return $this;
     }
 
+    public function clearGroupe()
+    {
+        return $this->groupes = new ArrayCollection();
+    }
+
     public function removeGroupe(Groupes $groupe): self
     {
         if ($this->groupes->contains($groupe)) {
@@ -452,6 +474,14 @@ class Brief
             $briefLA->setBrief($this);
         }
 
+        return $this;
+    }
+
+    public function clearBriefLAs(): self
+    {
+        if (!empty($this->briefLAs)) {
+            $this->briefLAs = new ArrayCollection();
+        }
         return $this;
     }
 

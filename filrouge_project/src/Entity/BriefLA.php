@@ -17,22 +17,28 @@ class BriefLA
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read"})
      */
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="briefLAs")
+     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="briefLAs", cascade={"persist"})
      */
     private $brief;
 
     /**
-     * @ORM\ManyToOne(targetEntity=LivrablesAttendus::class, inversedBy="briefLAs")
+     * @ORM\ManyToOne(targetEntity=LivrablesAttendus::class, inversedBy="briefLAs", cascade={"persist"})
+     * @Groups({"brief:read"})
      */
     private $livrableAttendu;
 
     /**
      * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="briefLA")
+<<<<<<< HEAD
      * 
+=======
+     * @Groups({"brief:read"})
+>>>>>>> 28dcade482d1e6fe1c44b52996d9382737e010cb
      */
     private $livrables;
 
@@ -44,6 +50,11 @@ class BriefLA
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getBrief(): ?Brief
@@ -83,6 +94,15 @@ class BriefLA
         if (!$this->livrables->contains($livrable)) {
             $this->livrables[] = $livrable;
             $livrable->setBriefLA($this);
+        }
+
+        return $this;
+    }
+
+    public function clearLivrables(): self
+    {
+        if (!empty($this->livrables)) {
+            $this->livrables = new ArrayCollection();
         }
 
         return $this;

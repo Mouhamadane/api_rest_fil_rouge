@@ -36,6 +36,19 @@ class PromoBriefRepository extends ServiceEntityRepository
     }
     */
 
+    public function findByPromoAndBrief(int $idPromo, int $idBrief){
+        return $this->createQueryBuilder('pb')
+            ->innerJoin('pb.promos', 'p')
+            ->innerJoin('pb.brief', 'b')
+            ->where('p.id = :idPromo')
+            ->andwhere('b.id = :idBrief')
+            ->setParameter('idPromo', $idPromo)
+            ->setParameter('idBrief', $idBrief)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
     /*
     public function findOneBySomeField($value): ?PromoBrief
     {

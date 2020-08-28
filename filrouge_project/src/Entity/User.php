@@ -95,7 +95,8 @@ class User implements UserInterface
      *      "groupecompetence:read",
      *      "promo:groupe:principal:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "brief:read"
      * })
      */
     protected $nom;
@@ -109,7 +110,8 @@ class User implements UserInterface
      *      "groupecompetence:read",
      *      "promo:groupe:principal:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "brief:read"
      * })
      */
     protected $prenom;

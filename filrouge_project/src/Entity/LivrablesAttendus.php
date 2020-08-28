@@ -20,16 +20,18 @@ class LivrablesAttendus
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $libelle;
 
     /**
-     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="livrableAttendu")
+     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="livrableAttendu", cascade={"persist"})
      */
     private $briefLAs;
 
@@ -43,6 +45,11 @@ class LivrablesAttendus
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getLibelle(): ?string
@@ -73,6 +80,11 @@ class LivrablesAttendus
         }
 
         return $this;
+    }
+    
+    public function clearLivrables()
+    {
+        return $this->livrables = new ArrayCollection();
     }
 
     public function removeBriefLA(BriefLA $briefLA): self

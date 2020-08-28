@@ -15,16 +15,19 @@ class Livrables
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $url;
 
     /**
      * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="livrables")
+     * @Groups({"brief:read"})
      */
     private $apprenant;
 
@@ -36,6 +39,11 @@ class Livrables
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getUrl(): ?string

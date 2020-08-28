@@ -66,21 +66,29 @@ class Referentiel
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+<<<<<<< HEAD
      * @Groups({"referentiel:read", "promo:write", "briefassigne:read","promo:referentiel:read" })
+=======
+     * @Groups({"referentiel:read", "promo:write", "promo:referentiel:read", "brief:read"})
+>>>>>>> 28dcade482d1e6fe1c44b52996d9382737e010cb
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
+<<<<<<< HEAD
      * @Groups({"referentiel:read",  "promo:referentiel:read"})
+=======
+     * @Groups({"referentiel:read", "promo:referentiel:read", "brief:read"})
+>>>>>>> 28dcade482d1e6fe1c44b52996d9382737e010cb
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Presentation ne doit pas être vide")
-     * @Groups({"referentiel:read", "promo:referentiel:read"})
+     * @Groups({"referentiel:read", "promo:referentiel:read", "brief:read"})
      */
     private $presentation;
 

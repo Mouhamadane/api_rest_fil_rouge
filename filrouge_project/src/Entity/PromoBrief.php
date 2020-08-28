@@ -70,8 +70,6 @@ class PromoBrief
         return $this;
     }
 
-    
-
     public function getBrief(): ?Brief
     {
         return $this->brief;

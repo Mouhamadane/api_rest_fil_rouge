@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class PromosController extends AbstractController
@@ -269,6 +270,57 @@ class PromosController extends AbstractController
         return $this->json($promo, Response::HTTP_OK);
     }
     
+    /**
+     * @Route(
+     *      path="/api/admin/promos/{id}/groupes", 
+     *      name="ajouter_promo_groupe",
+     *      methods="PUT",
+     *      defaults={
+     *           "_controller"="\app\PromosController::ajouterGroupePromo",
+     *           "_api_resource_class"=Promos::class,
+     *           "_api_item_operation_name"="ajouter_promo_groupe"
+     *  }
+     * )
+     */
+    public function ajouterGroupePromo(Request $req, PromosRepository $repo, int $id, Security $security)
+    {
+        if($security->getUser()->getRoles()[0] === "ROLE_FORMATEUR"){
+            $promo = $repo->find($id);
+            $groupePrincipal = $promo->getGroupes()[0];
+            $promoTab = json_decode($req->getContent(), true);
+            $groupes = $promoTab["groupeTab"];
+            foreach($groupes as $grp){
+                $groupe = new Groupes();
+                $groupe
+                    ->setNom($grp['nom'])
+                    ->setType("secondaire")
+                    ->setStatut(true)
+                    ->setDateCreation(new \DateTime());
+                if(!empty($grp["apprenants"])){
+                    foreach($grp["apprenants"] as $app){
+                        $apprenantTrouve = null;
+                        foreach($groupePrincipal->getApprenant() as $apprenant){
+                            if($apprenant->getEmail() == $app["email"]){
+                                $apprenantTrouve = $apprenant;
+                            }
+                        }
+                        if($apprenantTrouve){
+                            $groupe->addApprenant($apprenantTrouve);
+                        }else{
+                            return $this->json(["message" => $app["email"]." n'est pas dans la promotion." ], Response::HTTP_BAD_REQUEST);
+                        }
+                    }
+                }
+                $groupe->addFormateur($security->getUser());
+                $promo->addGroupe($groupe);
+            }
+            
+            $this->em->flush();
+            return $this->json($promo, Response::HTTP_OK);
+
+        }
+    }
+
     /**
      * @Route(
      *      path="/api/admin/promos/{id}/groupes/{idgrpe}", 

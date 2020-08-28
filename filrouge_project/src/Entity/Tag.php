@@ -46,13 +46,13 @@ class Tag
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"tag:read", "grptag:update"})
+     * @Groups({"tag:read", "grptag:update", "brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"tag:read", "grptag:read", "grptag:write"})
+     * @Groups({"tag:read", "grptag:read", "grptag:write", "brief:read"})
      */
     private $libelle;
 
