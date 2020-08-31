@@ -2,12 +2,16 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\LivrablesAttendusRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource( 
+ * )
  * @ORM\Entity(repositoryClass=LivrablesAttendusRepository::class)
  */
 class LivrablesAttendus
@@ -16,16 +20,18 @@ class LivrablesAttendus
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read","briefbrouillons:read","briefbrouilons:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read","briefbrouillons:read","briefbrouilons:read"})
      */
     private $libelle;
 
     /**
-     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="livrableAttendu")
+     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="livrableAttendu", cascade={"persist"})
      */
     private $briefLAs;
 
@@ -39,6 +45,11 @@ class LivrablesAttendus
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getLibelle(): ?string
@@ -69,6 +80,11 @@ class LivrablesAttendus
         }
 
         return $this;
+    }
+    
+    public function clearLivrables()
+    {
+        return $this->livrables = new ArrayCollection();
     }
 
     public function removeBriefLA(BriefLA $briefLA): self

@@ -2,13 +2,16 @@
 
 namespace App\Entity;
 
-use App\Repository\BriefLARepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\BriefLARepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=BriefLARepository::class)
+ * @ApiResource()
  */
 class BriefLA
 {
@@ -16,21 +19,24 @@ class BriefLA
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="briefLAs")
+     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="briefLAs", cascade={"persist"})
      */
     private $brief;
 
     /**
-     * @ORM\ManyToOne(targetEntity=LivrablesAttendus::class, inversedBy="briefLAs")
+     * @ORM\ManyToOne(targetEntity=LivrablesAttendus::class, inversedBy="briefLAs", cascade={"persist"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $livrableAttendu;
 
     /**
      * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="briefLA")
+     * @Groups({"briefbrouillons:read","briefbrouilons:read"})
      */
     private $livrables;
 
@@ -42,6 +48,11 @@ class BriefLA
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getBrief(): ?Brief
@@ -81,6 +92,15 @@ class BriefLA
         if (!$this->livrables->contains($livrable)) {
             $this->livrables[] = $livrable;
             $livrable->setBriefLA($this);
+        }
+
+        return $this;
+    }
+
+    public function clearLivrables(): self
+    {
+        if (!empty($this->livrables)) {
+            $this->livrables = new ArrayCollection();
         }
 
         return $this;

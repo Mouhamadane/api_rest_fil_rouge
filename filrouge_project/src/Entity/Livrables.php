@@ -2,11 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\LivrablesRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\LivrablesRepository;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=LivrablesRepository::class)
+ * @ApiResource()
  */
 class Livrables
 {
@@ -14,16 +17,19 @@ class Livrables
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read","briefbrouillons:read","briefgroupe:read","promo:referentiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read","briefgroupe:read","briefbrouillons:read"})
      */
     private $url;
 
     /**
      * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="livrables")
+     * @Groups({"brief:read"})
      */
     private $apprenant;
 
@@ -35,6 +41,11 @@ class Livrables
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getUrl(): ?string

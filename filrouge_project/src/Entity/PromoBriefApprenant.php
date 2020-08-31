@@ -23,14 +23,14 @@ class PromoBriefApprenant
     private $statut;
 
     /**
-     * @ORM\ManyToOne(targetEntity=PromoBrief::class, inversedBy="promoBriefApprenants")
-     */
-    private $promoBrief;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="promoBriefApprenants")
      */
     private $apprenant;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=PromoBrief::class, inversedBy="promoBriefApprenants")
+     */
+    private $promoBrief;
 
     public function getId(): ?int
     {

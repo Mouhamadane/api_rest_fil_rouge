@@ -69,7 +69,11 @@ class User implements UserInterface
      *      "promo:read",
      *      "promo:write",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "briefpromo:read",
+     *      "briefvalide:read"
+     *     
+     *
      * })
      */
     protected $email;
@@ -91,7 +95,8 @@ class User implements UserInterface
      *      "groupecompetence:read",
      *      "promo:groupe:principal:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "brief:read"
      * })
      */
     protected $nom;
@@ -105,7 +110,8 @@ class User implements UserInterface
      *      "groupecompetence:read",
      *      "promo:groupe:principal:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "brief:read"
      * })
      */
     protected $prenom;
