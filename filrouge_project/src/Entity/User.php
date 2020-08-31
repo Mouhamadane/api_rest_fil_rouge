@@ -102,7 +102,7 @@ class User implements UserInterface
      *      "profilsortie:read",
      *      "profilsortieEtudiant:read",
      *      "profilSortieSSS:read",
-     *      "profilSortieapp:read"
+     *      "profilSortieapp:read",
      *      "brief:read"
      * })
      */
@@ -120,7 +120,7 @@ class User implements UserInterface
      *      "promo:apprenant:read",
      *      "profilsortie:read",
      *      "profilSortieSSS:read",
-     *      "profilSortieapp:read"
+     *      "profilSortieapp:read",
      *      "brief:read"
      * })
      */

@@ -247,7 +247,7 @@ class Promos
      * })
      */
     private $filDeDiscussion;
-     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promos", cascade={"persist"})
+     /** @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promos", cascade={"persist"})
      *  @Groups({"promo:read"})
      */
     private $promoBrief;
@@ -456,6 +456,10 @@ class Promos
     public function setFilDeDiscussion(FilDeDiscussion $filDeDiscussion): self
     {
         $this->filDeDiscussion = $filDeDiscussion;
+
+        return $this;
+    }
+    
     /**
      * @return Collection|PromoBrief[]
      */

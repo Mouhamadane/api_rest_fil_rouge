@@ -176,9 +176,13 @@ class Brief
      */
     private $formateur;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $livrablesAttendus;
+
     public function __construct()
     {
-        $this->livrablesAttenduses = new ArrayCollection();
         $this->ressources = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->niveaux = new ArrayCollection();
@@ -497,6 +501,18 @@ class Brief
     public function setFormateur(?Formateur $formateur): self
     {
         $this->formateur = $formateur;
+
+        return $this;
+    }
+
+    public function getLivrablesAttendus(): ?string
+    {
+        return $this->livrablesAttendus;
+    }
+
+    public function setLivrablesAttendus(string $livrablesAttendus): self
+    {
+        $this->livrablesAttendus = $livrablesAttendus;
 
         return $this;
     }
