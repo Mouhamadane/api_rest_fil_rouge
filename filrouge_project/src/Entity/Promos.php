@@ -226,6 +226,9 @@ class Promos
     /**
      * @ORM\OneToOne(targetEntity=FilDeDiscussion::class, cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({
+     *      "promo:read",
+     * })
      */
     private $filDeDiscussion;
 

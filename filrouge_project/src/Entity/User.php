@@ -72,7 +72,10 @@ class User implements UserInterface
      *      "promo:write",
      *      "promo:formateur:read",
      *      "promo:apprenant:read",
-     *      "profilsortie:read"
+     *      "profilsortie:read",
+     *      "profilSortieSSS:read",
+     *      "profilSortieapp:read"
+     * 
      * 
      * })
      */
@@ -97,7 +100,9 @@ class User implements UserInterface
      *      "promo:formateur:read",
      *      "promo:apprenant:read",
      *      "profilsortie:read",
-     *      "profilsortieEtudiant:read"
+     *      "profilsortieEtudiant:read",
+     *      "profilSortieSSS:read",
+     *      "profilSortieapp:read"
      * })
      */
     protected $nom;
@@ -112,7 +117,9 @@ class User implements UserInterface
      *      "promo:groupe:principal:read",
      *      "promo:formateur:read",
      *      "promo:apprenant:read",
-     *      "profilsortie:read"
+     *      "profilsortie:read",
+     *      "profilSortieSSS:read",
+     *      "profilSortieapp:read"
      * 
      * })
      */

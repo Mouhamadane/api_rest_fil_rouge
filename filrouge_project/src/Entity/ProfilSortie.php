@@ -28,7 +28,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "security_message"="Vous n'avez pas accès à cette ressource"
  *          },
  *          "ShowpromoProfilsortie"={
- *              "normalization_context" ={"groups" ={"profilsortieEtudiant:read"}},
+ *              "normalization_context" ={"groups" ={"profilsortie:readetudiant"}},     
  *              "security"="(is_granted('ROLE_FORMATEUR','ROLE_CM'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="GET", 
@@ -48,7 +48,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * 
  *          },
  *          "showpromoid"={
- *              "normalization_context" ={"groups" ={"profilsortie:read"} },
+ *              "normalization_context" ={"groups" ={"profilsortie:read_all"} },
  *              "security"="(is_granted('ROLE_FORMATEUR','ROLE_CM'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="GET", 
@@ -70,13 +70,23 @@ class ProfilSortie
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"profilsortie:read"})
+     * @Groups({"profilsortie:read",
+     * "profilSortiess:read",
+     * "profilsortie:readetudiant",
+     * "profilSortieSSS:read",
+     * "profilSortieapp:read"
+     * })
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"profilsortie:read"})
+     * @Groups({"profilsortie:read",
+     * "profilSortiess:read",
+     * "profilsortie:readetudiant",
+     * "profilSortieSSS:read",
+     * "profilSortieapp:read"
+     * })
      * 
      */
     private $libelle;
@@ -84,7 +94,12 @@ class ProfilSortie
     /**
      * @ORM\OneToMany(targetEntity=Apprenant::class, mappedBy="profilSortie")
      * @ApiSubresource()
-     * @Groups({"profilsortie:read"})
+     * @Groups({"profilsortie:read",
+     * "profilSortieSSS:read",
+     * "profilsortie:readetudiant",
+     * "profilsortie:read_all",
+     * "profilSortieapp:read"
+     * })
      */
     private $apprenants;
 

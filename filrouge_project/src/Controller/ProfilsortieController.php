@@ -19,12 +19,12 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 class ProfilsortieController extends AbstractController
 {
     private $normalizer;
-    
+
     public function __construct(normalizerInterface $normalizer)
     {
         $this->normalizer = $normalizer;
     }
-    
+
     /**
      * @Route(
      *      name="add_profilsortie",
@@ -32,25 +32,23 @@ class ProfilsortieController extends AbstractController
      *      methods="POST",
      *      defaults={
      *          "_controller"="\app\ProfilsortieController::Addprofilsortie",
-    *           "_api_resource_class"=ProfilSortie::class,
-    *           "_api_collection_operation_name"="add_profilsortie"
+     *           "_api_resource_class"=ProfilSortie::class,
+     *           "_api_collection_operation_name"="add_profilsortie"
      *      }
      * )
      */
-    public function Addprofilsortie(Request $reqprofil,SerializerInterface $serializer, EntityManagerInterface $em)
+    public function Addprofilsortie(Request $reqprofil, SerializerInterface $serializer, EntityManagerInterface $em)
     {
 
         $jsonRecu = $reqprofil->getContent();
-        
-        $profilsortie= $serializer->deserialize($jsonRecu, ProfilSortie::class, 'json');
-        
-        //dd(gettype($profilsortie));
+
+        $profilsortie = $serializer->deserialize($jsonRecu, ProfilSortie::class, 'json');
+
         $em->persist($profilsortie);
 
         $em->flush();
-        
-        return new JsonResponse("success",Response::HTTP_CREATED,[],true);
 
+        return new JsonResponse("success", Response::HTTP_CREATED, [], true);
     }
 
     /**
@@ -60,33 +58,25 @@ class ProfilsortieController extends AbstractController
      *      methods="GET",
      *      defaults={
      *          "_controller"="app\ProfilsortieController::ShowpromoProfilsortie",
-    *           "_api_resource_class"=ProfilSortie::class,
-    *           "_api_collection_operation_name"="ShowpromoProfilsortie"
+     *           "_api_resource_class"=ProfilSortie::class,
+     *           "_api_collection_operation_name"="ShowpromoProfilsortie"
      *      }
      * )
      */
-    public function ShowpromoProfilsortie(PromosRepository $repopromo,int $id, profilSortieRepository $profilsortierepo)
+    public function ShowpromoProfilsortie(PromosRepository $repopromo, int $id, profilSortieRepository $profilsortierepo)
     {
-        if(!$promo = $repopromo->find($id))
-        { 
+        if (!$promo = $repopromo->find($id)) {
             return $this->json("error", Response::HTTP_NOT_FOUND);
         }
-                 $profilsorties=$profilsortierepo->findAll();
-
+        $profilsorties = $profilsortierepo->findAll();
         foreach ($profilsorties as $profilsortie) {
-
-            foreach ($profilsortie -> getApprenants() as $key => $apprenant){
-                if ( $apprenant->getGroupes()[0] ->getPromos()  !== $promo ){
-
+            foreach ($profilsortie->getApprenants() as $key => $apprenant) {
+                if ($apprenant->getGroupes()[0]->getPromos()  !== $promo) {
                     $profilsortie->removeApprenant($apprenant);
-                    
-                }//on test ok
-
+                }
             }
-            
         }
-        return $this -> json($profilsorties,Response::HTTP_OK);
-        
+        return $this->json($profilsorties, Response::HTTP_OK, [], ['groups' => ['profilSortieapp:read']]);
     }
 
     /**
@@ -96,52 +86,42 @@ class ProfilsortieController extends AbstractController
      *      methods="GET",
      *      defaults={
      *          "_controller"="\app\ProfilsortieController::showprofilsortie",
-    *           "_api_resource_class"=ProfilSortie::class,
-    *           "_api_collection_operation_name"="show_profilsortie"
+     *           "_api_resource_class"=ProfilSortie::class,
+     *           "_api_collection_operation_name"="show_profilsortie"
      *      }
      * )
      */
     public function showprofilsortie(ProfilSortieRepository $repo)
     {
-
         $profilsorties = $repo->findAll();
-        return $this -> json($profilsorties, Response::HTTP_OK);
-
+        return $this->json($profilsorties, Response::HTTP_OK, [], ['groups' => ['profilSortiess:read']]);
     }
 
- /**
+    /**
      * @Route(
      *      name="showpromoid",
      *      path="api/admin/promos/{id}/profilsorties/{ida}",
      *      methods="GET",
      *      defaults={
      *          "_controller"="\app\ProfilsortieController::showpromoid",
-    *           "_api_resource_class"=ProfilSortie::class,
-    *           "_api_collection_operation_name"="showpromoid"
+     *           "_api_resource_class"=ProfilSortie::class,
+     *           "_api_collection_operation_name"="showpromoid"
      *      }
      * )
      */
-    public function showpromoid(PromosRepository $repopromo,int $id,int $ida, profilSortieRepository $profilsortierepo)
+    public function showpromoid(PromosRepository $repopromo, int $id, int $ida, profilSortieRepository $profilsortierepo)
     {
-        if(!$promo=$repopromo->find($id))
-        { 
-            return $this->json("error", Response::HTTP_NOT_FOUND);
-        
+        if (!$promo = $repopromo->find($id)) {
+            return $this->json("Attention l'id : " . $id . " est incorrecte !!!", Response::HTTP_NOT_FOUND);
         }
-        if(! $profilsortie=$profilsortierepo->find($ida))
-        { 
-            return $this->json("error", Response::HTTP_NOT_FOUND);
-        
+        if (!$profilsortie = $profilsortierepo->find($ida)) {
+            return $this->json("Attention l'id : " . $ida . " est incorrecte !!!", Response::HTTP_NOT_FOUND);
         }
-        foreach ($profilsortie -> getApprenants() as $key => $apprenant) {
-            if ( $apprenant->getGroupes()[0] ->getPromos()  !== $promo ) {
-
+        foreach ($profilsortie->getApprenants() as $key => $apprenant) {
+            if ($apprenant->getGroupes()[0]->getPromos()  !== $promo) {
                 $profilsortie->removeApprenant($apprenant);
-
-
             }
         }
-        return $profilsortie;
-        
+        return $this->json($profilsortie, Response::HTTP_OK, [], ['groups' => ['profilSortieSSS:read']]);
     }
 }

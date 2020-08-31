@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ApprenantRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -36,12 +37,16 @@ class Apprenant extends User
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"promo:write","profilSortieshow:read"})
+     * 
+     * 
      */
     protected $id;
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, mappedBy="apprenant")
      * @Groups({"promo:write"})
+     * 
      */
     protected $groupes;
 

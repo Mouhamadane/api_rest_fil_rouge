@@ -21,20 +21,17 @@ class CommentaireGeneralRepository extends ServiceEntityRepository
 
     public function findChatByApprenanAndPromo($idp,$ida): array
     {
-        $entityManager = $this->getEntityManager();
-        $query = $entityManager->createQuery(
-            'SELECT c
-        FROM App\Entity\CommentaireGeneral c
-        JOIN c.filDeDiscussion fd
-        JOIN  fd.promo p
-        JOIN p.user u
-        WHERE p.id = :idp
-        AND u.id =:ida'
-        )->setParameter('idp', $idp)
+       return $this->createQueryBuilder('c')
+        ->join('c.filDeDiscussion','fd')
+        ->join('fd.promo','p')
+        ->join('c.user', 'u')
+        ->where('u.id=:ida' )
+        ->andWhere('p.id=:idp')
+        ->setParameter('idp', $idp)
         ->setParameter('ida', $ida)
+        ->getQuery()
+        ->getResult()
         ;
-
-        return $query->getResult();
 
     }
 
