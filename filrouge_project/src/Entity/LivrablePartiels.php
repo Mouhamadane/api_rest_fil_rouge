@@ -44,7 +44,6 @@ use Doctrine\ORM\Mapping as ORM;
  *              "security"="(is_granted('ROLE_APPRENANT'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *              "method"="POST",
- *              "denormalization_context"={"groups"={"commentaire:write"}},
  *              "path"="/apprenants/livrablepartiels/{id}/commentaires"
  *          },
  *          "get_apprenant_self_competences"={

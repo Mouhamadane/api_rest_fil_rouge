@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CommentaireRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -24,6 +25,7 @@ class Commentaire
     /**
      * @ORM\Column(type="text")
      * @Groups({"commentaire:read"})
+     * @Assert\NotBlank(message="Le content ne doit pas être vide")
      */
     private $content;
 
