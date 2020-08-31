@@ -14,7 +14,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 /**
  * @ORM\Entity(repositoryClass=CompetenceRepository::class)
  * @ApiResource(
- *      normalizationContext={"groups"={"competence:read","brief:read"}},
+ *      normalizationContext={"groups"={"competence:read"}},
  *      denormalizationContext={"groups"={"competence:write"}},
  *      collectionOperations={
  *          "get_competences"={
@@ -52,37 +52,14 @@ class Competence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-<<<<<<< HEAD
-     * @Groups({"competence:read", "groupecompetence:read","brief:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read"})
-=======
-     * @Groups({
-     *      "competence:read",
-     *      "groupecompetence:read",
-     *      "groupecompetence:write",
-     *      "referentiel:read:all",
-     *      "promo:referentiel:read",
-     *      "brief:read"
-     * })
->>>>>>> 28dcade482d1e6fe1c44b52996d9382737e010cb
+     * @Groups({"competence:read", "groupecompetence:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
-<<<<<<< HEAD
-     * @Groups({"groupecompetence:read", "groupecompetence:write", "brief:read","competence:read", "competence:write", "referentiel:read:all", "promo:referentiel:read"})
-=======
-     * @Groups({
-     *      "groupecompetence:read",
-     *      "groupecompetence:write",
-     *      "competence:read",
-     *      "competence:write",
-     *      "referentiel:read:all",
-     *      "promo:referentiel:read",
-     *      "brief:read"
-     * })
->>>>>>> 28dcade482d1e6fe1c44b52996d9382737e010cb
+     * @Groups({"groupecompetence:read", "groupecompetence:write"","competence:read", "competence:write", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $libelle;
 
