@@ -3,13 +3,79 @@
 namespace App\Entity;
 
 use App\Repository\LivrablePartielsRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=LivrablePartielsRepository::class)
+ * @ApiResource (
+ *     normalizationContext={"goups"={"livrablePartiel:read"}},
+ *     denormalizationContext={"groups"={"livrablePartiel:write","commentaire:write"}},
+ *     collectionOperations={
+ *          "get_competences_promo"={
+*               "security"="(is_granted('ROLE_FORMATEUR'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "method"="GET",
+ *              "path"="/formateurs/promo/{idp}/referentiels/{idr}/competences"
+ *          },
+ *          "get_apprenant_self_brief"={
+ *              "security"="(is_granted('ROLE_APPRENANT'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "method"="GET",
+ *              "path"="apprenants/{id}/promo/{idp}/referentiel/{idr}/statistiques/briefs"
+ *          },
+ *          "get_referentiel_competences"={
+ *              "security"="(is_granted('ROLE_FORMATEUR'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "method"="GET",
+ *              "path"="/formateurs/promo/{idp}/referentiel/{idr}/statistiques/competences"
+ *          },
+ *          "add_formateur_commentaires"={
+ *              "security"="(is_granted('ROLE_FORMATEUR'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "method"="POST",
+ *              "path"="/formateurs/livrablepartiels/{id}/commentaires"
+ *          },
+ *          "add_apprenant_commentaires"={
+ *              "security"="(is_granted('ROLE_APPRENANT'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "method"="POST",
+ *              "path"="/apprenants/livrablepartiels/{id}/commentaires"
+ *          },
+ *          "get_apprenant_self_competences"={
+ *              "security"="(is_granted('ROLE_APPRENANT'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "method"="GET",
+ *              "path"="apprenant/{id}/promo/{idp}/referentiel/{idr}/competences"
+ *          }
+ *     },
+ *     itemOperations={
+ *          "add_livrablePartiel"={
+ *              "security"="(is_granted('ROLE_FORMATEUR'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "method"="PUT",
+ *              "path"="/formateurs/promo/{idp}/brief/{idb}/livrablepartiels"
+ *          },
+ *          "update_livrablePartiel_Apprenant"={
+ *              "security"="(is_granted('ROLE_FORMATEUR'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "method"="PUT",
+ *              "path"="/apprenants/{id}/livrablepartiels/{idl}"
+ *          },
+ *          "update_statut_livrable"={
+ *              "security"="(is_granted('ROLE_APPRENANT'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "method"="PUT",
+ *              "path"="/apprenants/{id}/livrablepartiels/{idl}"
+ *          }
+ *
+ *     }
+ * )
  */
 class LivrablePartiels
 {
@@ -17,34 +83,39 @@ class LivrablePartiels
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     *@Groups({"promo_brief:read","briefgroupe:read", "briefpromo:read"})
+     * @Groups({"promo_brief:read","briefgroupe:read", "briefpromo:read","commentaire:write","livrablePartiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"briefbrouillons:read","promo_brief:read", "briefgroupe:read","briefpromo:read"})
+     * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
+     * @Groups({"livrablePartiel:read","briefbrouillons:read","promo_brief:read", "briefgroupe:read","briefpromo:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"livrablePartiel:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"briefbrouillons"})
+     * @Groups({"briefbrouillons","livrablePartiel:read"})
      */
     private $delai;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"livrablePartiel:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le type ne doit pas être vide")
+     *
      */
     private $type;
 
@@ -55,11 +126,13 @@ class LivrablePartiels
 
     /**
      * @ORM\ManyToOne(targetEntity=PromoBrief::class, inversedBy="livrablePartiels")
+     * @Groups ({"livrablePartiel:read","commentaire:write"})
      */
     private $promoBrief;
 
     /**
      * @ORM\OneToMany(targetEntity=LivrableRendu::class, mappedBy="livrablePartiel")
+     * @Groups({"commentaire:write"})
      */
     private $livrableRendus;
 

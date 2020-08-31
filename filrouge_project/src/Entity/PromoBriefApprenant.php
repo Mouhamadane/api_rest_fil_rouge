@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PromoBriefApprenantRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=PromoBriefApprenantRepository::class)
@@ -14,29 +15,32 @@ class PromoBriefApprenant
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups ({"brief:App:read"})
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $statut;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="promoBriefApprenants")
+     * @Groups ({"brief:App:read"})
      */
     private $apprenant;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups ({"brief:App:read"})
+     */
+    private $statut;
 
     /**
      * @ORM\ManyToOne(targetEntity=PromoBrief::class, inversedBy="promoBriefApprenants")
      */
     private $promoBrief;
-
+  
     public function getId(): ?int
     {
         return $this->id;
     }
-
+      
     public function getStatut(): ?string
     {
         return $this->statut;
@@ -60,6 +64,7 @@ class PromoBriefApprenant
 
         return $this;
     }
+
 
     public function getApprenant(): ?Apprenant
     {

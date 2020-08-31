@@ -3,10 +3,14 @@
 namespace App\Entity;
 
 use App\Repository\CommentaireRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=CommentaireRepository::class)
+ *
  */
 class Commentaire
 {
@@ -14,21 +18,26 @@ class Commentaire
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"commentaire:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"commentaire:read"})
+     * @Assert\NotBlank(message="Le content ne doit pas être vide")
      */
     private $content;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"commentaire:read"})
      */
     private $date;
 
     /**
      * @ORM\Column(type="blob", nullable=true)
+     * @Groups({"commentaire:read"})
      */
     private $pieceJointe;
 

@@ -69,43 +69,49 @@ class Brief
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
+     * @Groups ({"promo:read","brief:App:read","brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read","promo:read"})
      */
     private $langue;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","promo:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","promo:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","promo:read"})
      */
     private $contexte;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"brief:read"})
+     * @Groups ({"promo:read"})
+     */
+    private $livrablesAttendus;
+
+    /**
+     * @ORM\Column(type="text")
+      * @Groups({"brief:read","promo:read"})
      */
     private $modalitePedagogique;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","promo:read"})
      */
     private $criterePerformance;
 
@@ -129,37 +135,38 @@ class Brief
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","promo:read"})
      */
     private $statut;
 
     /**
      * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief", cascade={"persist"})
-     *  @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
+     *  @Groups({"brief:read","briefbrouillons:read","promo_brief:read","competence:read","brief:App:read"})
      */
     private $ressources;
 
     /**
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="briefs")
-     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read","competence:read","brief:App:read"})
      */
     private $tags;
 
     /**
+     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief")
      * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief", cascade={"persist"})
-     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read","competence:read","brief:App:read"})
      */
     private $niveaux;
 
     /**
      * @ORM\ManyToOne(targetEntity=Referentiel::class)
-     * @Groups({"briefbrouillons:read","promo_brief:read"})
+     * @Groups({"briefbrouillons:read","promo_brief:read","competence:read","brief:App:read"})
      */
     private $referentiel;
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, inversedBy="briefs")
-     *  @Groups({"briefbrouillons:read","promo_brief:read"})
+     *  @Groups({"briefbrouillons:read","promo_brief:read","competence:read","brief:App:read"})
      */
     private $groupes;
 
@@ -177,9 +184,15 @@ class Brief
     private $formateur;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="brief")
      */
-    private $livrablesAttendus;
+    private $promoBriefApp;
+
+    /**
+     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="brief")
+     */
+    private $promoBriefs;
+  
 
     public function __construct()
     {
@@ -187,6 +200,8 @@ class Brief
         $this->tags = new ArrayCollection();
         $this->niveaux = new ArrayCollection();
         $this->groupes = new ArrayCollection();
+        $this->promoBriefApp = new ArrayCollection();
+        $this->promoBriefs = new ArrayCollection();
         $this->briefLAs = new ArrayCollection();
     }
 
@@ -505,6 +520,68 @@ class Brief
         return $this;
     }
 
+    /**
+     * @return Collection|PromoBriefApprenant[]
+     */
+    public function getPromoBriefApp(): Collection
+    {
+        return $this->promoBriefApp;
+    }
+
+    public function addPromoBriefApp(PromoBriefApprenant $promoBriefApp): self
+    {
+        if (!$this->promoBriefApp->contains($promoBriefApp)) {
+            $this->promoBriefApp[] = $promoBriefApp;
+            $promoBriefApp->setBrief($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoBriefApp(PromoBriefApprenant $promoBriefApp): self
+    {
+        if ($this->promoBriefApp->contains($promoBriefApp)) {
+            $this->promoBriefApp->removeElement($promoBriefApp);
+            // set the owning side to null (unless already changed)
+            if ($promoBriefApp->getBrief() === $this) {
+                $promoBriefApp->setBrief(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoBrief[]
+     */
+    public function getPromoBriefs(): Collection
+    {
+        return $this->promoBriefs;
+    }
+
+    public function addPromoBrief(PromoBrief $promoBrief): self
+    {
+        if (!$this->promoBriefs->contains($promoBrief)) {
+            $this->promoBriefs[] = $promoBrief;
+            $promoBrief->setBrief($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoBrief(PromoBrief $promoBrief): self
+    {
+        if ($this->promoBriefs->contains($promoBrief)) {
+            $this->promoBriefs->removeElement($promoBrief);
+            // set the owning side to null (unless already changed)
+            if ($promoBrief->getBrief() === $this) {
+                $promoBrief->setBrief(null);
+            }
+        }
+
+        return $this;
+    }
+  
     public function getLivrablesAttendus(): ?string
     {
         return $this->livrablesAttendus;

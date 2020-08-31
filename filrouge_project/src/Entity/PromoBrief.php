@@ -28,13 +28,6 @@ class PromoBrief
      */
     private $statut;
 
-    
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Brief::class)
-     */
-    private $brief;
-
     /**
      * @ORM\OneToMany(targetEntity=LivrablePartiels::class, mappedBy="promoBrief")
      *  @Groups({"briefbrouilons:read","briefgroupe:read"})
@@ -54,9 +47,15 @@ class PromoBrief
      */
     private $promos;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="promoBriefs")
+     */
+    private $brief;
+
     public function __construct()
     {
         $this->livrablePartiels = new ArrayCollection();
+        $this->promos = new ArrayCollection();
         $this->promoBriefApprenants = new ArrayCollection();
     }
 

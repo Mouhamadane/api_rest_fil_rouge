@@ -475,7 +475,6 @@ class Promos
             $promoBrief->setPromos($this);
 
         }
-
         return $this;
     }
 

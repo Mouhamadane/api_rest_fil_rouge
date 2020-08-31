@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\LivrableRenduRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -16,36 +17,43 @@ class LivrableRendu
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"commentaire:write"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"commentaire:write"})
      */
     private $statut;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"commentaire:write"})
      */
     private $delai;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"commentaire:write"})
      */
     private $dateRendue;
 
     /**
      * @ORM\ManyToOne(targetEntity=LivrablePartiels::class, inversedBy="livrableRendus")
+     * @Groups({"commentaire:write"})
      */
     private $livrablePartiel;
 
     /**
      * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="livrableRendus")
+     * @Groups({"commentaire:write"})
      */
     private $apprenant;
 
     /**
      * @ORM\OneToMany(targetEntity=Commentaire::class, mappedBy="livrableRendu")
+     * @Groups({"commentaire:write"})
      */
     private $commentaires;
 

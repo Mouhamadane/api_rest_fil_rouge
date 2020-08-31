@@ -48,18 +48,19 @@ class Groupes
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"promo:write"})
+     * @Groups({"promo:write","promo:read"})
      */
     private $statut;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:write","briefgroupe:read", "promo:groupe:principal:read"})
+     * @Groups({"briefgroupe:read","promo:write","promo:read", "promo:groupe:principal:read"})
      */
     private $type;
 
     /**
      * @ORM\ManyToOne(targetEntity=Promos::class, inversedBy="groupes")
+     * @Groups ({"promo:read"})
      */
     private $promos;
 
@@ -70,7 +71,7 @@ class Groupes
 
     /**
      * @ORM\ManyToMany(targetEntity=Apprenant::class, inversedBy="groupes")
-     * @Groups({"promo:write","briefgroupe:read","promo_brief:read", "promo_brief:read","promo:groupe:principal:read","briefbrouillons:read" ,"promo:apprenant:read"})
+     * @Groups({"promo:read","promo:write","briefgroupe:read","promo_brief:read", "promo_brief:read","promo:groupe:principal:read","briefbrouillons:read" ,"promo:apprenant:read"})
      * @ApiSubresource
      */
     private $apprenant;
