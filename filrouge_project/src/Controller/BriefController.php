@@ -650,7 +650,7 @@ public function promoBriefs(PromosRepository $promoRepo,$id,BriefRepository $bri
                 // Affecter ou Désaffecter un brief à un apprenant ou des apprenants
                 if(isset($tab["apprenants"]) && !empty($tab["apprenants"])){
                     // Recuperer le groupe principal
-                    foreach($promo()->getGroupes() as $groupe){
+                    foreach($promo->getGroupes() as $groupe){
                         if($groupe->getType() === "principal"){
                             $gp = $groupe;
                             break;

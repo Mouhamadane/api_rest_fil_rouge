@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\StatistiquesCompetences;
 use DateTime;
 use App\Entity\Promos;
 use App\Entity\Groupes;
@@ -135,6 +136,13 @@ class PromosController extends AbstractController
                     $apprenant = $repoApprenant->findOneBy($email);
                     if ($apprenant) {
                         $groupe->addApprenant($apprenant);
+                        $statistiques = new StatistiquesCompetences();
+                        $statistiques
+                            ->setNiveau1(false)
+                            ->setNiveau2(false)
+                            ->setNiveau3(false)
+
+                        ;
                         $message = (new \Swift_Message("Admission Sonatel Academy"))
                             ->setFrom("damanyelegrand@gmail.com")
                             ->setTo($apprenant->getEmail())
