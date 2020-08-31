@@ -2,13 +2,16 @@
 
 namespace App\Entity;
 
-use App\Repository\PromoBriefRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\PromoBriefRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=PromoBriefRepository::class)
+ * @ApiResource()
  */
 class PromoBrief
 {
@@ -21,16 +24,26 @@ class PromoBrief
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"promo_brief:read","briefgroupe:read"})
      */
     private $statut;
 
     /**
      * @ORM\OneToMany(targetEntity=LivrablePartiels::class, mappedBy="promoBrief")
+     *  @Groups({"briefbrouilons:read","briefgroupe:read"})
      */
     private $livrablePartiels;
 
     /**
+
+     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="promoBrief")
+     * @Groups({"promo_brief:read"})
+     */
+    private $promoBriefApprenants;
+
+/**
      * @ORM\ManyToOne(targetEntity=Promos::class, inversedBy="promoBrief")
+     * @Groups({"promo_brief:read","briefgroupe:read","briefbrouilons:read"})
      */
     private $promos;
 
@@ -43,6 +56,7 @@ class PromoBrief
     {
         $this->livrablePartiels = new ArrayCollection();
         $this->promos = new ArrayCollection();
+        $this->promoBriefApprenants = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -62,6 +76,17 @@ class PromoBrief
         return $this;
     }
 
+    public function getBrief(): ?Brief
+    {
+        return $this->brief;
+    }
+
+    public function setBrief(?Brief $brief): self
+    {
+        $this->brief = $brief;
+
+        return $this;
+    }
 
     /**
      * @return Collection|LivrablePartiels[]
@@ -94,6 +119,40 @@ class PromoBrief
         return $this;
     }
 
+
+    /**
+     * @return Collection|PromoBriefApprenant[]
+     */
+    public function getPromoBriefApprenants(): Collection
+    {
+        return $this->promoBriefApprenants;
+    }
+
+    public function addPromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if (!$this->promoBriefApprenants->contains($promoBriefApprenant)) {
+            $this->promoBriefApprenants[] = $promoBriefApprenant;
+            $promoBriefApprenant->setPromoBrief($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if ($this->promoBriefApprenants->contains($promoBriefApprenant)) {
+            $this->promoBriefApprenants->removeElement($promoBriefApprenant);
+            // set the owning side to null (unless already changed)
+            if ($promoBriefApprenant->getPromoBrief() === $this) {
+                $promoBriefApprenant->setPromoBrief(null);
+            }
+        }
+
+        return $this;
+    }
+
+   
+
     public function getPromos(): ?Promos
     {
         return $this->promos;
@@ -106,15 +165,4 @@ class PromoBrief
         return $this;
     }
 
-    public function getBrief(): ?Brief
-    {
-        return $this->brief;
-    }
-
-    public function setBrief(?Brief $brief): self
-    {
-        $this->brief = $brief;
-
-        return $this;
-    }
 }

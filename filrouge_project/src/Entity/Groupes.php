@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=GroupesRepository::class)
- * @ApiResource
+ * @ApiResource()
  */
 class Groupes
 {
@@ -23,7 +23,10 @@ class Groupes
      * @Groups({
      *      "promo:read",
      *      "promo:groupe:principal:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "promo_brief:read"
+     *    
+     *     
      * })
      */
     private $id;
@@ -34,7 +37,11 @@ class Groupes
      *      "promo:read",
      *      "promo:write",
      *      "promo:groupe:principal:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "brief:read",
+     *      "briefbrouillons:read",
+     *      "briefgroupe:read",
+     *      "promo_brief:read"
      * })
      */
     private $nom;
@@ -47,7 +54,7 @@ class Groupes
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:write","promo:read", "promo:groupe:principal:read"})
+     * @Groups({"briefgroupe:read","promo:write","promo:read", "promo:groupe:principal:read"})
      */
     private $type;
 
@@ -64,7 +71,7 @@ class Groupes
 
     /**
      * @ORM\ManyToMany(targetEntity=Apprenant::class, inversedBy="groupes")
-     * @Groups({"promo:read","promo:write", "promo:groupe:principal:read", "promo:apprenant:read"})
+     * @Groups({"promo:read","promo:write","briefgroupe:read","promo_brief:read", "promo_brief:read","promo:groupe:principal:read","briefbrouillons:read" ,"promo:apprenant:read"})
      * @ApiSubresource
      */
     private $apprenant;

@@ -101,6 +101,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "method"="PUT", 
  *              "path"="/admin/promos/{id}/formateurs"
  *          },
+ *           "ajouter_promo_groupe"={
+ *              "security"="(is_granted('ROLE_FORMATEUR'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *              "method"="PUT", 
+ *              "path"="/admin/promos/{id}/groupes",
+ *          },
  *           "update_promo_groupe"={
  *              "security"="(is_granted('ROLE_FORMATEUR'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
@@ -122,14 +128,16 @@ class Promos
      *      "promo:groupe:principal:read",
      *      "promo:referentiel:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "promo_brief:read"
+     *      
      * })
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
+     * @Groups({"promo:read", "briefgroupe:read","promo:write","promo_brief:read", "promo:groupe:principal:read", "promo:referentiel:read"})
      */
     private $langue;
 
@@ -141,14 +149,16 @@ class Promos
      *      "promo:groupe:principal:read",
      *      "promo:referentiel:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "promo_brief:read"
+     *      
      * })
      */
     private $titre;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
+     * @Groups({"promo:read","promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
      */
     private $description;
 
@@ -183,7 +193,10 @@ class Promos
      *      "promo:read",
      *      "promo:write",
      *      "promo:groupe:principal:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *       "promo:brief:read",
+     * 
+     *     
      * })
      */
     private $groupes;
@@ -195,6 +208,8 @@ class Promos
      *      "promo:write",
      *      "promo:groupe:principal:read",
      *      "promo:referentiel:read"
+     *      
+     *      
      * })
      * 
      */
@@ -207,6 +222,7 @@ class Promos
      *      "promo:write",
      *      "promo:groupe:principal:read",
      *      "promo:formateur:read"
+     *     
      * })
      */
     private $formateur;
@@ -224,10 +240,17 @@ class Promos
     private $user;
 
     /**
-     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promos")
+     * @ORM\OneToOne(targetEntity=FilDeDiscussion::class, cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({
+     *      "promo:read",
+     * })
+     */
+    private $filDeDiscussion;
+     /** @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promos", cascade={"persist"})
+     *  @Groups({"promo:read"})
      */
     private $promoBrief;
-
     /**
      * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="promos")
      */
@@ -239,6 +262,7 @@ class Promos
         $this->formateur = new ArrayCollection();
         $this->promoBrief = new ArrayCollection();
         $this->statistiquesCompetences = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -424,6 +448,18 @@ class Promos
         return $this;
     }
 
+    public function getFilDeDiscussion(): ?FilDeDiscussion
+    {
+        return $this->filDeDiscussion;
+    }
+
+    public function setFilDeDiscussion(FilDeDiscussion $filDeDiscussion): self
+    {
+        $this->filDeDiscussion = $filDeDiscussion;
+
+        return $this;
+    }
+    
     /**
      * @return Collection|PromoBrief[]
      */
@@ -437,6 +473,7 @@ class Promos
         if (!$this->promoBrief->contains($promoBrief)) {
             $this->promoBrief[] = $promoBrief;
             $promoBrief->setPromos($this);
+
         }
         return $this;
     }
@@ -446,13 +483,13 @@ class Promos
         if ($this->promoBrief->contains($promoBrief)) {
             $this->promoBrief->removeElement($promoBrief);
             // set the owning side to null (unless already changed)
+
             if ($promoBrief->getPromos() === $this) {
-                $promoBrief->setPromos(null);
-            }
-        }
+                $promoBrief->setPromos(null); }
 
         return $this;
     }
+}
 
     /**
      * @return Collection|StatistiquesCompetences[]
@@ -479,6 +516,7 @@ class Promos
             // set the owning side to null (unless already changed)
             if ($statistiquesCompetence->getPromos() === $this) {
                 $statistiquesCompetence->setPromos(null);
+
             }
         }
 

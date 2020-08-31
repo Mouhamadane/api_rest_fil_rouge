@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=LivrablePartielsRepository::class)
@@ -82,14 +83,14 @@ class LivrablePartiels
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"commentaire:write","livrablePartiel:read"})
+     * @Groups({"promo_brief:read","briefgroupe:read", "briefpromo:read","commentaire:write","livrablePartiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
-     * @Groups({"livrablePartiel:read"})
+     * @Groups({"livrablePartiel:read","briefbrouillons:read","promo_brief:read", "briefgroupe:read","briefpromo:read"})
      */
     private $libelle;
 
@@ -101,7 +102,7 @@ class LivrablePartiels
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"livrablePartiel:read"})
+     * @Groups({"briefbrouillons","livrablePartiel:read"})
      */
     private $delai;
 

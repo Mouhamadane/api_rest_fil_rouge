@@ -2,12 +2,16 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\LivrablesAttendusRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource( 
+ * )
  * @ORM\Entity(repositoryClass=LivrablesAttendusRepository::class)
  */
 class LivrablesAttendus
@@ -16,33 +20,36 @@ class LivrablesAttendus
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read","briefbrouillons:read","briefbrouilons:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read","briefbrouillons:read","briefbrouilons:read"})
      */
     private $libelle;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Brief::class, inversedBy="livrablesAttenduses")
+     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="livrableAttendu", cascade={"persist"})
      */
-    private $briefs;
-
-    /**
-     * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="livrablesAttendus")
-     */
-    private $livrables;
+    private $briefLAs;
 
     public function __construct()
     {
         $this->briefs = new ArrayCollection();
         $this->livrables = new ArrayCollection();
+        $this->briefLAs = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getLibelle(): ?string
@@ -58,56 +65,35 @@ class LivrablesAttendus
     }
 
     /**
-     * @return Collection|Brief[]
+     * @return Collection|BriefLA[]
      */
-    public function getBriefs(): Collection
+    public function getBriefLAs(): Collection
     {
-        return $this->briefs;
+        return $this->briefLAs;
     }
 
-    public function addBrief(Brief $brief): self
+    public function addBriefLA(BriefLA $briefLA): self
     {
-        if (!$this->briefs->contains($brief)) {
-            $this->briefs[] = $brief;
+        if (!$this->briefLAs->contains($briefLA)) {
+            $this->briefLAs[] = $briefLA;
+            $briefLA->setLivrableAttendu($this);
         }
 
         return $this;
     }
-
-    public function removeBrief(Brief $brief): self
+    
+    public function clearLivrables()
     {
-        if ($this->briefs->contains($brief)) {
-            $this->briefs->removeElement($brief);
-        }
-
-        return $this;
+        return $this->livrables = new ArrayCollection();
     }
 
-    /**
-     * @return Collection|Livrables[]
-     */
-    public function getLivrables(): Collection
+    public function removeBriefLA(BriefLA $briefLA): self
     {
-        return $this->livrables;
-    }
-
-    public function addLivrable(Livrables $livrable): self
-    {
-        if (!$this->livrables->contains($livrable)) {
-            $this->livrables[] = $livrable;
-            $livrable->setLivrablesAttendus($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLivrable(Livrables $livrable): self
-    {
-        if ($this->livrables->contains($livrable)) {
-            $this->livrables->removeElement($livrable);
+        if ($this->briefLAs->contains($briefLA)) {
+            $this->briefLAs->removeElement($briefLA);
             // set the owning side to null (unless already changed)
-            if ($livrable->getLivrablesAttendus() === $this) {
-                $livrable->setLivrablesAttendus(null);
+            if ($briefLA->getLivrableAttendu() === $this) {
+                $briefLA->setLivrableAttendu(null);
             }
         }
 
