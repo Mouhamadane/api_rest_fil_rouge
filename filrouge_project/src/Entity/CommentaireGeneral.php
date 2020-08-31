@@ -2,11 +2,23 @@
 
 namespace App\Entity;
 
-use App\Repository\CommentaireGeneralRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
+use App\Repository\CommentaireGeneralRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=CommentaireGeneralRepository::class)
+ * @ApiResource(
+ *   collectionOperations={
+ *   "getCommentaire"={
+ *              "method"="GET", 
+ *              "path"="users/promo/{idp}/apprenant/{ida}/chats/{date}",
+ *              "defaults"={"id"=null},
+ * 
+ *          },
+ * }
+ * )
  */
 class CommentaireGeneral
 {
@@ -14,21 +26,28 @@ class CommentaireGeneral
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"chats:read"})
+     * 
      */
     private $id;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"chats:read"})
      */
     private $content;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"chats:read"})
+     * 
      */
     private $date;
 
     /**
      * @ORM\Column(type="blob", nullable=true)
+     * @Groups({"chats:read"})
+     * 
      */
     private $pieceJointe;
 

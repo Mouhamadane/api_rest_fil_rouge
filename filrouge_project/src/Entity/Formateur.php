@@ -70,10 +70,6 @@ class Formateur extends User
         $this->briefs = new ArrayCollection();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     /**
      * @return Collection|Promos[]

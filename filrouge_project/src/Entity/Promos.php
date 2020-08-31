@@ -240,6 +240,13 @@ class Promos
     private $user;
 
     /**
+     * @ORM\OneToOne(targetEntity=FilDeDiscussion::class, cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({
+     *      "promo:read",
+     * })
+     */
+    private $filDeDiscussion;
      * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promos", cascade={"persist"})
      *  @Groups({"promo:read"})
      */
@@ -248,7 +255,6 @@ class Promos
      * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="promos")
      */
     private $statistiquesCompetences;
-
 
     public function __construct()
     {
@@ -442,6 +448,14 @@ class Promos
         return $this;
     }
 
+    public function getFilDeDiscussion(): ?FilDeDiscussion
+    {
+        return $this->filDeDiscussion;
+    }
+
+    public function setFilDeDiscussion(FilDeDiscussion $filDeDiscussion): self
+    {
+        $this->filDeDiscussion = $filDeDiscussion;
     /**
      * @return Collection|PromoBrief[]
      */

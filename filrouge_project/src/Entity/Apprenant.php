@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ApprenantRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -34,13 +35,14 @@ class Apprenant extends User
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promo:write","briefgroupe:read","promo_brief:read"})
+     * @Groups({"promo:write","profilSortieshow:read","briefgroupe:read","promo_brief:read"})
      */
     protected $id;
     
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, mappedBy="apprenant")
      * @Groups({"promo:write"})
+     * 
      */
     protected $groupes;
 
@@ -78,10 +80,7 @@ class Apprenant extends User
       
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+
 
     /**
      * @return Collection|Groupes[]
