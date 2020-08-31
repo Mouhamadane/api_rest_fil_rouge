@@ -38,7 +38,6 @@ class BriefController extends AbstractController
     private $repoNiveau;
     private $repoTag;
     private $validator;
-    private $normalizer;
 
     public function __construct(
         SerializerInterface $serializer,
@@ -46,8 +45,7 @@ class BriefController extends AbstractController
         Security $security,
         ValidatorInterface $validator,
         TagRepository $repoTag,
-        NiveauRepository $repoNiveau,
-        NormalizerInterface $normalizer
+        NiveauRepository $repoNiveau
     )
     {
         $this->serializer = $serializer;
@@ -56,7 +54,6 @@ class BriefController extends AbstractController
         $this->repoNiveau = $repoNiveau;
         $this->repoTag = $repoTag;
         $this->validator = $validator;
-        $this->normalizer = $normalizer;
     }
 
     /**
@@ -71,6 +68,7 @@ class BriefController extends AbstractController
      *      }
      * )
      */
+
     public function dupliquerBrief(BriefRepository $repo, int $id, ValidatorInterface $validator) {
         $brief = $repo->find($id);
         if($brief){
