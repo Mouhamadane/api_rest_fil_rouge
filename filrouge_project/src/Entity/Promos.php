@@ -252,7 +252,7 @@ class Promos
      */
     private $promoBrief;
     /**
-     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="promos")
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="promos",cascade={"persist"})
      */
     private $statistiquesCompetences;
 

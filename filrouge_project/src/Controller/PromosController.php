@@ -12,6 +12,7 @@ use App\Repository\ApprenantRepository;
 use App\Repository\FormateurRepository;
 use App\Repository\PromosRepository;
 use App\Repository\ReferentielRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -134,15 +135,31 @@ class PromosController extends AbstractController
             if (!empty($groupeTab["apprenants"])) {
                 foreach ($groupeTab["apprenants"] as  $email) {
                     $apprenant = $repoApprenant->findOneBy($email);
-                    if ($apprenant) {
-                        $groupe->addApprenant($apprenant);
-                        $statistiques = new StatistiquesCompetences();
-                        $statistiques
-                            ->setNiveau1(false)
-                            ->setNiveau2(false)
-                            ->setNiveau3(false)
 
-                        ;
+                    if ($apprenant) {
+                        $tab = new ArrayCollection();
+                        $groupeCompetences = $referentiel->getGroupeCompetences();
+                        foreach ($groupeCompetences as $groupeCompetence){
+                            $competences = $groupeCompetence->getCompetences();
+                            foreach ($competences as $competence){
+                                if (!$tab->contains($competence)){
+                                    $statistique = new StatistiquesCompetences();
+                                    $statistique
+                                        ->setReferentiel($referentiel)
+                                        ->setCompetence($competence)
+                                        ->setNiveau1(false)
+                                        ->setNiveau2(false)
+                                        ->setNiveau3(false)
+                                    ;
+                                    $promos->addStatistiquesCompetence($statistique);
+                                    $tab[] = $competence;
+                                }
+                            }
+
+                        }
+
+                        $groupe->addApprenant($apprenant);
+
                         $message = (new \Swift_Message("Admission Sonatel Academy"))
                             ->setFrom("damanyelegrand@gmail.com")
                             ->setTo($apprenant->getEmail())
@@ -151,7 +168,6 @@ class PromosController extends AbstractController
                     }
                 }
             }
-            // dd($groupe);
             $promos->addGroupe($groupe);
         }else{
             return $this->json(["message"=>"l'ajout de  groupe est obligatoire principale"]);
