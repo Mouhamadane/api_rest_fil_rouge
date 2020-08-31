@@ -15,7 +15,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 /**
  * @ORM\Entity(repositoryClass=GroupeCompetenceRepository::class)
  * @ApiResource(
- *      normalizationContext={"groups"={"groupecompetence:read","brief:read"}},
+ *      normalizationContext={"groups"={"groupecompetence:read"}},
  *      denormalizationContext={"groups"={"groupecompetence:write"}},
  *      subresourceOperations={
  *          "get_groupe_competences_competences"={
@@ -61,34 +61,34 @@ class GroupeCompetence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"groupecompetence:read", "referentiel:read:all", "promo:referentiel:read","brief:read"})
+     * @Groups({"groupecompetence:read", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
-     * @Groups({"groupecompetence:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read","brief:read"})
+     * @Groups({"groupecompetence:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Le descriptif ne doit pas être vide")
-     * @Groups({"groupecompetence:read", "groupecompetence:write", "promo:referentiel:read","brief:read"})
+     * @Groups({"groupecompetence:read", "groupecompetence:write", "promo:referentiel:read"})
      */
     private $descriptif;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
-     * @Groups({"groupecompetence:read","brief:read"})
+     * @Groups({"groupecompetence:read"})
      */
     private $admin;
 
     /**
      * @ORM\ManyToMany(targetEntity=Competence::class, mappedBy="groupeCompetences", cascade={"persist"})
      * @Assert\Valid
-     * @Groups({"groupecompetence:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read","brief:read"})
+     * @Groups({"groupecompetence:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read"})
      * @ApiSubresource
      */
     private $competences;

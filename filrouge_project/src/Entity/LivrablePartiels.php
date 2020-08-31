@@ -17,13 +17,13 @@ class LivrablePartiels
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     *@Groups({"briefbrouillons", "briefpromo:read"})
+     *@Groups({"promo_brief:read","briefgroupe:read", "briefpromo:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"briefbrouillons", "briefpromo:read"})
+     * @Groups({"briefbrouillons:read","promo_brief:read", "briefgroupe:read","briefpromo:read"})
      */
     private $libelle;
 

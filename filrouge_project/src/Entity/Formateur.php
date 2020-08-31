@@ -39,7 +39,7 @@ class Formateur extends User
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promo:write"})
+     * @Groups({"promo:write","promo_brief:read","briefbrouillons:read","briefbrouilons:read","briefgroupe:read"})
      */
     protected $id;
     /**

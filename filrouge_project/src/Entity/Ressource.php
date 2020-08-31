@@ -15,19 +15,19 @@ class Ressource
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","promo_brief:read","briefbrouillons:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","promo_brief:read","briefbrouillons:read"})
      */
     private $url;
 

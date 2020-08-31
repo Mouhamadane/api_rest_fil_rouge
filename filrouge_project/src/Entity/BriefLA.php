@@ -5,11 +5,13 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\BriefLARepository;
 use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=BriefLARepository::class)
+ * @ApiResource()
  */
 class BriefLA
 {
@@ -17,7 +19,7 @@ class BriefLA
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $id;
 
@@ -28,17 +30,13 @@ class BriefLA
 
     /**
      * @ORM\ManyToOne(targetEntity=LivrablesAttendus::class, inversedBy="briefLAs", cascade={"persist"})
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $livrableAttendu;
 
     /**
      * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="briefLA")
-<<<<<<< HEAD
-     * 
-=======
-     * @Groups({"brief:read"})
->>>>>>> 28dcade482d1e6fe1c44b52996d9382737e010cb
+     * @Groups({"briefbrouillons:read","briefbrouilons:read"})
      */
     private $livrables;
 

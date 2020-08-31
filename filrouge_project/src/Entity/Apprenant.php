@@ -34,7 +34,7 @@ class Apprenant extends User
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promo:write"})
+     * @Groups({"promo:write","briefgroupe:read","promo_brief:read"})
      */
     protected $id;
     

@@ -47,8 +47,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "security"="is_granted('ROLE_FORMATEUR') ",
  *              "security_message"= "Vous n'avez pas acces à cette ressource"
  *          },
- * },
- *    itemOperations={
+ *          "briefgroupe"={
+ *              "method"="GET",
+ *              "path"="formateurs/promos{idp}/groupes/{idg}/briefs",
+ *              "security"="is_granted('ROLE_FORMATEUR') ",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
  *          "briefpromo"={
  *              "method"="GET",
  *              "path"="formateurs/promos/{idp}/briefs/{idb}",
@@ -56,6 +60,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "security_message"= "Vous n'avez pas acces à cette ressource"
  *          },
  * }
+ *    
  * )  
  */
 class Brief
@@ -64,13 +69,13 @@ class Brief
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $langue;
 
@@ -91,12 +96,6 @@ class Brief
      * @Groups({"brief:read"})
      */
     private $contexte;
-
-    /**
-     * @ORM\Column(type="text")
-     * @Groups({"brief:read"})
-     */
-    private $livrablesAttendus;
 
     /**
      * @ORM\Column(type="text")
@@ -136,29 +135,31 @@ class Brief
 
     /**
      * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief", cascade={"persist"})
+     *  @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $ressources;
 
     /**
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="briefs")
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $tags;
 
     /**
      * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief", cascade={"persist"})
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $niveaux;
 
     /**
      * @ORM\ManyToOne(targetEntity=Referentiel::class)
-     * @Groups({"brief:read"})
+     * @Groups({"briefbrouillons:read","promo_brief:read"})
      */
     private $referentiel;
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, inversedBy="briefs")
+     *  @Groups({"briefbrouillons:read","promo_brief:read"})
      */
     private $groupes;
 
@@ -166,7 +167,7 @@ class Brief
 
     /**
      * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="brief", cascade={"persist"})
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $briefLAs;
 
@@ -243,17 +244,7 @@ class Brief
         return $this;
     }
 
-    public function getLivrablesAttendus(): ?string
-    {
-        return $this->livrablesAttendus;
-    }
 
-    public function setLivrablesAttendus(string $livrablesAttendus): self
-    {
-        $this->livrablesAttendus = $livrablesAttendus;
-
-        return $this;
-    }
 
     public function getModalitePedagogique(): ?string
     {

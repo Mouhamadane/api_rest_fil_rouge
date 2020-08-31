@@ -20,13 +20,13 @@ class LivrablesAttendus
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","briefbrouilons:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","briefbrouilons:read"})
      */
     private $libelle;
 

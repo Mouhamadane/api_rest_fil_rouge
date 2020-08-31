@@ -42,27 +42,22 @@ public function promoBriefs(PromosRepository $promoRepo,$id,BriefRepository $bri
      *     name=" briefbrouillons"
      * )
     */
-   /* public function briefbrouillons( $id,BriefRepository $briefrepo,FormateurRepository $formateurrepo){
+    public function briefbrouillons( $id,BriefRepository $briefrepo,FormateurRepository $formateurrepo)
+    {
         $formateur=$formateurrepo->find($id);
-        $brief=new Brief();
         $briefs=[];
         if($formateur){
             if($formateur==$this->get('security.token_storage')->getToken()->getUser()){
-
-        
                 foreach($formateur->getBriefs() as $brief){
                     if($brief->getStatut()=='brouillon'){
-                        $briefs[]=$brief;  
+                        $briefs[]=$brief; 
+                      
                     } 
                 }
-                return $this->json($briefs, Response::HTTP_OK,[],['groups'=>['briefbrouillons:read']]);
-
+                return $this->json($briefs, Response::HTTP_OK,['groups'=>['briefbrouillons:read']]);
             }
             return $this->json("vous navez pas acces a cette ressource", Response::HTTP_NOT_FOUND);
-
-        }
-      
-      
+        }  
     }
       /**
      * @Route(
@@ -71,29 +66,22 @@ public function promoBriefs(PromosRepository $promoRepo,$id,BriefRepository $bri
      *     name=" briefvalide"
      * )
     */
-/*public function briefvalide( $id,BriefRepository $briefrepo,FormateurRepository $formateurrepo){
-    $formateur=$formateurrepo->findOneBy(['id'=>$id]);
-   $brief=new Brief();
-   $briefs=[];
-    if($formateur){
-       if($formateur==$this->get('security.token_storage')->getToken()->getUser()){
-
-       
-     foreach($formateur->getBriefs() as $brief){
-            if($brief->getStatut()=='valide'){
-                $briefs[]=$brief;  
+    public function briefvalide( $id,BriefRepository $briefrepo,FormateurRepository $formateurrepo)
+    {
+        $formateur=$formateurrepo->findOneBy(['id'=>$id]);
+        $brief=new Brief();
+        $briefs=[];
+        if($formateur){
+            if($formateur==$this->get('security.token_storage')->getToken()->getUser()){
+                foreach($formateur->getBriefs() as $brief){
+                    if($brief->getStatut()=='valide'){
+                        $briefs[]=$brief;  
+                    }
+                }
+                return $this->json($briefs, Response::HTTP_OK,['groups'=>['briefbrouillons:read']]);
             }
-           
-          
-        }
- return $this->json($briefs, Response::HTTP_OK,[],['groups'=>['briefvalide:read']]);
-
-    }
-    return $this->json("inexistante", Response::HTTP_NOT_FOUND);
-
-      }
-      
-      
+            return $this->json("inexistante", Response::HTTP_NOT_FOUND);
+        }  
     }
      /**
      * @Route(
@@ -102,56 +90,52 @@ public function promoBriefs(PromosRepository $promoRepo,$id,BriefRepository $bri
      *     name="briefapprenant"
      * )
     */
-public function briefapprenant( $id,PromosRepository $promoRepo){
-    $promo=$promoRepo->findOneBy(['id'=>$id]);
-    if($promo){
-                    $briefassigne=[];
-                  
-                    $briefs=$promo->getPromoBrief();
-               
-    foreach($briefs as$promobrief ){
-       
-                 $brief=$promobrief ->getBriefs();
-                  $briefassigne[]=$brief;
-                                                
+    public function briefapprenant( $id,PromosRepository $promoRepo)
+    {
+        $promo=$promoRepo->findOneBy(['id'=>$id]);
+        if($promo){
+            $briefassigne=[];
+            $briefs=$promo->getPromoBrief();
+            foreach($briefs as$promobrief ){
+                if($promobrief->getStatut()=='assigne'){
+
+                    $brief=$promobrief ->getBrief();
+                    $briefassigne[]=$brief;
+                }                                        
+            }
+            return $this->json($briefassigne, Response::HTTP_OK,['groups'=>['promo_brief:read']]);
+        } return $this->json("inexistante", Response::HTTP_NOT_FOUND);
     }
-        return $this->json($briefassigne, Response::HTTP_OK,[],['groups'=>['promo_brief:read']]);
-        
-    
-                 } return $this->json("inexistante", Response::HTTP_NOT_FOUND);
-                }
 
     
       /**
      * @Route(
-     *     path="api/formateurs/{id}/briefs/{statut}",
+     *     path="api/formateurs/promos/{idp}/briefs/{idb}",
      *     methods={"GET"},
-     *     name=" briefbrouillons"
+     *     name=" brieformateur"
      * )
     */
-    public function briefStatut( $id,$statut,BriefRepository $briefrepo,FormateurRepository $formateurrepo){
-        $formateur=$formateurrepo->find($id);
+    public function brieformateur ($idp,$idb,BriefRepository $briefrepo,PromosRepository $promorepo)
+    {
+        $promo=$promorepo->findOneBy(["id"=>$idp]);
         $brief=new Brief();
-        $briefs=[];
-        if($formateur){
-            if($formateur==$this->get('security.token_storage')->getToken()->getUser()){
+        if($promo){
+            $brief=$briefrepo->findOneBy(["id"=>$idb]);
+            if($brief){
+                $promoBrief=$promo->getPromoBrief();
+                foreach ($promoBrief as $pb) {
 
-        
-                foreach($formateur->getBriefs() as $brief){
-                    if($brief->getStatut()==$statut){
-                        $briefs[]=$brief;  
-                    } 
+                    if($pb->getBrief()==$brief ){
+                        return $this->json($brief, Response::HTTP_OK,[],['groups'=>['briefbrouillons:read']]);
+                    }
                 
                 }
-           
-                return $this->json($briefs, Response::HTTP_OK,[],['groups'=>['briefbrouillons:read']]);
+            }   
+        }     return $this->json("vous navez pas acces a cette ressource", Response::HTTP_NOT_FOUND);
 
-            }
-            return $this->json("vous navez pas acces a cette ressource", Response::HTTP_NOT_FOUND);
-
-        }
-      
-      
     }
-    
+          
 }
+      
+    
+    

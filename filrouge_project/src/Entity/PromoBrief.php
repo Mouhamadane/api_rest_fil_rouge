@@ -2,13 +2,16 @@
 
 namespace App\Entity;
 
-use App\Repository\PromoBriefRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\PromoBriefRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=PromoBriefRepository::class)
+ * @ApiResource()
  */
 class PromoBrief
 {
@@ -21,6 +24,7 @@ class PromoBrief
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"promo_brief:read","briefgroupe:read"})
      */
     private $statut;
 
@@ -33,17 +37,20 @@ class PromoBrief
 
     /**
      * @ORM\OneToMany(targetEntity=LivrablePartiels::class, mappedBy="promoBrief")
+     *  @Groups({"briefbrouilons:read","briefgroupe:read"})
      */
     private $livrablePartiels;
 
     /**
 
      * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="promoBrief")
+     * @Groups({"promo_brief:read"})
      */
     private $promoBriefApprenants;
 
 /**
      * @ORM\ManyToOne(targetEntity=Promos::class, inversedBy="promoBrief")
+     * @Groups({"promo_brief:read","briefgroupe:read","briefbrouilons:read"})
      */
     private $promos;
 

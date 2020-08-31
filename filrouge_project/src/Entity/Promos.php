@@ -128,7 +128,8 @@ class Promos
      *      "promo:groupe:principal:read",
      *      "promo:referentiel:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "promo_brief:read"
      *      
      * })
      */
@@ -136,7 +137,7 @@ class Promos
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promo:read", "promo:write", "promo:groupe:principal:read", "promo:referentiel:read"})
+     * @Groups({"promo:read", "briefgroupe:read","promo:write","promo_brief:read", "promo:groupe:principal:read", "promo:referentiel:read"})
      */
     private $langue;
 
@@ -148,7 +149,8 @@ class Promos
      *      "promo:groupe:principal:read",
      *      "promo:referentiel:read",
      *      "promo:formateur:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *      "promo_brief:read"
      *      
      * })
      */
@@ -191,7 +193,9 @@ class Promos
      *      "promo:read",
      *      "promo:write",
      *      "promo:groupe:principal:read",
-     *      "promo:apprenant:read"
+     *      "promo:apprenant:read",
+     *       "promo:brief:read",
+     * 
      *     
      * })
      */
@@ -204,6 +208,7 @@ class Promos
      *      "promo:write",
      *      "promo:groupe:principal:read",
      *      "promo:referentiel:read"
+     *      
      *      
      * })
      * 
@@ -236,6 +241,7 @@ class Promos
 
     /**
      * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promos", cascade={"persist"})
+     *  @Groups({"promo:read"})
      */
     private $promoBrief;
     /**

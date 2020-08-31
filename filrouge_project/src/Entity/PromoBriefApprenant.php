@@ -23,11 +23,7 @@ class PromoBriefApprenant
     private $statut;
 
     /**
-<<<<<<< HEAD
      * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="promoBriefApprenants")
-=======
-     * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="promoBriefApprenants", cascade={"persist"})
->>>>>>> 28dcade482d1e6fe1c44b52996d9382737e010cb
      */
     private $apprenant;
 
