@@ -29,23 +29,10 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager)
     {
         $faker = Factory::create("fr_FR");
-        $profil = $this->repo->find(1);
-        for($i=1; $i<=10; $i++){
-            $apprenant = new Apprenant();
-            $apprenant
-                ->setNom($faker->lastName)
-                ->setPrenom($faker->firstName)
-                ->setEmail($faker->email)
-                ->setProfil($profil)
-                ->setPassword($this->pwdEncoder->encodePassword($apprenant,"Apprenant"));
-            $manager->persist($apprenant);
-        }
-        $manager->flush();
-        
-        /* $profils = ["apprenant", "admin","formateur", "cm"];
+      /*  $profils = ["apprenant", "admin","formateur", "cm"];
         foreach ($profils as $value) {
             $profil = new Profil();
-            $profil->setLibelle($value);
+            $profil->setLibelle($value)
             $manager->persist($profil);
             $manager->flush();
             for ($i=1; $i <= 2; $i++) { 
@@ -95,7 +82,7 @@ class AppFixtures extends Fixture
         }
         $manager->flush();
         $manager->persist($grptags);
-        $manager->flush();    */   
-    
+        $manager->flush();    */
     }
+    
 }

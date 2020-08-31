@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200819133210 extends AbstractMigration
+final class Version20200819141206 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -61,6 +61,7 @@ final class Version20200819133210 extends AbstractMigration
         $this->addSql('ALTER TABLE niveau ADD brief_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE niveau ADD CONSTRAINT FK_4BDFF36B757FABFF FOREIGN KEY (brief_id) REFERENCES brief (id)');
         $this->addSql('CREATE INDEX IDX_4BDFF36B757FABFF ON niveau (brief_id)');
+        $this->addSql('ALTER TABLE promos CHANGE lieu lieu VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE user ADD profil_sortie_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE user ADD CONSTRAINT FK_8D93D6496409EF73 FOREIGN KEY (profil_sortie_id) REFERENCES profil_sortie (id)');
         $this->addSql('CREATE INDEX IDX_8D93D6496409EF73 ON user (profil_sortie_id)');
@@ -100,6 +101,7 @@ final class Version20200819133210 extends AbstractMigration
         $this->addSql('DROP TABLE ressource');
         $this->addSql('DROP INDEX IDX_4BDFF36B757FABFF ON niveau');
         $this->addSql('ALTER TABLE niveau DROP brief_id');
+        $this->addSql('ALTER TABLE promos CHANGE lieu lieu VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`');
         $this->addSql('DROP INDEX IDX_8D93D6496409EF73 ON user');
         $this->addSql('ALTER TABLE user DROP profil_sortie_id');
     }

@@ -14,41 +14,54 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *      normalizationContext={"groups"={"brief:read"}},
  *      collectionOperations={
- *          "dupliquer_brief"={
- *              "method"="POST",
- *              "path"="formateurs/briefs/{id}",
- *              "security"="is_granted('ROLE_FORMATEUR')",
- *              "security_message"="Vous n'avez pas accès à cette ressource"
- *          },
- *          "ajouter_livrables"={
- *              "method"="POST",
- *              "path"="apprenants/{id}/groupes/{idg}/livrables",
- *              "security"="is_granted('ROLE_APPRENANT')",
- *              "security_message"="Vous n'avez pas accès à cette ressource"
- *          },
- *          "ajouter_brief"={
- *              "method"="POST",
+ *         "GET",
+ *          "get_brief"={
+ *              "method"="GET",
  *              "path"="formateurs/briefs",
- *              "security"="is_granted('ROLE_FORMATEUR')",
- *              "security_message"="Vous n'avez pas accès à cette ressource"
- *          }          
- *      },
- *      itemOperations={
- *          "get",
- *          "assigner_brief"={
- *              "method"="PUT",
- *              "path"="formateurs/promos/{id}/briefs/{idb}/assignation",
- *              "security"="is_granted('ROLE_FORMATEUR')",
- *              "security_message"="Vous n'avez pas accès à cette ressource"
+ *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource",
+ *              
  *          },
- *          "update_brief"={
- *              "method"="PUT",
- *              "path"="formateurs/promos/{id}/briefs/{idb}",
- *              "security"="is_granted('ROLE_FORMATEUR')",
- *              "security_message"="Vous n'avez pas accès à cette ressource"
- *          }
- *      }
- * )
+ *
+ *          " promoBriefs"={
+ *              "method"="GET",
+ *              "path"="formateurs/promos/{id}/briefs",
+ *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *          "briefapprenant"={
+ *              "method"="GET",
+ *              "path"="apprenants/promos/{id}/briefs",
+ *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')or is_granted('ROLE_APPRENANT')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *          "briefbrouillons"={
+ *              "method"="GET",
+ *              "path"="formateurs/{id}/briefs/brouillons",
+ *              "security"="is_granted('ROLE_FORMATEUR') ",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *          "briefvalide"={
+ *              "method"="GET",
+ *              "path"="formateurs/{id}/briefs/valide",
+ *              "security"="is_granted('ROLE_FORMATEUR') ",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *          "briefgroupe"={
+ *              "method"="GET",
+ *              "path"="formateurs/promos{idp}/groupes/{idg}/briefs",
+ *              "security"="is_granted('ROLE_FORMATEUR') ",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *          "briefpromo"={
+ *              "method"="GET",
+ *              "path"="formateurs/promos/{idp}/briefs/{idb}",
+ *              "security"="is_granted('ROLE_FORMATEUR') ",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ * }
+ *    
+ * )  
  */
 class Brief
 {
@@ -56,13 +69,13 @@ class Brief
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $langue;
 
@@ -88,12 +101,6 @@ class Brief
      * @ORM\Column(type="text")
      * @Groups({"brief:read"})
      */
-    private $livrablesAttendus;
-
-    /**
-     * @ORM\Column(type="text")
-     * @Groups({"brief:read"})
-     */
     private $modalitePedagogique;
 
     /**
@@ -110,6 +117,7 @@ class Brief
 
     /**
      * @ORM\Column(type="blob", nullable=true)
+     * 
      */
     private $avatar;
 
@@ -127,42 +135,46 @@ class Brief
 
     /**
      * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief", cascade={"persist"})
+     *  @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $ressources;
 
     /**
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="briefs")
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $tags;
 
     /**
      * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief", cascade={"persist"})
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $niveaux;
 
     /**
      * @ORM\ManyToOne(targetEntity=Referentiel::class)
-     * @Groups({"brief:read"})
+     * @Groups({"briefbrouillons:read","promo_brief:read"})
      */
     private $referentiel;
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, inversedBy="briefs")
+     *  @Groups({"briefbrouillons:read","promo_brief:read"})
      */
     private $groupes;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Formateur::class)
-     */
-    private $formateur;
+  
 
     /**
      * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="brief", cascade={"persist"})
-     * @Groups({"brief:read"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $briefLAs;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Formateur::class, inversedBy="briefs")
+     */
+    private $formateur;
 
     public function __construct()
     {
@@ -232,17 +244,7 @@ class Brief
         return $this;
     }
 
-    public function getLivrablesAttendus(): ?string
-    {
-        return $this->livrablesAttendus;
-    }
 
-    public function setLivrablesAttendus(string $livrablesAttendus): self
-    {
-        $this->livrablesAttendus = $livrablesAttendus;
-
-        return $this;
-    }
 
     public function getModalitePedagogique(): ?string
     {
@@ -282,7 +284,7 @@ class Brief
 
     public function getAvatar()
     {
-        return $this->avatar;
+        return base64_encode(stream_get_contents($this->avatar)) ;
     }
 
     public function setAvatar($avatar): self
@@ -447,18 +449,7 @@ class Brief
         return $this;
     }
 
-    public function getFormateur(): ?Formateur
-    {
-        return $this->formateur;
-    }
-
-    public function setFormateur(?Formateur $formateur): self
-    {
-        $this->formateur = $formateur;
-
-        return $this;
-    }
-
+   
     /**
      * @return Collection|BriefLA[]
      */
@@ -494,6 +485,18 @@ class Brief
                 $briefLA->setBrief(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getFormateur(): ?Formateur
+    {
+        return $this->formateur;
+    }
+
+    public function setFormateur(?Formateur $formateur): self
+    {
+        $this->formateur = $formateur;
 
         return $this;
     }

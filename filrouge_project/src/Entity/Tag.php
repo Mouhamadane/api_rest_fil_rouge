@@ -15,8 +15,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      attributes={
  *          "security"="is_granted('ROLE_ADMIN')",
  *          "security_message"="Vous n'avez pas accès aux tags"
+ *         
  *      },
- *      normalizationContext={"groups"={"tag:read"}},
+ *    
  *      collectionOperations={
  *          "get_tags"={
  *              "method"="GET",
@@ -45,13 +46,13 @@ class Tag
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"tag:read", "grptag:update", "brief:read"})
+     * @Groups({"tag:read", "grptag:update","briefbrouilons:read", "brief:read","briefbrouillons:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"tag:read", "grptag:read", "grptag:write", "brief:read"})
+     * @Groups({"tag:read", "grptag:read","briefbrouilons:read", "grptag:write", "brief:read","briefbrouillons:read"})
      */
     private $libelle;
 
@@ -63,7 +64,6 @@ class Tag
 
     /**
      * @ORM\ManyToMany(targetEntity=GroupeTag::class, inversedBy="tags", cascade={"persist"})
-     * @Groups({"tag:read"})
      */
     private $groupeTags;
 

@@ -25,7 +25,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *          },
  *          "add_competence"={
  *              "method"="POST",
- *              "path"="admin/competences",
+ *              "path"="admin/competences", 
  *              "security"="is_granted('ROLE_ADMIN')",
  *              "security_message"="Vous n'avez pas accès à cette ressource"
  *          }
@@ -52,29 +52,14 @@ class Competence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({
-     *      "competence:read",
-     *      "groupecompetence:read",
-     *      "groupecompetence:write",
-     *      "referentiel:read:all",
-     *      "promo:referentiel:read",
-     *      "brief:read"
-     * })
+     * @Groups({"competence:read","briefbrouillons:read", "groupecompetence:read", "groupecompetence:write", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
-     * @Groups({
-     *      "groupecompetence:read",
-     *      "groupecompetence:write",
-     *      "competence:read",
-     *      "competence:write",
-     *      "referentiel:read:all",
-     *      "promo:referentiel:read",
-     *      "brief:read"
-     * })
+     * @Groups({"groupecompetence:read","briefbrouillons:read", "groupecompetence:write","competence:read", "competence:write", "referentiel:read:all", "promo:referentiel:read"})
      */
     private $libelle;
 
@@ -207,7 +192,7 @@ class Competence
     {
         if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
             $this->statistiquesCompetences[] = $statistiquesCompetence;
-            $statistiquesCompetence->setCompetences($this);
+            $statistiquesCompetence->setCompetence($this);
         }
 
         return $this;
@@ -218,8 +203,8 @@ class Competence
         if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
             $this->statistiquesCompetences->removeElement($statistiquesCompetence);
             // set the owning side to null (unless already changed)
-            if ($statistiquesCompetence->getCompetences() === $this) {
-                $statistiquesCompetence->setCompetences(null);
+            if ($statistiquesCompetence->getCompetence() === $this) {
+                $statistiquesCompetence->setCompetence(null);
             }
         }
 
