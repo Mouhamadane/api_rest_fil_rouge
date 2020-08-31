@@ -14,7 +14,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=ReferentielRepository::class)
  * @ApiResource(
- *      normalizationContext={"groups"={"referentiel:read"}},
+ *       attributes={
+ *          "security"="is_granted('ROLE_ADMIN')",
+ *          "security_message"="Vous n'avez pas accès aux tags",
+ *           
+ *      },
  *      collectionOperations={
  *          "get_referentiels"={
  *              "method"="GET",
@@ -62,28 +66,28 @@ class Referentiel
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"referentiel:read", "promo:write", "promo:referentiel:read"})
+     * @Groups({"referentiel:read","briefbrouilons:read","promo_brief:read", "promo:write","briefbrouillons:read", "promo:referentiel:read", "brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libellé ne doit pas être vide")
-     * @Groups({"referentiel:read", "promo:referentiel:read"})
+     * @Groups({"referentiel:read", "promo:referentiel:read", "brief:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Presentation ne doit pas être vide")
-     * @Groups({"referentiel:read", "promo:referentiel:read"})
+     * @Groups({"referentiel:read","briefbrouilons:read","briefbrouillons:read", "promo:referentiel:read", "brief:read"})
      */
     private $presentation;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Critère d'admission ne doit pas être vide")
-     * @Groups({"referentiel:read", "promo:referentiel:read"})
+     * @Groups({"referentiel:read","promo_brief:read", "promo:referentiel:read"})
      */
     private $critereAdmission;
 
@@ -112,10 +116,16 @@ class Referentiel
      */
     private $promos;
 
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="refentiel")
+     */
+    private $statistiquesCompetences;
+
     public function __construct()
     {
         $this->groupeCompetences = new ArrayCollection();
         $this->promos = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -234,6 +244,37 @@ class Referentiel
             // set the owning side to null (unless already changed)
             if ($promo->getReferentiel() === $this) {
                 $promo->setReferentiel(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setReferentiel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getReferentiel() === $this) {
+                $statistiquesCompetence->setReferentiel(null);
             }
         }
 

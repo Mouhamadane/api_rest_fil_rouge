@@ -2,13 +2,66 @@
 
 namespace App\Entity;
 
-use App\Repository\BriefRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\BriefRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=BriefRepository::class)
+ * @ApiResource(
+ *      normalizationContext={"groups"={"brief:read"}},
+ *      collectionOperations={
+ *         "GET",
+ *          "get_brief"={
+ *              "method"="GET",
+ *              "path"="formateurs/briefs",
+ *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource",
+ *              
+ *          },
+ *
+ *          " promoBriefs"={
+ *              "method"="GET",
+ *              "path"="formateurs/promos/{id}/briefs",
+ *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *          "briefapprenant"={
+ *              "method"="GET",
+ *              "path"="apprenants/promos/{id}/briefs",
+ *              "security"="is_granted('ROLE_CM') or is_granted('ROLE_FORMATEUR')or is_granted('ROLE_APPRENANT')",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *          "briefbrouillons"={
+ *              "method"="GET",
+ *              "path"="formateurs/{id}/briefs/brouillons",
+ *              "security"="is_granted('ROLE_FORMATEUR') ",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *          "briefvalide"={
+ *              "method"="GET",
+ *              "path"="formateurs/{id}/briefs/valide",
+ *              "security"="is_granted('ROLE_FORMATEUR') ",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *          "briefgroupe"={
+ *              "method"="GET",
+ *              "path"="formateurs/promos{idp}/groupes/{idg}/briefs",
+ *              "security"="is_granted('ROLE_FORMATEUR') ",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ *          "briefpromo"={
+ *              "method"="GET",
+ *              "path"="formateurs/promos/{idp}/briefs/{idb}",
+ *              "security"="is_granted('ROLE_FORMATEUR') ",
+ *              "security_message"= "Vous n'avez pas acces à cette ressource"
+ *          },
+ * }
+ *    
+ * )  
  */
 class Brief
 {
@@ -16,96 +69,110 @@ class Brief
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $langue;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $contexte;
 
     /**
      * @ORM\Column(type="text")
-     */
-    private $livrablesAttendus;
-
-    /**
-     * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $modalitePedagogique;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $criterePerformance;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"brief:read"})
      */
     private $modaliteEvaluation;
 
     /**
      * @ORM\Column(type="blob", nullable=true)
+     * 
      */
     private $avatar;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"brief:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $statut;
 
     /**
-     * @ORM\ManyToMany(targetEntity=LivrablesAttendus::class, mappedBy="briefs")
-     */
-    private $livrablesAttenduses;
-
-    /**
-     * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief")
+     * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief", cascade={"persist"})
+     *  @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $ressources;
 
     /**
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="briefs")
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $tags;
 
     /**
-     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief")
+     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief", cascade={"persist"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
      */
     private $niveaux;
 
     /**
      * @ORM\ManyToOne(targetEntity=Referentiel::class)
+     * @Groups({"briefbrouillons:read","promo_brief:read"})
      */
     private $referentiel;
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, inversedBy="briefs")
+     *  @Groups({"briefbrouillons:read","promo_brief:read"})
      */
     private $groupes;
 
+  
+
     /**
-     * @ORM\ManyToOne(targetEntity=Formateur::class)
+     * @ORM\OneToMany(targetEntity=BriefLA::class, mappedBy="brief", cascade={"persist"})
+     * @Groups({"brief:read","briefbrouillons:read","promo_brief:read"})
+     */
+    private $briefLAs;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Formateur::class, inversedBy="briefs")
      */
     private $formateur;
 
@@ -116,11 +183,17 @@ class Brief
         $this->tags = new ArrayCollection();
         $this->niveaux = new ArrayCollection();
         $this->groupes = new ArrayCollection();
+        $this->briefLAs = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getLangue(): ?string
@@ -171,17 +244,7 @@ class Brief
         return $this;
     }
 
-    public function getLivrablesAttendus(): ?string
-    {
-        return $this->livrablesAttendus;
-    }
 
-    public function setLivrablesAttendus(string $livrablesAttendus): self
-    {
-        $this->livrablesAttendus = $livrablesAttendus;
-
-        return $this;
-    }
 
     public function getModalitePedagogique(): ?string
     {
@@ -221,7 +284,7 @@ class Brief
 
     public function getAvatar()
     {
-        return $this->avatar;
+        return base64_encode(stream_get_contents($this->avatar)) ;
     }
 
     public function setAvatar($avatar): self
@@ -251,34 +314,6 @@ class Brief
     public function setStatut(string $statut): self
     {
         $this->statut = $statut;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|LivrablesAttendus[]
-     */
-    public function getLivrablesAttenduses(): Collection
-    {
-        return $this->livrablesAttenduses;
-    }
-
-    public function addLivrablesAttendus(LivrablesAttendus $livrablesAttendus): self
-    {
-        if (!$this->livrablesAttenduses->contains($livrablesAttendus)) {
-            $this->livrablesAttenduses[] = $livrablesAttendus;
-            $livrablesAttendus->addBrief($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLivrablesAttendus(LivrablesAttendus $livrablesAttendus): self
-    {
-        if ($this->livrablesAttenduses->contains($livrablesAttendus)) {
-            $this->livrablesAttenduses->removeElement($livrablesAttendus);
-            $livrablesAttendus->removeBrief($this);
-        }
 
         return $this;
     }
@@ -400,10 +435,55 @@ class Brief
         return $this;
     }
 
+    public function clearGroupe()
+    {
+        return $this->groupes = new ArrayCollection();
+    }
+
     public function removeGroupe(Groupes $groupe): self
     {
         if ($this->groupes->contains($groupe)) {
             $this->groupes->removeElement($groupe);
+        }
+
+        return $this;
+    }
+
+   
+    /**
+     * @return Collection|BriefLA[]
+     */
+    public function getBriefLAs(): Collection
+    {
+        return $this->briefLAs;
+    }
+
+    public function addBriefLA(BriefLA $briefLA): self
+    {
+        if (!$this->briefLAs->contains($briefLA)) {
+            $this->briefLAs[] = $briefLA;
+            $briefLA->setBrief($this);
+        }
+
+        return $this;
+    }
+
+    public function clearBriefLAs(): self
+    {
+        if (!empty($this->briefLAs)) {
+            $this->briefLAs = new ArrayCollection();
+        }
+        return $this;
+    }
+
+    public function removeBriefLA(BriefLA $briefLA): self
+    {
+        if ($this->briefLAs->contains($briefLA)) {
+            $this->briefLAs->removeElement($briefLA);
+            // set the owning side to null (unless already changed)
+            if ($briefLA->getBrief() === $this) {
+                $briefLA->setBrief(null);
+            }
         }
 
         return $this;

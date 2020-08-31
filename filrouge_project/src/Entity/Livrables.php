@@ -2,11 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\LivrablesRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\LivrablesRepository;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=LivrablesRepository::class)
+ * @ApiResource()
  */
 class Livrables
 {
@@ -14,27 +17,35 @@ class Livrables
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read","briefbrouillons:read","briefgroupe:read","promo:referentiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read","briefgroupe:read","briefbrouillons:read"})
      */
     private $url;
 
     /**
-     * @ORM\ManyToOne(targetEntity=LivrablesAttendus::class, inversedBy="livrables")
-     */
-    private $livrablesAttendus;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="livrables")
+     * @Groups({"brief:read"})
      */
     private $apprenant;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=BriefLA::class, inversedBy="livrables")
+     */
+    private $briefLA;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId()
+    {
+        return $this->id = null;
     }
 
     public function getUrl(): ?string
@@ -49,18 +60,6 @@ class Livrables
         return $this;
     }
 
-    public function getLivrablesAttendus(): ?LivrablesAttendus
-    {
-        return $this->livrablesAttendus;
-    }
-
-    public function setLivrablesAttendus(?LivrablesAttendus $livrablesAttendus): self
-    {
-        $this->livrablesAttendus = $livrablesAttendus;
-
-        return $this;
-    }
-
     public function getApprenant(): ?Apprenant
     {
         return $this->apprenant;
@@ -69,6 +68,18 @@ class Livrables
     public function setApprenant(?Apprenant $apprenant): self
     {
         $this->apprenant = $apprenant;
+
+        return $this;
+    }
+
+    public function getBriefLA(): ?BriefLA
+    {
+        return $this->briefLA;
+    }
+
+    public function setBriefLA(?BriefLA $briefLA): self
+    {
+        $this->briefLA = $briefLA;
 
         return $this;
     }

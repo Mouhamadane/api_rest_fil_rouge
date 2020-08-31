@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Apprenant;
 use Faker\Factory;
 use App\Entity\User;
 use App\Entity\Profil;
@@ -9,6 +10,7 @@ use App\Entity\Competence;
 use App\Entity\GroupeCompetence;
 use App\Entity\GroupeTag;
 use App\Entity\Tag;
+use App\Repository\ProfilRepository;
 use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -19,7 +21,7 @@ class AppFixtures extends Fixture
     private $pwdEncoder;
     private $repo;
 
-    public function __construct(UserPasswordEncoderInterface $pwdEncoder, UserRepository $repo)
+    public function __construct(UserPasswordEncoderInterface $pwdEncoder, ProfilRepository $repo)
     {
         $this->pwdEncoder= $pwdEncoder;
         $this->repo = $repo;
@@ -44,7 +46,7 @@ class AppFixtures extends Fixture
                 $manager->persist($user);
             } 
             $manager->flush(); 
-        }    
+        }
 
         $user=$this->repo->find(3);
         $grpcompetence=new GroupeCompetence();
@@ -80,7 +82,7 @@ class AppFixtures extends Fixture
         }
         $manager->flush();
         $manager->persist($grptags);
-        $manager->flush();    */   
+        $manager->flush();    */
     }
     
 }

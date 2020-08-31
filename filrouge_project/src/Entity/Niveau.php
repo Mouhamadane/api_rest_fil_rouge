@@ -4,11 +4,14 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\NiveauRepository;
+use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=NiveauRepository::class)
+ *  @ApiResource( 
+ * )
  */
 class Niveau
 {
@@ -16,21 +19,21 @@ class Niveau
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"competence:read", "referentiel:read:all"})
+     * @Groups({"competence:read","briefgroupe:read","niveau:read","referentiel:read:all","briefbrouillons:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le libelle ne doit pas être vide")
-     * @Groups({"competence:read", "competence:write", "referentiel:read:all"})
+     * @Groups({"competence:read","briefgroupe:read","brief:read","referentiel:read:all","briefbrouillons:read"})
      */
     private $libelle;
 
-    /**
+    /*
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Critère d'évaluation ne doit pas être vide")
-     * @Groups({"competence:read", "competence:write", "referentiel:read:all"})
+     * @Groups({"competence:read", "competence:write", "referentiel:read:all","briefbrouillons:read"})
      */
     private $critereEvaluation;
 
@@ -43,6 +46,7 @@ class Niveau
 
     /**
      * @ORM\ManyToOne(targetEntity=Competence::class, inversedBy="niveaux", cascade={"persist"})
+     *  @Groups({"brief:read","briefgroupe:read","briefbrouillons:read"})
      */
     private $competence;
 

@@ -74,9 +74,9 @@ class User implements UserInterface
      *      "promo:apprenant:read",
      *      "profilsortie:read",
      *      "profilSortieSSS:read",
-     *      "profilSortieapp:read"
-     * 
-     * 
+     *      "profilSortieapp:read",
+     *      "briefpromo:read",
+     *      "briefvalide:read"
      * })
      */
     protected $email;
@@ -103,6 +103,7 @@ class User implements UserInterface
      *      "profilsortieEtudiant:read",
      *      "profilSortieSSS:read",
      *      "profilSortieapp:read"
+     *      "brief:read"
      * })
      */
     protected $nom;
@@ -120,7 +121,7 @@ class User implements UserInterface
      *      "profilsortie:read",
      *      "profilSortieSSS:read",
      *      "profilSortieapp:read"
-     * 
+     *      "brief:read"
      * })
      */
     protected $prenom;

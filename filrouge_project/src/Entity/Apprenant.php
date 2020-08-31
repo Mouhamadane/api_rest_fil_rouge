@@ -13,7 +13,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=ApprenantRepository::class)
  * @ApiResource(
- *      normalizationContext={"groups"={"user:read"}},
  *      collectionOperations={
  *          "get_apprenants"={
  *              "method"="GET",
@@ -24,7 +23,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      },
  *      itemOperations={
  *          "get_apprenant"={
- *              "normalization_context"={"groups"={"user:read","user:read:all"}},
  *              "method"="GET",
  *              "path"="/apprenants/{id}"
  *          },
@@ -37,12 +35,10 @@ class Apprenant extends User
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promo:write","profilSortieshow:read"})
-     * 
-     * 
+     * @Groups({"promo:write","profilSortieshow:read","briefgroupe:read","promo_brief:read"})
      */
     protected $id;
-
+    
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, mappedBy="apprenant")
      * @Groups({"promo:write"})
@@ -65,11 +61,23 @@ class Apprenant extends User
      */
     private $profilSortie;
 
+    /**
+     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="apprenant")
+     */
+    private $promoBriefApprenants;
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="apprenants")
+     */
+    private $statistiquesCompetences;
+
     public function __construct()
     {
         $this->groupes = new ArrayCollection();
         $this->livrables = new ArrayCollection();
         $this->livrableRendus = new ArrayCollection();
+        $this->promoBriefApprenants = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
+      
     }
 
 
@@ -172,6 +180,70 @@ class Apprenant extends User
     public function setProfilSortie(?ProfilSortie $profilSortie): self
     {
         $this->profilSortie = $profilSortie;
+
+        return $this;
+    }
+
+   
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setApprenant($this);
+        }
+
+        return $this;
+    }
+
+    
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getApprenant() === $this) {
+                $statistiquesCompetence->setApprenant(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoBriefApprenant[]
+     */
+    public function getPromoBriefApprenants(): Collection
+    {
+        return $this->promoBriefApprenants;
+    }
+
+    public function addPromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if (!$this->promoBriefApprenants->contains($promoBriefApprenant)) {
+            $this->promoBriefApprenants[] = $promoBriefApprenant;
+            $promoBriefApprenant->setApprenant($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if ($this->promoBriefApprenants->contains($promoBriefApprenant)) {
+            $this->promoBriefApprenants->removeElement($promoBriefApprenant);
+            // set the owning side to null (unless already changed)
+            if ($promoBriefApprenant->getApprenant() === $this) {
+                $promoBriefApprenant->setApprenant(null);
+            }
+        }
 
         return $this;
     }
