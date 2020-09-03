@@ -184,11 +184,6 @@ class Brief
     private $formateur;
 
     /**
-     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="brief")
-     */
-    private $promoBriefApp;
-
-    /**
      * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="brief")
      */
     private $promoBriefs;
@@ -516,37 +511,6 @@ class Brief
     public function setFormateur(?Formateur $formateur): self
     {
         $this->formateur = $formateur;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|PromoBriefApprenant[]
-     */
-    public function getPromoBriefApp(): Collection
-    {
-        return $this->promoBriefApp;
-    }
-
-    public function addPromoBriefApp(PromoBriefApprenant $promoBriefApp): self
-    {
-        if (!$this->promoBriefApp->contains($promoBriefApp)) {
-            $this->promoBriefApp[] = $promoBriefApp;
-            $promoBriefApp->setBrief($this);
-        }
-
-        return $this;
-    }
-
-    public function removePromoBriefApp(PromoBriefApprenant $promoBriefApp): self
-    {
-        if ($this->promoBriefApp->contains($promoBriefApp)) {
-            $this->promoBriefApp->removeElement($promoBriefApp);
-            // set the owning side to null (unless already changed)
-            if ($promoBriefApp->getBrief() === $this) {
-                $promoBriefApp->setBrief(null);
-            }
-        }
 
         return $this;
     }
