@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Livrables;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ApprenantRepository;
 use Doctrine\Common\Collections\Collection;
@@ -249,3 +250,4 @@ class Apprenant extends User
         return $this;
     }
 }
+

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Promos;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\PromoBriefRepository;
 use Doctrine\Common\Collections\Collection;
@@ -41,7 +42,7 @@ class PromoBrief
      */
     private $promoBriefApprenants;
 
-/**
+    /**
      * @ORM\ManyToOne(targetEntity=Promos::class, inversedBy="promoBrief")
      * @Groups({"promo_brief:read","briefgroupe:read","briefbrouilons:read"})
      */
@@ -150,8 +151,6 @@ class PromoBrief
 
         return $this;
     }
-
-   
 
     public function getPromos(): ?Promos
     {
